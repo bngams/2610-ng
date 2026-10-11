@@ -1,0 +1,589 @@
+{
+  "locations": [
+    {
+      "id": 0,
+      "name": "Acme Fresh Start Housing",
+      "city": "Chicago",
+      "state": "IL",
+      "photo": "https://angular.dev/assets/images/tutorials/common/bernard-hermant-CLKGGwIBTaY-unsplash.jpg",
+      "availableUnits": 4,
+      "wifi": true,
+      "laundry": true,
+      "price": 1250,
+      "type": "apartment",
+      "agentId": 1
+    },
+    {
+      "id": 1,
+      "name": "A113 Transitional Housing",
+      "city": "Santa Monica",
+      "state": "CA",
+      "photo": "https://angular.dev/assets/images/tutorials/common/brandon-griggs-wR11KBaB86U-unsplash.jpg",
+      "availableUnits": 0,
+      "wifi": false,
+      "laundry": true,
+      "price": 980,
+      "type": "studio",
+      "agentId": 2
+    },
+    {
+      "id": 2,
+      "name": "Warm Beds Housing Support",
+      "city": "Juneau",
+      "state": "AK",
+      "photo": "https://angular.dev/assets/images/tutorials/common/i-do-nothing-but-love-lAyXdl1-Wmc-unsplash.jpg",
+      "availableUnits": 1,
+      "wifi": false,
+      "laundry": false,
+      "price": 640,
+      "type": "house",
+      "agentId": 3
+    },
+    {
+      "id": 3,
+      "name": "Homesteady Housing",
+      "city": "Chicago",
+      "state": "IL",
+      "photo": "https://angular.dev/assets/images/tutorials/common/ian-macdonald-W8z6aiwfi1E-unsplash.jpg",
+      "availableUnits": 1,
+      "wifi": true,
+      "laundry": false,
+      "price": 1100,
+      "type": "apartment",
+      "agentId": 1
+    },
+    {
+      "id": 4,
+      "name": "Happy Homes Group",
+      "city": "Gary",
+      "state": "IN",
+      "photo": "https://angular.dev/assets/images/tutorials/common/krzysztof-hepner-978RAXoXnH4-unsplash.jpg",
+      "availableUnits": 1,
+      "wifi": true,
+      "laundry": false,
+      "price": 720,
+      "type": "studio",
+      "agentId": 1
+    },
+    {
+      "id": 5,
+      "name": "Hopeful Apartment Group",
+      "city": "Oakland",
+      "state": "CA",
+      "photo": "https://angular.dev/assets/images/tutorials/common/r-architecture-JvQ0Q5IkeMM-unsplash.jpg",
+      "availableUnits": 2,
+      "wifi": true,
+      "laundry": true,
+      "price": 1480,
+      "type": "apartment",
+      "agentId": 2
+    },
+    {
+      "id": 6,
+      "name": "Seriously Safe Towns",
+      "city": "Oakland",
+      "state": "CA",
+      "photo": "https://angular.dev/assets/images/tutorials/common/phil-hearing-IYfp2Ixe9nM-unsplash.jpg",
+      "availableUnits": 5,
+      "wifi": true,
+      "laundry": true,
+      "price": 1690,
+      "type": "house",
+      "agentId": 2
+    },
+    {
+      "id": 7,
+      "name": "Hopeful Housing Solutions",
+      "city": "Oakland",
+      "state": "CA",
+      "photo": "https://angular.dev/assets/images/tutorials/common/r-architecture-GGupkreKwxA-unsplash.jpg",
+      "availableUnits": 2,
+      "wifi": true,
+      "laundry": true,
+      "price": 1390,
+      "type": "apartment",
+      "agentId": 2
+    },
+    {
+      "id": 8,
+      "name": "Seriously Safe Towns",
+      "city": "Oakland",
+      "state": "CA",
+      "photo": "https://angular.dev/assets/images/tutorials/common/saru-robert-9rP3mxf8qWI-unsplash.jpg",
+      "availableUnits": 10,
+      "wifi": false,
+      "laundry": false,
+      "price": 890,
+      "type": "studio",
+      "agentId": 2
+    },
+    {
+      "id": 9,
+      "name": "Capital Safe Towns",
+      "city": "Portland",
+      "state": "OR",
+      "photo": "https://angular.dev/assets/images/tutorials/common/webaliser-_TPTXZd9mOo-unsplash.jpg",
+      "availableUnits": 6,
+      "wifi": true,
+      "laundry": true,
+      "price": 1540,
+      "type": "house",
+      "agentId": 4
+    }
+  ],
+  "reviews": [
+    {
+      "id": 1,
+      "locationId": 0,
+      "author": "Karim",
+      "rating": 2,
+      "text": "Très bien situé, proche des transports. Je recommande.",
+      "date": "2026-05-17"
+    },
+    {
+      "id": 2,
+      "locationId": 0,
+      "author": "Yanis",
+      "rating": 3,
+      "text": "Rapport qualité prix correct, la laverie est un vrai plus.",
+      "date": "2026-02-27"
+    },
+    {
+      "id": 3,
+      "locationId": 0,
+      "author": "Karim",
+      "rating": 5,
+      "text": "Un peu bruyant côté rue, mais les chambres donnent sur la cour.",
+      "date": "2026-01-10"
+    },
+    {
+      "id": 4,
+      "locationId": 0,
+      "author": "Karim",
+      "rating": 3,
+      "text": "Les parties communes mériteraient un coup de peinture.",
+      "date": "2026-04-26"
+    },
+    {
+      "id": 5,
+      "locationId": 0,
+      "author": "Louis",
+      "rating": 2,
+      "text": "Très bien situé, proche des transports. Je recommande.",
+      "date": "2026-09-16"
+    },
+    {
+      "id": 6,
+      "locationId": 1,
+      "author": "Zoé",
+      "rating": 5,
+      "text": "Rien à redire, on y est depuis six mois.",
+      "date": "2026-04-24"
+    },
+    {
+      "id": 7,
+      "locationId": 1,
+      "author": "Louis",
+      "rating": 4,
+      "text": "Quartier calme, voisins sympas, mais la chaudière est capricieuse.",
+      "date": "2026-01-15"
+    },
+    {
+      "id": 8,
+      "locationId": 1,
+      "author": "Adam",
+      "rating": 5,
+      "text": "Logement propre et lumineux. Le wifi coupe parfois le soir.",
+      "date": "2026-06-18"
+    },
+    {
+      "id": 9,
+      "locationId": 1,
+      "author": "Sophie",
+      "rating": 3,
+      "text": "Gestionnaire réactif, dossier traité en deux jours.",
+      "date": "2026-06-13"
+    },
+    {
+      "id": 10,
+      "locationId": 1,
+      "author": "Karim",
+      "rating": 5,
+      "text": "Rien à redire, on y est depuis six mois.",
+      "date": "2026-02-21"
+    },
+    {
+      "id": 11,
+      "locationId": 2,
+      "author": "Louis",
+      "rating": 4,
+      "text": "Rapport qualité prix correct, la laverie est un vrai plus.",
+      "date": "2026-01-24"
+    },
+    {
+      "id": 12,
+      "locationId": 2,
+      "author": "Maya",
+      "rating": 2,
+      "text": "Un peu bruyant côté rue, mais les chambres donnent sur la cour.",
+      "date": "2026-07-12"
+    },
+    {
+      "id": 13,
+      "locationId": 2,
+      "author": "Maya",
+      "rating": 4,
+      "text": "Les parties communes mériteraient un coup de peinture.",
+      "date": "2026-06-28"
+    },
+    {
+      "id": 14,
+      "locationId": 2,
+      "author": "Yanis",
+      "rating": 2,
+      "text": "Très bien situé, proche des transports. Je recommande.",
+      "date": "2026-01-17"
+    },
+    {
+      "id": 15,
+      "locationId": 3,
+      "author": "Karim",
+      "rating": 3,
+      "text": "Les parties communes mériteraient un coup de peinture.",
+      "date": "2026-02-22"
+    },
+    {
+      "id": 16,
+      "locationId": 3,
+      "author": "Camille",
+      "rating": 5,
+      "text": "Très bien situé, proche des transports. Je recommande.",
+      "date": "2026-06-15"
+    },
+    {
+      "id": 17,
+      "locationId": 3,
+      "author": "Hugo",
+      "rating": 4,
+      "text": "Rapport qualité prix correct, la laverie est un vrai plus.",
+      "date": "2026-04-18"
+    },
+    {
+      "id": 18,
+      "locationId": 3,
+      "author": "Adam",
+      "rating": 2,
+      "text": "Un peu bruyant côté rue, mais les chambres donnent sur la cour.",
+      "date": "2026-03-27"
+    },
+    {
+      "id": 19,
+      "locationId": 4,
+      "author": "Yanis",
+      "rating": 3,
+      "text": "Rapport qualité prix correct, la laverie est un vrai plus.",
+      "date": "2026-08-22"
+    },
+    {
+      "id": 20,
+      "locationId": 4,
+      "author": "Camille",
+      "rating": 3,
+      "text": "Un peu bruyant côté rue, mais les chambres donnent sur la cour.",
+      "date": "2026-06-11"
+    },
+    {
+      "id": 21,
+      "locationId": 4,
+      "author": "Yanis",
+      "rating": 2,
+      "text": "Les parties communes mériteraient un coup de peinture.",
+      "date": "2026-06-22"
+    },
+    {
+      "id": 22,
+      "locationId": 4,
+      "author": "Camille",
+      "rating": 2,
+      "text": "Très bien situé, proche des transports. Je recommande.",
+      "date": "2026-04-28"
+    },
+    {
+      "id": 23,
+      "locationId": 4,
+      "author": "Adam",
+      "rating": 4,
+      "text": "Rapport qualité prix correct, la laverie est un vrai plus.",
+      "date": "2026-04-25"
+    },
+    {
+      "id": 24,
+      "locationId": 5,
+      "author": "Zoé",
+      "rating": 5,
+      "text": "Quartier calme, voisins sympas, mais la chaudière est capricieuse.",
+      "date": "2026-03-18"
+    },
+    {
+      "id": 25,
+      "locationId": 5,
+      "author": "Sophie",
+      "rating": 3,
+      "text": "Logement propre et lumineux. Le wifi coupe parfois le soir.",
+      "date": "2026-09-27"
+    },
+    {
+      "id": 26,
+      "locationId": 5,
+      "author": "Camille",
+      "rating": 5,
+      "text": "Gestionnaire réactif, dossier traité en deux jours.",
+      "date": "2026-07-21"
+    },
+    {
+      "id": 27,
+      "locationId": 5,
+      "author": "Yanis",
+      "rating": 3,
+      "text": "Rien à redire, on y est depuis six mois.",
+      "date": "2026-09-25"
+    },
+    {
+      "id": 28,
+      "locationId": 6,
+      "author": "Léa",
+      "rating": 2,
+      "text": "Gestionnaire réactif, dossier traité en deux jours.",
+      "date": "2026-03-15"
+    },
+    {
+      "id": 29,
+      "locationId": 6,
+      "author": "Zoé",
+      "rating": 5,
+      "text": "Rien à redire, on y est depuis six mois.",
+      "date": "2026-02-22"
+    },
+    {
+      "id": 30,
+      "locationId": 6,
+      "author": "Inès",
+      "rating": 5,
+      "text": "Quartier calme, voisins sympas, mais la chaudière est capricieuse.",
+      "date": "2026-09-18"
+    },
+    {
+      "id": 31,
+      "locationId": 7,
+      "author": "Léa",
+      "rating": 2,
+      "text": "Les parties communes mériteraient un coup de peinture.",
+      "date": "2026-09-18"
+    },
+    {
+      "id": 32,
+      "locationId": 7,
+      "author": "Zoé",
+      "rating": 4,
+      "text": "Très bien situé, proche des transports. Je recommande.",
+      "date": "2026-02-19"
+    },
+    {
+      "id": 33,
+      "locationId": 7,
+      "author": "Inès",
+      "rating": 3,
+      "text": "Rapport qualité prix correct, la laverie est un vrai plus.",
+      "date": "2026-08-10"
+    },
+    {
+      "id": 34,
+      "locationId": 7,
+      "author": "Adam",
+      "rating": 4,
+      "text": "Un peu bruyant côté rue, mais les chambres donnent sur la cour.",
+      "date": "2026-09-15"
+    },
+    {
+      "id": 35,
+      "locationId": 7,
+      "author": "Maya",
+      "rating": 2,
+      "text": "Les parties communes mériteraient un coup de peinture.",
+      "date": "2026-05-26"
+    },
+    {
+      "id": 36,
+      "locationId": 8,
+      "author": "Yanis",
+      "rating": 3,
+      "text": "Gestionnaire réactif, dossier traité en deux jours.",
+      "date": "2026-06-15"
+    },
+    {
+      "id": 37,
+      "locationId": 8,
+      "author": "Maya",
+      "rating": 2,
+      "text": "Rien à redire, on y est depuis six mois.",
+      "date": "2026-06-25"
+    },
+    {
+      "id": 38,
+      "locationId": 8,
+      "author": "Léa",
+      "rating": 2,
+      "text": "Quartier calme, voisins sympas, mais la chaudière est capricieuse.",
+      "date": "2026-06-19"
+    },
+    {
+      "id": 39,
+      "locationId": 8,
+      "author": "Yanis",
+      "rating": 2,
+      "text": "Logement propre et lumineux. Le wifi coupe parfois le soir.",
+      "date": "2026-04-28"
+    },
+    {
+      "id": 40,
+      "locationId": 8,
+      "author": "Karim",
+      "rating": 2,
+      "text": "Gestionnaire réactif, dossier traité en deux jours.",
+      "date": "2026-08-12"
+    },
+    {
+      "id": 41,
+      "locationId": 9,
+      "author": "Sophie",
+      "rating": 3,
+      "text": "Très bien situé, proche des transports. Je recommande.",
+      "date": "2026-08-27"
+    },
+    {
+      "id": 42,
+      "locationId": 9,
+      "author": "Sophie",
+      "rating": 4,
+      "text": "Rapport qualité prix correct, la laverie est un vrai plus.",
+      "date": "2026-09-23"
+    },
+    {
+      "id": 43,
+      "locationId": 9,
+      "author": "Yanis",
+      "rating": 3,
+      "text": "Un peu bruyant côté rue, mais les chambres donnent sur la cour.",
+      "date": "2026-05-22"
+    },
+    {
+      "id": 44,
+      "locationId": 9,
+      "author": "Zoé",
+      "rating": 4,
+      "text": "Les parties communes mériteraient un coup de peinture.",
+      "date": "2026-08-26"
+    },
+    {
+      "id": 45,
+      "locationId": 9,
+      "author": "Nolan",
+      "rating": 2,
+      "text": "Très bien situé, proche des transports. Je recommande.",
+      "date": "2026-04-17"
+    }
+  ],
+  "agents": [
+    {
+      "id": 1,
+      "name": "Nadia Benali",
+      "phone": "+1 312 555 0101",
+      "email": "nadia@homes.example",
+      "agency": "Windy City Homes"
+    },
+    {
+      "id": 2,
+      "name": "Marcus Lee",
+      "phone": "+1 310 555 0142",
+      "email": "marcus@homes.example",
+      "agency": "Pacific Keys"
+    },
+    {
+      "id": 3,
+      "name": "Ingrid Olsen",
+      "phone": "+1 907 555 0177",
+      "email": "ingrid@homes.example",
+      "agency": "North Star Realty"
+    },
+    {
+      "id": 4,
+      "name": "Tom Okafor",
+      "phone": "+1 503 555 0199",
+      "email": "tom@homes.example",
+      "agency": "Rose City Living"
+    }
+  ],
+  "availability": [
+    {
+      "id": 0,
+      "locationId": 0,
+      "available": true,
+      "updatedAt": "2026-10-11T08:00:00Z"
+    },
+    {
+      "id": 1,
+      "locationId": 1,
+      "available": false,
+      "updatedAt": "2026-10-11T08:00:00Z"
+    },
+    {
+      "id": 2,
+      "locationId": 2,
+      "available": true,
+      "updatedAt": "2026-10-11T08:00:00Z"
+    },
+    {
+      "id": 3,
+      "locationId": 3,
+      "available": true,
+      "updatedAt": "2026-10-11T08:00:00Z"
+    },
+    {
+      "id": 4,
+      "locationId": 4,
+      "available": true,
+      "updatedAt": "2026-10-11T08:00:00Z"
+    },
+    {
+      "id": 5,
+      "locationId": 5,
+      "available": true,
+      "updatedAt": "2026-10-11T08:00:00Z"
+    },
+    {
+      "id": 6,
+      "locationId": 6,
+      "available": true,
+      "updatedAt": "2026-10-11T08:00:00Z"
+    },
+    {
+      "id": 7,
+      "locationId": 7,
+      "available": true,
+      "updatedAt": "2026-10-11T08:00:00Z"
+    },
+    {
+      "id": 8,
+      "locationId": 8,
+      "available": true,
+      "updatedAt": "2026-10-11T08:00:00Z"
+    },
+    {
+      "id": 9,
+      "locationId": 9,
+      "available": true,
+      "updatedAt": "2026-10-11T08:00:00Z"
+    }
+  ],
+  "bookings": []
+}
