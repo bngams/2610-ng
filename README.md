@@ -2,6 +2,9 @@
 
 Supports et cas pratiques. Deux parcours (**Init** et **Avancé**) autour d'un socle commun.
 
+🌐 Version en ligne de la synthèse : **https://bngams.github.io/2610-ng/00-intro-syntax-recap/**
+(et le [repère v20](https://bngams.github.io/2610-ng/00-intro-syntax-recap/repere-v20.html)).
+
 ## Jour 1 — syntaxes modernes et signals
 
 | | Support | Pour qui |
