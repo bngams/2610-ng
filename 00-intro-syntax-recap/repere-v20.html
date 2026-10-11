@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Repère de version — Angular 20 vs 22</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f8fafc;--s1:#fff;--s2:#eef2f6;--tx:#0f172a;--tx2:#475569;--mu:#64748b;--bd:#e2e8f0;--bd2:#cbd5e1;--brand:#d9472b;--acc:#c2391f;--soft:#ffe4dc;--softfg:#b33a1f;--ok:#047857;--okbg:#ecfdf5;--ko:#be123c;--kobg:#fff1f2;--warnfg:#92400e;--warnbg:#fef3c7;--bar:#0f172a;--barfg:#e2e8f0;--u:#fb8f6f;--infobg:#f1f5f9;--mono:'JetBrains Mono',ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}
+body{font:15px/1.55 Inter,system-ui,sans-serif;color:var(--tx);background:var(--bg);margin:0;padding:0 0 60px}
+.bar{background:var(--bar);color:var(--barfg);padding:12px 24px;display:flex;align-items:center;gap:12px;font-size:13px}
+.bar .wm{font-weight:800;letter-spacing:-.02em;font-size:15px}.bar .wm .u{color:var(--u)}.bar .r{margin-left:auto;color:#94a3b8}
+.bar a{color:#e2e8f0;text-decoration:none}
+.wrap{max-width:1000px;margin:0 auto;padding:28px 24px 0}
+h1{font-size:1.8rem;font-weight:800;letter-spacing:-.02em;margin:0 0 .25rem}
+h2{font-size:1.15rem;font-weight:800;margin:1.6rem 0 .5rem}
+.lead{color:var(--tx2);margin:0 0 1rem}
+a{color:var(--acc)}
+code{font-family:var(--mono);font-size:.86em;background:var(--s2);padding:.1em .3em;border-radius:4px}
+table{border-collapse:collapse;width:100%;background:var(--s1);border:1px solid var(--bd);border-radius:8px;overflow:hidden;font-size:.93rem}
+th,td{border-bottom:1px solid var(--bd);padding:7px 10px;text-align:left;vertical-align:top}
+th{font-size:12px;color:var(--tx2);font-weight:600;background:var(--bg)}
+.tag{display:inline-block;font:600 11px var(--mono);padding:1px 7px;border-radius:4px;white-space:nowrap}
+.ok{background:var(--okbg);color:var(--ok)}.exp{background:var(--warnbg);color:var(--warnfg)}.ko{background:var(--kobg);color:var(--ko)}.pre{background:var(--s2);color:var(--tx2)}
+.band{background:var(--infobg);border-left:3px solid var(--brand);padding:9px 14px;border-radius:0 8px 8px 0;margin:1rem 0;font-size:.95rem}
+.band strong{display:block;font:600 10.5px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--softfg);margin-bottom:3px}
+footer{color:var(--mu);font-size:.88rem;margin:40px 0 0;border-top:1px solid var(--bd);padding-top:12px}
+@media print{.bar{display:none}body{background:#fff}.wrap{max-width:none;padding:0 8mm}.tag{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<div class="bar"><span class="wm">Angular 22 <span class="u">_</span> repère v20</span><span class="r"><a href="index.html">← la synthèse</a></span></div>
+<div class="wrap">
+<h1>Repère de version : ce qu'on voit en v22, ce que vous avez en v20</h1>
+<p class="lead">La formation se fait en <strong>Angular 22</strong>. Si votre projet est en <strong>Angular 20</strong>, ce tableau dit, pour chaque
+API rencontrée, si vous pouvez l'utiliser telle quelle, avec précaution, ou pas encore.</p>
+
+<p>
+<span class="tag ok">stable</span> utilisable en production &nbsp;
+<span class="tag exp">expérimental / preview</span> l'API peut changer, à encadrer &nbsp;
+<span class="tag ko">absent</span> n'existe pas en v20 &nbsp;
+<span class="tag pre">défaut différent</span> existe, mais le réglage par défaut a changé
+</p>
+
+<h2>Composants et templates</h2>
+<table>
+<tr><th>API</th><th>Angular 20</th><th>Angular 22</th><th>Sur votre projet v20</th></tr>
+<tr><td>standalone par défaut, <code>imports: []</code></td><td><span class="tag ok">stable</span></td><td><span class="tag ok">stable</span></td><td>identique ; <code>standalone: true</code> n'est plus nécessaire depuis la v19</td></tr>
+<tr><td><code>@if</code> / <code>@for</code> / <code>@switch</code> / <code>@defer</code></td><td><span class="tag ok">stable</span></td><td><span class="tag ok">stable</span></td><td>identique ; migration automatique depuis <code>*ngIf</code> : <code>ng g @angular/core:control-flow</code></td></tr>
+<tr><td><code>input()</code>, <code>output()</code>, <code>model()</code>, <code>viewChild()</code></td><td><span class="tag ok">stable</span></td><td><span class="tag ok">stable</span></td><td>identique</td></tr>
+<tr><td><code>inject()</code></td><td><span class="tag ok">stable</span></td><td><span class="tag ok">stable</span></td><td>identique</td></tr>
+<tr><td>Nommage généré par la CLI (<code>app.ts</code>, classe <code>App</code>, sans suffixe <code>Component</code>)</td><td><span class="tag pre">défaut différent</span></td><td><span class="tag ok">défaut</span></td><td>la v20 a introduit ce nommage ; vos fichiers existants gardent leur suffixe, les deux cohabitent</td></tr>
+</table>
+
+<h2>Réactivité</h2>
+<table>
+<tr><th>API</th><th>Angular 20</th><th>Angular 22</th><th>Sur votre projet v20</th></tr>
+<tr><td><code>signal()</code>, <code>computed()</code></td><td><span class="tag ok">stable</span></td><td><span class="tag ok">stable</span></td><td>identique</td></tr>
+<tr><td><code>effect()</code>, <code>linkedSignal()</code></td><td><span class="tag ok">stable</span> (promus en v20)</td><td><span class="tag ok">stable</span></td><td>identique</td></tr>
+<tr><td><code>toSignal()</code>, <code>toObservable()</code></td><td><span class="tag ok">stable</span> (promus en v20)</td><td><span class="tag ok">stable</span></td><td>identique ; c'est votre pont RxJS ⇄ signals</td></tr>
+<tr><td><code>afterRenderEffect()</code>, <code>afterNextRender()</code>, <code>afterEveryRender()</code></td><td><span class="tag ok">stable</span> (promus en v20)</td><td><span class="tag ok">stable</span></td><td>identique</td></tr>
+<tr><td><code>resource()</code>, <code>rxResource()</code></td><td><span class="tag exp">expérimental</span></td><td><span class="tag ok">stable</span></td><td>utilisable, mais signature susceptible de changer ; variante sûre : <code>toSignal(obs$)</code></td></tr>
+<tr><td><code>httpResource()</code></td><td><span class="tag exp">expérimental</span></td><td><span class="tag ok">stable</span></td><td>idem ; <code>HttpClient</code> + <code>toSignal</code> en attendant</td></tr>
+<tr><td>Zoneless (sans Zone.js)</td><td><span class="tag exp">developer preview</span></td><td><span class="tag pre">défaut</span></td><td>activable avec <code>provideZonelessChangeDetection()</code>, à tester sur votre app</td></tr>
+</table>
+
+<h2>Formulaires, HTTP, routing</h2>
+<table>
+<tr><th>API</th><th>Angular 20</th><th>Angular 22</th><th>Sur votre projet v20</th></tr>
+<tr><td>Template-driven (<code>ngModel</code>) et Reactive Forms</td><td><span class="tag ok">stable</span></td><td><span class="tag ok">stable</span></td><td>identique</td></tr>
+<tr><td>Signal Forms (<code>@angular/forms/signals</code>)</td><td><span class="tag ko">absent</span></td><td><span class="tag ok">stable</span></td><td>pas disponible ; Reactive Forms + <code>toSignal(valueChanges)</code></td></tr>
+<tr><td>Intercepteurs fonctionnels, <code>provideHttpClient()</code></td><td><span class="tag ok">stable</span></td><td><span class="tag ok">stable</span></td><td>identique</td></tr>
+<tr><td><code>provideRouter</code>, <code>loadComponent</code>, <code>withComponentInputBinding</code></td><td><span class="tag ok">stable</span></td><td><span class="tag ok">stable</span></td><td>identique</td></tr>
+</table>
+
+<h2>Outillage et tests</h2>
+<table>
+<tr><th>Sujet</th><th>Angular 20</th><th>Angular 22</th><th>Sur votre projet v20</th></tr>
+<tr><td>Runner de tests par défaut</td><td>Karma (Vitest <span class="tag exp">expérimental</span> via <code>@angular/build:unit-test</code>)</td><td>Vitest</td><td>vous êtes en Jest : le code <code>TestBed</code> est le même, seuls <code>jest.fn</code> / <code>vi.fn</code> et les timers diffèrent</td></tr>
+<tr><td><code>fakeAsync</code> / <code>tick</code></td><td><span class="tag ok">disponible</span> (Zone.js)</td><td>indisponible en zoneless</td><td>gardez-les ; en zoneless on passe par <code>await fixture.whenStable()</code> et les fake timers du runner</td></tr>
+<tr><td>Flush des <code>effect()</code> dans un test</td><td><code>TestBed.tick()</code></td><td><code>TestBed.tick()</code></td><td>identique (<code>flushEffects()</code> est déprécié)</td></tr>
+<tr><td>Node.js minimum</td><td>20.19 / 22.12</td><td>22.22.3 / 24.15</td><td>la CLI 22 refuse un Node trop ancien : <code>nvm use 24</code></td></tr>
+</table>
+
+<div class="band"><strong>En une phrase</strong>
+Tout ce qui est vu le matin (signals, <code>linkedSignal</code>, <code>effect</code>, <code>@defer</code>, <code>input</code>/<code>output</code>, <code>inject</code>)
+est utilisable tel quel en v20. L'écart apparaît l'après-midi avec <code>resource</code>, et en J2 avec les Signal Forms.</div>
+
+<p><small>Vérifié sur le <a href="https://github.com/angular/angular/blob/main/CHANGELOG.md">changelog Angular</a> et
+<a href="https://angular.dev/reference/versions">angular.dev/reference/versions</a>. Si une ligne vous semble fausse pour votre version exacte
+(20.0 vs 20.3), c'est le changelog qui tranche.</small></p>
+
+<footer>Formation AELION, Angular 22. Retour à la <a href="index.html">synthèse</a>.</footer>
+</div>
+</body>
+</html>

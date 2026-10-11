@@ -1,0 +1,24 @@
+/* Styles du lab Intro : volontairement simples, pour se concentrer sur Angular. */
+:root { font-family: Inter, system-ui, sans-serif; color: #0f172a; background: #f8fafc; }
+body { margin: 0; padding: 24px; max-width: 960px; margin-inline: auto; }
+h1 { font-size: 1.6rem; margin: 0 0 4px; }
+h2 { font-size: 1.1rem; margin: 24px 0 8px; }
+.muted { color: #64748b; font-size: .9rem; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; }
+.card.selected { border-color: #d9472b; box-shadow: 0 0 0 2px #ffe4dc; }
+.card h3 { margin: 0 0 6px; font-size: 1rem; }
+.card .meta { color: #475569; font-size: .88rem; margin-bottom: 10px; }
+.badge { display: inline-block; font-size: .75rem; padding: 1px 7px; border-radius: 99px; background: #eef2f6; color: #475569; }
+.badge.complet { background: #fff1f2; color: #be123c; }
+button { font: inherit; padding: 6px 12px; border-radius: 7px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer; }
+button.primary { background: #c2391f; color: #fff; border-color: #c2391f; }
+button:disabled { opacity: .5; cursor: not-allowed; }
+.toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
+.toolbar label { display: flex; gap: 6px; align-items: center; font-size: .9rem; }
+select, input[type=text] { font: inherit; padding: 5px 8px; border-radius: 6px; border: 1px solid #cbd5e1; }
+.panier { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 12px 16px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.panier strong { color: #fb8f6f; }
+.avis { margin-top: 10px; border-top: 1px dashed #e2e8f0; padding-top: 8px; font-size: .88rem; }
+.avis .note { color: #b45309; }
+.placeholder { color: #94a3b8; font-size: .85rem; font-style: italic; }

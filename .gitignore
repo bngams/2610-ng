@@ -1,0 +1,6 @@
+Archives/
+kitchen/
+.DS_Store
+node_modules/
+dist/
+.angular/

@@ -1,0 +1,13 @@
+import { Component } from '@angular/core';
+import { FormationList } from './formations/formation-list';
+
+@Component({
+  selector: 'app-root',
+  imports: [FormationList],
+  template: `
+    <h1>Catalogue de formations</h1>
+    <p class="muted">Lab Intro, parcours Avancé : solution (A1 à A8).</p>
+    <app-formation-list />
+  `,
+})
+export class App {}
