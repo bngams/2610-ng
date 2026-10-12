@@ -115,10 +115,9 @@ sur chaque fichier ; les étapes 5, 7 et 8 passent aux codes à trous (`// TODO`
 chaque morceau) parce que vous avez déjà fait ces gestes ce matin ; les étapes 9 à 12 et 14 redeviennent guidées (l'étape 13 garde un petit code à trous) parce que les notions sont nouvelles (services, routes, formulaires, HTTP). Si vous êtes à
 l'aise, sautez les blocs de code et travaillez à partir des liens de doc.
 
-### 🗣️ Trois débriefs collectifs
+### 🗣️ Débriefs collectifs, ou points à noter
 
-Le formateur propose un point de 10 minutes à trois moments ; si vous y arrivez avant les autres,
-relisez votre code en attendant ou avancez sur l'étape suivante :
+Trois moments pour comparer et poser des questions :
 
 | Après | On compare | Question à se poser |
 |---|---|---|
