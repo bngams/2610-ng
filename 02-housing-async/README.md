@@ -10,8 +10,8 @@
 > c'est la **grille de décision** « quand RxJS, quand signals, où on fait le pont » que vous
 > remplissez au fil des scénarios et qu'on met en commun au débrief final (voir [GRILLE.md](GRILLE.md)). Le dossier `solution/` contient
 > le projet complet, les six scénarios des deux côtés : à ne regarder qu'en cas de blocage, ou
-> pour comparer avec la vôtre une fois terminé (à une exception près, S5, où lire la solution fait
-> partie de l'exercice).
+> pour comparer avec la vôtre une fois terminé. Il y a une exception : pour le suivi de
+> disponibilité (étape 05), lire la solution fait partie de l'exercice.
 
 > **Niveau : confirmé.** Ce lab suppose que vous codez en Angular (v20) au quotidien, avec RxJS,
 > et que vous avez suivi la matinée (`signal`, `computed`, `effect`) et l'intro de ce matin
@@ -19,7 +19,7 @@
 > pas : chaque scénario donne les **contraintes**, des **indices**, l'**API à utiliser** et des
 > liens de doc. À vous de construire. Les API qui ne sont pas dans la matinée (`httpResource`,
 > `rxResource`, `input.required`, `toObservable`) sont présentées dans la section « Le format »,
-> juste avant S1, et rappelées au moment où vous en avez besoin.
+> juste avant les étapes, et rappelées au moment où vous en avez besoin.
 
 Tout le lab tourne en **Angular 22**. Sur votre projet v20, `resource`, `httpResource` et
 `rxResource` sont encore expérimentaux : la grille le note, et la variante sûre est
@@ -63,10 +63,11 @@ homes/                                 <- votre projet (ou une copie de 02-housi
     └── housing-location/…             <- la carte (ne change pas)
 ```
 
-Ce que vous ne devez pas réécrire, le dossier `assets/` (à côté de ce README, **pas** dans votre
-projet) vous le donne. Chaque fichier est copié au moment où une section le demande ; les commandes
-`cp` du lab supposent que votre projet `homes/` est **à côté** du dossier `02-housing-async/` (voir
-la mise en place) :
+Ce que vous n'avez pas à réécrire vous-même, le dossier `assets/` vous le donne. Il se trouve à
+côté de ce README, **pas** dans votre projet. Chaque fichier est copié au moment où une section le
+demande ; les commandes `cp` du lab supposent que votre projet `homes/` est **à côté** du dossier
+`02-housing-async/` (voir la mise en place). Voici ce que contient `assets/`, et l'étape qui
+utilise chaque fichier :
 
 ```
 assets/
@@ -80,8 +81,8 @@ assets/
 └── scenarios.css                      <- la mise en page des pages de scénario                  (section « Comment une expérience est construite » de l'[étape S1](ETAPES/01-RECHERCHE.md))
 ```
 
-Et voici l'arborescence que vous aurez à la fin : c'est une vision finale, chaque dossier de
-scénario est créé par la section qui lui correspond.
+Pour vous repérer, voici l'arborescence que vous aurez à la fin du lab. C'est une vision finale,
+pas un point de départ : chaque dossier d'expérience est créé par l'étape qui lui correspond.
 
 ```
 homes/
@@ -107,8 +108,8 @@ homes/
             └── s6-filters/            <- + filters.ts (la fonction pure, donnée)
 ```
 
-Il n'y a pas de dossier `s3-*` : S3 se joue dans les composants de S2, en changeant un réglage du
-chaos.
+Il n'y a pas de dossier `s3-*` : l'erreur partielle sur les avis (étape 03) se joue dans les
+composants de la fiche détail, en changeant un réglage du chaos.
 
 ---
 
@@ -116,8 +117,11 @@ chaos.
 
 Angular 22 exige **Node 24.15+** (ou 22.22.3+, voir la
 [matrice des versions](https://angular.dev/reference/versions)) : en dessous, la CLI s'arrête sur
-« Please update your Node.js version ». Vous aurez besoin de **trois terminaux** : un pour l'API, un pour l'app,
-un pour les commandes (`curl`, `npm run api:reset`).
+« Please update your Node.js version ». Vous aurez aussi besoin de **trois terminaux** : un pour
+l'API, un pour l'app, et un pour les commandes (`curl`, `npm run api:reset`).
+
+Vérifiez d'abord la version de Node, placez le projet à côté du dossier du lab, puis lancez l'API
+et l'application, chacune dans son terminal :
 
 ```bash
 nvm use 24            # ou nvm install 24 si besoin ; à refaire dans chaque terminal
@@ -145,27 +149,29 @@ npm start
 
 ## 🔁 Le format : deux fois, puis comparer
 
-Pour chaque scénario, le déroulé est le même :
+Chaque expérience suit le même déroulé, en trois temps :
 
 1. **Côté RxJS**, le code est **donné** : copiez-le, lisez le tableau qui explique chaque
    opérateur, faites-le tourner et observez le log. Contrainte que ce code respecte : **aucun
-   `subscribe()` manuel pour un état**, la sortie passe par `toSignal` ; les deux exceptions (un
-   événement, S4 ; un tick, S5) sont nommées.
+   `subscribe()` manuel pour un état**, la sortie passe par `toSignal`. Les deux exceptions sont
+   nommées là où elles apparaissent : un événement dans la réservation, un tick dans le suivi de
+   disponibilité.
 2. **Côté signals**, le code est **à écrire** : `httpResource` / `rxResource` / `computed`, à partir
-   des contraintes, des indices et des liens de doc. Quand le scénario n'a pas d'équivalent propre,
+   des contraintes, des indices et des liens de doc. Quand l'expérience n'a pas d'équivalent propre,
    le but est justement de le constater, pas de forcer.
 3. **Vérifier** le critère de réussite (log chaos + onglet Réseau), puis **remplir** la ligne
    correspondante de [GRILLE.md](GRILLE.md) : trois mots par case suffisent, l'important est d'être
-   capable de le justifier à l'oral. Le bloc « Ce qu'on retient » de chaque scénario est replié :
+   capable de le justifier à l'oral. Le bloc « Ce qu'on retient » de chaque étape est replié :
    ouvrez-le après avoir rempli la grille, pas avant.
 
-Quatre API qui ne sont pas dans la matinée, et que vous utiliserez partout :
+Quatre API reviennent dans presque toutes les étapes sans avoir été vues dans la matinée. Le
+tableau suivant résume ce qu'il faut en savoir avant de commencer :
 
 | API | Ce qu'il faut savoir | Doc |
 |---|---|---|
 | `httpResource(() => url \| requête \| undefined)` | le `resource` de `HttpClient` : sa **fonction de requête** (l'équivalent des `params` de `resource`) renvoie une URL, un objet `{ url, params, method, body }`, ou `undefined` pour rester `idle` ; elle relance et annule quand ses signals changent ; expose `value()`, `isLoading()`, `error()`, `hasValue()`, `status()`, `reload()` ; attention, `value()` **lève** si la resource est en erreur, testez `hasValue()` avant. Elle prend une URL, pas un Observable : dupliquez l'URL depuis `housing.service.ts`. | [httpResource](https://angular.dev/guide/http/http-resource) |
-| `rxResource({ params, stream })` | le même `resource`, mais nourri par un Observable : c'est la forme à prendre pour réutiliser les méthodes de `HousingService`, ou pour un `stream` qui émet plusieurs fois (S5) | [rxResource](https://angular.dev/api/core/rxjs-interop/rxResource) |
-| `locationId = input.required<number>()` | les composants S2, S4, S5 reçoivent l'id ainsi. Piège : `toSignal` s'abonne **à la construction**, et un `startWith` ou un `of` émet **tout de suite** ; lire `this.locationId()` à ce moment-là lève `NG0950`. Partez de `toObservable(this.locationId)`, qui n'émet qu'une fois l'input disponible (détail en fin de lab, piège 3). | [NG0950](https://angular.dev/errors/NG0950) |
+| `rxResource({ params, stream })` | le même `resource`, mais nourri par un Observable : c'est la forme à prendre pour réutiliser les méthodes de `HousingService`, ou pour un `stream` qui émet plusieurs fois (le suivi de disponibilité) | [rxResource](https://angular.dev/api/core/rxjs-interop/rxResource) |
+| `locationId = input.required<number>()` | les composants de la fiche détail, de la réservation et du suivi de disponibilité reçoivent l'id ainsi. Piège : `toSignal` s'abonne **à la construction**, et un `startWith` ou un `of` émet **tout de suite** ; lire `this.locationId()` à ce moment-là lève `NG0950`. Partez de `toObservable(this.locationId)`, qui n'émet qu'une fois l'input disponible (détail dans l'étape bonus, piège 3). | [NG0950](https://angular.dev/errors/NG0950) |
 | `toSignal` / `toObservable` | le pont. `toObservable` émet de façon asynchrone ; `toSignal(obs$, { initialValue })` évite un `undefined` de départ | [rxjs-interop](https://angular.dev/ecosystem/rxjs-interop) |
 
 > 📖 [`resource`, le guide](https://angular.dev/guide/signals/resource)
@@ -174,8 +180,9 @@ Quatre API qui ne sont pas dans la matinée, et que vous utiliserez partout :
 
 ## 🗂️ Les étapes
 
-Une page par expérience, à faire dans l'ordre : l'étape 0 prépare le projet, S1 montre comment une
-expérience se construit, S2 à S6 réutilisent le même geste.
+Chaque expérience a sa page, à faire dans l'ordre. L'étape 0 prépare le projet, l'étape 01 montre
+comment une expérience se construit, et les étapes 02 à 06 réutilisent le même geste. Le tableau
+suivant résume, pour chaque étape, ce que vous faites et ce qu'on attend côté signals :
 
 | Étape | Ce que vous faites | Côté signals |
 |---|---|---|
@@ -183,18 +190,19 @@ expérience se construit, S2 à S6 réutilisent le même geste.
 | [01 — Recherche : anti-rebond et annulation](ETAPES/01-RECHERCHE.md) | construire une expérience (route, page, bascule), puis `debounceTime` + `switchMap` | `httpResource` + le pont pour le debounce |
 | [02 — Détail : trois appels en parallèle](ETAPES/02-DETAIL-PARALLELE.md) | `forkJoin` | 3 resources + `computed` |
 | [03 — Détail : un appel sur trois échoue](ETAPES/03-DETAIL-ERREUR.md) | `catchError` par flux | `error()` + `reload()` |
-| [04 — Réserver : clics rapides](ETAPES/04-RESERVER.md) | `switchMap` / `concatMap` / `exhaustMap` | `rxResource` et une garde sur `isLoading()` |
+| [04 — Réserver : clics rapides](ETAPES/04-RESERVER.md) | `switchMap` / `concatMap` / `exhaustMap` | `rxResource` (version A) et une garde `pending` (version B) |
 | [05 — Disponibilité : polling](ETAPES/05-DISPONIBILITE.md) | `timer` + `switchMap` + `takeUntilDestroyed` | essayez, constatez, puis lisez la solution |
 | [06 — Filtres : dérivation synchrone](ETAPES/06-FILTRES.md) | `combineLatest` | `computed`, sans requête |
 | [07 — Bonus : trois pièges RxJS](ETAPES/07-BONUS.md) (facultatif) | subscribe imbriqué, input muté, `input.required` lu trop tôt | — |
 
 ## 🗣️ Débrief final : la grille de décision
 
-On termine tous ensemble sur la grille, remplie au fil des expériences. Ouvrez [GRILLE.md](GRILLE.md). Sept lignes (une situation par ligne), trois colonnes à remplir
-(RxJS, Signals, Pont) plus une colonne « Vu dans » déjà renseignée. Chaque case : quelques mots,
-de quoi tenir trente secondes à l'oral. La ligne « formulaire => état » n'est couverte que côté
-RxJS par S1 et S6 (`valueChanges`) : remplissez la colonne Signals avec ce que vous savez, on la
-reprend avec les Signal Forms.
+On termine tous ensemble sur la grille, remplie au fil des expériences. Ouvrez
+[GRILLE.md](GRILLE.md) : elle compte sept lignes (une situation par ligne), trois colonnes à
+remplir (RxJS, Signals, Pont) et une colonne « Vu dans » déjà renseignée. Dans chaque case,
+quelques mots suffisent, de quoi tenir trente secondes à l'oral. La ligne « formulaire => état »
+n'est couverte que côté RxJS, par la recherche et les filtres (`valueChanges`) : remplissez la
+colonne Signals avec ce que vous savez, on la reprend avec les Signal Forms.
 
 Au débrief, chacun présente une ligne de la grille, puis on la confronte à un cas **de votre
 projet** (apportez-en un) : RxJS, signals, ou pont, et où, en trente secondes.
@@ -206,10 +214,12 @@ Une version attendue est dans `solution/GRILLE-corrigee.md`, à ouvrir après av
 ## Récap
 
 - **Signals pour l'état et la dérivation** : `computed` remplace `combineLatest` + `map` dès que
-  tout est synchrone (S6) ; `httpResource` remplace `switchMap(http)` + `toSignal` pour « une
-  requête qui dépend d'un état » (S1, S2), avec annulation et statut d'erreur local (S3).
-- **RxJS pour le temps et l'orchestration** : anti-rebond (S1), file ou garde sur des événements
-  (S4), polling et tout ce qui a un `timer` dedans (S5). Un `resource` n'est pas un bouton :
+  tout est synchrone (les filtres) ; `httpResource` remplace `switchMap(http)` + `toSignal` pour
+  « une requête qui dépend d'un état » (la recherche, la fiche détail), avec annulation et statut
+  d'erreur local (l'erreur partielle sur les avis).
+- **RxJS pour le temps et l'orchestration** : anti-rebond (la recherche), file ou garde sur des
+  événements (la réservation), polling et tout ce qui a un `timer` dedans (le suivi de
+  disponibilité). Un `resource` n'est pas un bouton :
   pour une mutation, c'est `exhaustMap` ou une garde `pending`.
 - **Le pont vit dans le composant** : `toSignal(obs$)` en sortie, `toObservable(sig)` pour
   injecter un signal dans un pipe, `rxResource` quand un flux doit nourrir une resource.

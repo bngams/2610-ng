@@ -1,10 +1,13 @@
 # 🧩 S2 — Détail : trois appels en parallèle
 
-**Contexte.** La page d'un logement (`/s2/:id`) a besoin de trois choses : le logement, ses avis,
-et son agent. Le logement et les avis ne dépendent que de l'`id` ; l'agent dépend du logement
-(`location.agentId`). Vous voulez tout lancer au plus tôt. Pour ce scénario, la règle
-`/\/api\/reviews/` de `chaos.config.ts` reste à `errorRate: 0` (c'est la valeur fournie) ; S3 la
-passera à `0.5`.
+**Contexte.** La fiche d'un logement (`/s2/:id`) a besoin de trois choses : le logement, ses
+avis, et son agent. Le logement et les avis ne dépendent que de l'`id`, alors que l'agent dépend
+du logement (`location.agentId`). Vous voulez tout lancer au plus tôt.
+
+Pour cette étape, la règle `/\/api\/reviews/` de `chaos.config.ts` reste à `errorRate: 0`, la
+valeur fournie. L'étape suivante, l'erreur partielle sur les avis, la passera à `0.5`.
+
+Le tableau suivant met en regard les deux façons d'exprimer ces trois besoins :
 
 | Besoin | RxJS | Signals |
 |---|---|---|
@@ -12,18 +15,21 @@ passera à `0.5`.
 | Enchaîner un appel qui dépend d'un autre | `switchMap` à l'intérieur du flux concerné | une fonction de requête qui renvoie `undefined` tant que la dépendance n'a pas de valeur (la resource reste `idle`) |
 | Savoir que « tout est là » | c'est le comportement par défaut de `forkJoin` | un `computed` sur les `hasValue()` |
 
-**Même geste qu'en S1** pour la page, la route et le lien, avec ces noms :
+Pour la page, la route et le lien, refaites **le même geste que pour la recherche** (étape 01),
+avec les noms suivants :
 
 | Quoi | Nom |
 |---|---|
 | Dossier | `src/app/scenarios/s2-details/` |
-| Page | `s2-page.ts`, classe `S2Page`, sélecteur `app-s2-page` (la page sert à S2 et S3, d'où son titre), `<h1>S2-S3 — Détail : trois appels en parallèle, un sur trois échoue</h1>` |
+| Page | `s2-page.ts`, classe `S2Page`, sélecteur `app-s2-page` (la page sert aussi à l'étape suivante, d'où son titre), `<h1>S2-S3 — Détail : trois appels en parallèle, un sur trois échoue</h1>` |
 | Volets | `s2-rxjs.ts` (`S2Rxjs`, `app-s2-rxjs`) et `s2-signals.ts` (`S2Signals`, `app-s2-signals`) |
 | Route | `{ path: 's2/:id', component: S2Page, title: 'S2-S3 — Détail : trois appels en parallèle, un sur trois échoue' }` |
 | Lien | `<a routerLink="/s2/3" routerLinkActive="active">S2-S3 Détail</a>` |
 
-Une différence avec S1 : la page lit l'`id` de la route et le **passe** aux deux volets, qui le
-reçoivent par `input.required`. Dans `s2-page.ts` :
+Il y a une différence avec la page de la recherche : la nouvelle page lit l'`id` de la route et le
+**passe** aux deux volets, qui le reçoivent par `input.required`. Voici les lignes de `s2-page.ts`
+qui changent par rapport à `s1-page.ts` ; le reste du fichier suit le même modèle, et le volet
+signals reçoit `[locationId]="id"` de la même façon :
 
 ```ts
 import { Component, inject, signal } from '@angular/core';
@@ -37,15 +43,17 @@ export class S2Page {
 }
 ```
 
-Et dans chaque volet : `readonly locationId = input.required<number>();`. C'est ce qui rend les
-volets réutilisables sans routeur, et c'est ce qui crée le piège `NG0950` décrit dans « Le
-format » : relisez-le avant de lire le code RxJS.
+De l'autre côté, chaque volet déclare l'input qui reçoit cette valeur :
+`readonly locationId = input.required<number>();`. C'est ce qui rend les volets réutilisables
+sans routeur, et c'est aussi ce qui crée le piège `NG0950` décrit dans « Le format » du
+[README](../README.md) : relisez-le avant de lire le code RxJS.
 
 ## Côté RxJS (donné)
 
-Créez `src/app/scenarios/s2-details/s2-rxjs.ts`. Ce fichier contient déjà ce qu'il faut pour S3
-(la case à cocher `catchError par flux`, le bouton « Réessayer ») : on y revient à la section
-suivante, pour l'instant lisez le `forkJoin`.
+Le volet RxJS lance le logement et les avis ensemble avec `forkJoin`, et va chercher l'agent dès
+que le logement est là. Créez `src/app/scenarios/s2-details/s2-rxjs.ts`. Ce fichier contient déjà
+ce qu'il faut pour l'étape suivante (la case à cocher `catchError par flux`, le bouton
+« Réessayer ») : on y reviendra, pour l'instant lisez le `forkJoin`.
 
 ```ts
 import { Component, inject, input, signal } from '@angular/core';
@@ -166,12 +174,18 @@ function describe(err: unknown): string {
 
 ## Côté signals (à vous)
 
-Créez `src/app/scenarios/s2-details/s2-signals.ts`. Contraintes : trois `httpResource`,
-`location`, `reviews`, `agent` ; la fonction de requête de `agent` lit `location` (via
-`hasValue()`, jamais `value()` à sec) et renvoie `undefined` tant que le logement n'est pas là ;
-un `computed` `ready` vrai quand les trois ont une valeur ; dans le template, un bloc par
-resource qui gère son propre `isLoading()` / `error()` / `hasValue()`. Le code d'un bloc, pour
-vous donner la forme ; les deux autres sont sur le même modèle :
+Côté signals, il n'y a plus de combinateur : chaque appel devient une resource indépendante.
+Créez `src/app/scenarios/s2-details/s2-signals.ts`, en respectant ces contraintes :
+
+- trois `httpResource`, `location`, `reviews` et `agent` ;
+- la fonction de requête de `agent` lit `location` (via `hasValue()`, jamais `value()` à sec) et
+  renvoie `undefined` tant que le logement n'est pas là ;
+- un `computed` `ready`, vrai quand les trois ont une valeur ;
+- dans le template, un bloc par resource, qui gère son propre `isLoading()` / `error()` /
+  `hasValue()`.
+
+Le fichier ci-dessous vous donne le bloc du logement pour montrer la forme ; les blocs de l'agent
+et des avis sont à écrire sur le même modèle, ainsi que les quatre déclarations de la classe.
 
 🚧 **À compléter :**
 
@@ -208,10 +222,10 @@ export class S2Signals {
 }
 ```
 
-Indices : la fonction de requête est un contexte réactif, lire `this.locationId()` dedans est
-sûr (contrairement à `toSignal` + `startWith`) ; `undefined` renvoyé par la fonction de requête =
-la resource reste `idle`, aucune requête ; dès que `location` se résout, la fonction de `agent`
-est réévaluée et la requête part : c'est le `switchMap` de RxJS, exprimé en dérivation.
+Quelques indices. La fonction de requête est un contexte réactif : lire `this.locationId()`
+dedans est sûr, contrairement à `toSignal` + `startWith`. Quand elle renvoie `undefined`, la
+resource reste `idle` et aucune requête ne part. Dès que `location` se résout, la fonction de
+`agent` est réévaluée et la requête part : c'est le `switchMap` de RxJS, exprimé en dérivation.
 
 > 📖 [forkJoin](https://rxjs.dev/api/index/function/forkJoin) ·
 > [resource : params, loader, statuts](https://angular.dev/guide/signals/resource) ·

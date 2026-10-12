@@ -1,9 +1,14 @@
 # 🏁 S4 — Réserver : clics rapides
 
-**Contexte.** Un bouton « Réserver » qui fait un `POST /bookings`. L'utilisateur clique trois fois
+**Contexte.** Un bouton « Réserver » fait un `POST /bookings`, et l'utilisateur clique trois fois
 très vite. Selon l'opérateur, il se passe trois choses différentes, et une seule est acceptable
-pour un paiement. Pour que « très vite » soit atteignable à la souris, **décommentez** la règle
-`/\/api\/bookings/` (1000 à 2000 ms) dans `chaos.config.ts`.
+pour un paiement.
+
+Avec la latence par défaut, trois clics ne tombent pas toujours pendant la même requête. Pour que
+« très vite » soit atteignable à la souris, **décommentez** la règle `/\/api\/bookings/` (1000 à
+2000 ms) dans `chaos.config.ts`.
+
+Voici ce que fait chacun des trois opérateurs face à ces trois clics :
 
 | Opérateur | À chaque clic | Trois clics rapides = | Pour quoi |
 |---|---|---|---|
@@ -11,7 +16,9 @@ pour un paiement. Pour que « très vite » soit atteignable à la souris, **dé
 | `concatMap` | on **met en file**, dans l'ordre | 3 réservations, l'une après l'autre | une sauvegarde automatique, un journal |
 | `exhaustMap` | on **ignore** tant que l'appel en cours n'est pas fini | 1 réservation, 2 clics ignorés | un paiement, une double soumission |
 
-**Même geste qu'en S1 et S2** (page avec `[locationId]="id"`, route, lien) :
+Pour la page, la route et le lien, refaites **le même geste que pour la recherche et la fiche
+détail** (étapes 01 et 02) : comme pour la fiche, la page passe `[locationId]="id"` aux deux
+volets. Les noms sont les suivants :
 
 | Quoi | Nom |
 |---|---|
@@ -23,9 +30,9 @@ pour un paiement. Pour que « très vite » soit atteignable à la souris, **dé
 
 ## Côté RxJS (donné)
 
-Le **même** bouton écrit trois fois, avec un `Subject` de clics par version et un opérateur
-différent. Ici le `subscribe()` est autorisé, c'est la première des deux exceptions : un clic est
-un **événement**, pas un état. Créez
+Le volet RxJS écrit le **même** bouton trois fois, avec un `Subject` de clics par version et un
+opérateur différent. Ici, le `subscribe()` est autorisé : c'est la première des deux exceptions
+annoncées dans « Le format », car un clic est un **événement**, pas un état. Créez
 `src/app/scenarios/s4-booking/s4-rxjs.ts` :
 
 ```ts
@@ -127,11 +134,13 @@ export class S4Rxjs {
 | `takeUntilDestroyed()` puis `subscribe` | la première exception à la règle : un événement, donc un `subscribe` ; `takeUntilDestroyed` coupe le flux à la destruction du composant (sans ça, les `Subject` survivent à la page) |
 | `catchError(() => of(null))` dans `book()` | une réservation en erreur ne doit pas tuer le flux des clics suivants |
 | `this.locationId()` dans `book()` | lu au **clic**, donc bien après la construction : pas de `NG0950` ici |
-| `bookingsCount` : `combineLatest([toObservable(locationId), refresh$])` | le compteur côté serveur, relancé par « Compter » ; `toObservable(this.locationId)` parce que `startWith` émet à la construction (piège 3) |
+| `bookingsCount` : `combineLatest([toObservable(locationId), refresh$])` | le compteur côté serveur, relancé par « Compter » ; `toObservable(this.locationId)` parce que `startWith` émet à la construction (piège 3 de l'étape bonus) |
 
 ## Côté signals (à vous)
 
-Créez `src/app/scenarios/s4-booking/s4-signals.ts`, avec deux versions côte à côte :
+Côté signals, il n'existe pas d'opérateur d'aplatissement : vous allez essayer deux façons de
+réserver et comparer leur comportement aux trois opérateurs. Créez
+`src/app/scenarios/s4-booking/s4-signals.ts`, avec deux versions côte à côte :
 
 - **Version A, un `rxResource`** dont les `params` changent à chaque clic (un signal `clicksA`
   incrémenté par le bouton ; `params: () => this.clicksA() || undefined` pour rester `idle`
@@ -145,7 +154,10 @@ Créez `src/app/scenarios/s4-booking/s4-signals.ts`, avec deux versions côte à
   `book()` avec un `subscribe()` (la même exception que côté RxJS : une mutation est un événement) et
   remet `pending` à `false` dans `finalize`. Comptez `confirmedB`.
 
-Et `concatMap` ? Cherchez l'équivalent ; il n'y en a pas sans écrire une file à la main.
+Et `concatMap` ? Cherchez l'équivalent : il n'y en a pas sans écrire une file à la main.
+
+Dans le fichier ci-dessous, le template et les signals de la version B sont donnés ; à vous
+d'écrire `bookingA` et le corps de `bookB()`.
 
 🚧 **À compléter :**
 
@@ -200,12 +212,14 @@ export class S4Signals {
 ## Critère de réussite
 
 Après trois clics rapides sur chaque bouton, le compteur et le log racontent l'histoire du
-tableau, et « Compter » (`GET /bookings?locationId=3`) confirme ce que le serveur a reçu, une
-fois les trois lignes `+NNNms` du `concatMap` passées. Côté signals : la version A logue des
-`POST => annulée` (un `resource` se comporte comme `switchMap`), la version B ne compte même pas
-les clics 2 et 3 (le bouton est désactivé). Vous savez dire **quel opérateur pour une recherche,
-un paiement, une sauvegarde automatique**, et vous notez dans la grille que `resource` se comporte
-comme `switchMap`.
+tableau du début. Une fois les trois lignes `+NNNms` du `concatMap` passées, « Compter »
+(`GET /bookings?locationId=3`) confirme ce que le serveur a reçu.
+
+Côté signals, la version A logue des `POST => annulée`, car un `resource` se comporte comme
+`switchMap`. La version B ne compte même pas les clics 2 et 3, puisque le bouton est désactivé.
+
+Vous savez maintenant dire **quel opérateur pour une recherche, un paiement, une sauvegarde
+automatique**, et vous notez dans la grille que `resource` se comporte comme `switchMap`.
 
 > 💡 **Tester :** sur une base fraîche (`bookings` vide dans le seed), trois clics sur chaque
 > bouton RxJS, puis « Compter » :
@@ -220,8 +234,8 @@ comme `switchMap`.
 > et dans la console, pour `switchMap` : `POST /api/bookings => annulée` deux fois, puis
 > `POST /api/bookings +1747ms`. Côté signals, trois clics sur A : au moins un `=> annulée` ; trois
 > clics sur B : `clics : 1 — confirmées : 1`. Entre deux essais : `Ctrl-C` sur l'API,
-> `npm run api:reset`, `npm run api`. Une fois S4 terminé, vous pouvez remettre la règle
-> `/\/api\/bookings/` en commentaire.
+> `npm run api:reset`, `npm run api`. Une fois la réservation terminée, vous pouvez remettre la
+> règle `/\/api\/bookings/` en commentaire.
 
 <details>
 <summary>Ce qu'on retient</summary>

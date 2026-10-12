@@ -1,28 +1,34 @@
 # 🔎 S1 — Recherche : anti-rebond et annulation
 
-> Cette première expérience sert de modèle : la section « Comment une expérience est construite »
-> ci-dessous se fait une fois, les scénarios suivants réutilisent le même geste.
+> Cette première expérience sert de modèle. La section « Comment une expérience est construite »
+> ci-dessous ne se fait qu'une fois : les expériences suivantes réutilisent le même geste.
 
 ## 🧱 Comment une expérience est construite
 
-Chaque scénario est une **page** à part, pour ne pas toucher à l'app du tutoriel : une route
-`/sN`, un composant de page qui porte le titre, la consigne et une bascule **RxJS / Signals**, et
-deux composants, `sN-rxjs.ts` et `sN-signals.ts`, un par volet. Un seul volet est affiché à la
-fois : quand vous basculez, le composant de l'autre volet est **détruit**. C'est voulu, pour deux
-raisons : le log chaos ne montre que les requêtes d'un volet (sinon tout apparaît en double), et la
-destruction est le moyen de vérifier qu'un flux s'arrête bien (S5).
+L'application du tutoriel reste intacte : chaque expérience vit sur une **page** à part. Cette
+page tient en quatre morceaux : une route `/sN`, un composant de page qui porte le titre, la
+consigne et une bascule **RxJS / Signals**, et deux composants, `sN-rxjs.ts` et `sN-signals.ts`,
+un par volet.
 
-Pour S1, tout est montré, fichier par fichier. À partir de S2, la section vous dira « même geste
-qu'en S1 » et ne donnera que les noms.
+Un seul volet est affiché à la fois : quand vous basculez, le composant de l'autre volet est
+**détruit**. C'est voulu, pour deux raisons. D'abord, le log chaos ne montre que les requêtes du
+volet affiché, sinon tout apparaîtrait en double. Ensuite, la destruction est le moyen de vérifier
+qu'un flux s'arrête bien, ce que vous ferez avec le suivi de disponibilité (étape 05).
+
+Pour la recherche, tout est montré, fichier par fichier. Les étapes suivantes vous diront « même
+geste que pour la recherche » et ne donneront plus que les noms.
 
 ### La mise en page et la bascule
 
-Copiez la feuille de style des scénarios et déclarez-la dans `angular.json`, dans la cible
-`build` du projet, à côté de `src/styles.css` :
+Les pages d'expérience partagent une petite feuille de style, prête dans `assets/`. Depuis la
+racine de votre projet `homes`, copiez-la à côté de `src/styles.css` :
 
 ```bash
 cp ../02-housing-async/assets/scenarios.css src/scenarios.css
 ```
+
+Copier le fichier ne suffit pas : Angular ne charge que les feuilles déclarées dans `angular.json`.
+Dans la cible `build` du projet, ajoutez-la au tableau `styles`, juste après `src/styles.css` :
 
 ```json
             "styles": [
@@ -31,11 +37,12 @@ cp ../02-housing-async/assets/scenarios.css src/scenarios.css
             ]
 ```
 
-Comme pour le proxy, `angular.json` n'est pas surveillé : `Ctrl-C` puis `npm start`. Les classes
-que vous utiliserez dans les templates : `.scenario`, `.hint`, `.pane` (+ `.rxjs` / `.signals`),
-`.status`, `.error`, `.skeleton`.
+Comme pour le proxy, `angular.json` n'est pas surveillé : faites `Ctrl-C` puis `npm start` dans le
+terminal 2. Cette feuille apporte les classes que vous utiliserez dans les templates : `.scenario`,
+`.hint`, `.pane` (+ `.rxjs` / `.signals`), `.status`, `.error` et `.skeleton`.
 
-Créez le dossier `src/app/scenarios/` et dedans la bascule, `mode-toggle.ts` :
+Il manque encore la bascule entre les deux volets, un petit composant que toutes les pages
+réutiliseront. Créez le dossier `src/app/scenarios/`, puis, dedans, le fichier `mode-toggle.ts` :
 
 ```ts
 import { Component, model } from '@angular/core';
@@ -64,9 +71,11 @@ export class ModeToggle {
 | `model<Mode>('rxjs')` | un input **bidirectionnel** : la page le lie avec `[(mode)]="mode"`, et `mode.set(m)` dans la bascule remonte dans le signal de la page |
 | `[class.on]` | le bouton actif ; la classe est dans `scenarios.css` |
 
-### La page S1, la route et le lien
+### La page de la recherche, la route et le lien
 
-Créez `src/app/scenarios/s1-search/s1-page.ts` :
+La bascule existe, il faut maintenant une page pour l'accueillir. Cette page porte le titre et la
+consigne de l'expérience, et affiche l'un ou l'autre volet selon la bascule. Créez
+`src/app/scenarios/s1-search/s1-page.ts` :
 
 ```ts
 import { Component, signal } from '@angular/core';
@@ -101,9 +110,10 @@ export class S1Page {
 | Morceau | Rôle |
 |---|---|
 | `@if (mode() === 'rxjs') … @else` | un seul volet dans le DOM ; changer de mode détruit l'autre composant |
-| `imports: [ModeToggle, S1Rxjs, S1Signals]` | les deux composants de volet n'existent pas encore : c'est la section S1 ; le build sera rouge jusque-là |
+| `imports: [ModeToggle, S1Rxjs, S1Signals]` | les deux composants de volet n'existent pas encore : vous les créez dans la suite de cette étape, et le build restera rouge jusque-là |
 
-Ajoutez la route dans `src/app/app.routes.ts` (gardez les deux routes du tutoriel) :
+Une page n'est atteignable que si une route y mène. Ajoutez-la dans `src/app/app.routes.ts`, en
+gardant les deux routes du tutoriel :
 
 ```ts
 import { S1Page } from './scenarios/s1-search/s1-page';
@@ -115,8 +125,9 @@ export const routes: Routes = [
 ];
 ```
 
-Et le lien dans l'en-tête. Le `app.ts` du tutoriel enveloppe tout l'en-tête dans un `<a>` ; on le
-restructure pour y loger une barre de navigation. `src/app/app.ts`, en entier :
+Reste à rendre cette route accessible d'un clic. Le `app.ts` du tutoriel enveloppe tout l'en-tête
+dans un `<a>` vers l'accueil : il n'y a pas de place pour d'autres liens. On le restructure donc
+pour loger une barre de navigation à côté du logo. Remplacez `src/app/app.ts` en entier :
 
 ```ts
 import { Component } from '@angular/core';
@@ -147,7 +158,13 @@ export class App {
 }
 ```
 
-Et `src/app/app.css`, en entier (l'en-tête passe en `flex` pour aligner le logo et les liens) :
+Le lien vers l'accueil n'entoure plus que le logo, et le `<nav class="scenarios">` accueille les
+liens des expériences ; `routerLinkActive="active"` ajoute la classe `active` au lien de la page
+courante.
+
+Cette nouvelle structure a besoin de styles : sans eux, le logo et les liens s'empileraient. Dans
+la nouvelle version de `src/app/app.css`, l'en-tête passe en `flex` pour aligner le logo et les
+liens, et le lien actif est souligné. Remplacez le fichier en entier :
 
 ```css
 :host {
@@ -183,17 +200,21 @@ nav.scenarios a.active {
 }
 ```
 
-Les liens des scénarios suivants viendront s'ajouter dans `<nav>`, un par scénario, au moment où
-leur route existe (un `routerLink` vers une route absente lève `NG04002: Cannot match any routes`
-au clic).
+Les liens des expériences suivantes viendront s'ajouter dans `<nav>`, un par expérience, au moment
+où leur route existe : un `routerLink` vers une route absente lève `NG04002: Cannot match any
+routes` au clic.
 
 ---
 
+## 🔎 L'expérience : chercher pendant la frappe
 
-**Contexte.** Un champ texte ; à chaque frappe, on cherche côté serveur (`searchByCity`, soit
-`GET /locations?city_like=`). Deux problèmes à résoudre : ne pas envoyer une requête par lettre
-(anti-rebond), et ne jamais afficher le résultat d'une requête plus ancienne que la dernière
-saisie (annulation, « dernier gagne »).
+Le cadre est en place, passons à l'expérience elle-même. L'écran est un champ texte : à chaque
+frappe, on cherche côté serveur avec `searchByCity`, soit `GET /locations?city_like=`. Il y a deux
+problèmes à résoudre. Le premier est de ne pas envoyer une requête par lettre : c'est
+l'anti-rebond. Le second est de ne jamais afficher le résultat d'une requête plus ancienne que la
+dernière saisie : c'est l'annulation, ou « dernier gagne ».
+
+Voici comment chaque besoin s'exprime de part et d'autre :
 
 | Besoin | RxJS | Signals |
 |---|---|---|
@@ -203,7 +224,8 @@ saisie (annulation, « dernier gagne »).
 
 ## Côté RxJS (donné)
 
-Créez `src/app/scenarios/s1-search/s1-rxjs.ts` :
+Le volet RxJS est donné : il exprime les deux besoins par une chaîne d'opérateurs branchée sur le
+champ du formulaire. Créez `src/app/scenarios/s1-search/s1-rxjs.ts` :
 
 ```ts
 import { Component, inject, signal } from '@angular/core';
@@ -266,12 +288,16 @@ export class S1Rxjs {
 
 ## Côté signals (à vous)
 
-Créez `src/app/scenarios/s1-search/s1-signals.ts`. Contraintes : un signal `query` alimenté par
-`(input)` ; un `httpResource` dont la fonction de requête lit la saisie ; l'indicateur sur
-`isLoading()`, l'erreur sur `error()`, la liste sur `value()`. Le debounce **n'existe pas** dans
-`resource` : il passe par le pont, `toSignal(toObservable(query).pipe(debounceTime(300)))`, et
-c'est ce signal débouncé que lit la fonction de requête. Le template est donné, la logique est à
-compléter :
+Vous écrivez maintenant le même écran avec des signals, dans
+`src/app/scenarios/s1-search/s1-signals.ts`. Le volet doit respecter trois contraintes. La saisie
+est un signal `query`, alimenté par `(input)`. La recherche est un `httpResource` dont la fonction
+de requête lit la saisie. Le template lit l'indicateur sur `isLoading()`, l'erreur sur `error()`
+et la liste sur `value()`.
+
+Le debounce, lui, **n'existe pas** dans `resource`. Il passe par le pont,
+`toSignal(toObservable(query).pipe(debounceTime(300)))`, et c'est ce signal débouncé que lit la
+fonction de requête. Dans le fichier ci-dessous, le template est donné et la logique est à
+compléter.
 
 🚧 **À compléter :**
 
@@ -313,15 +339,20 @@ export class S1Signals {
 }
 ```
 
-Indices : `httpResource` accepte un objet `{ url, params }` comme `HttpClient` (0.4) ; l'URL est
-`/api/locations`, à écrire en dur ici (une resource prend une URL, pas un Observable) ; l'option
-`{ defaultValue: [] }` joue le rôle de l'`initialValue` de `toSignal`, et évite un `@for` sur
-`undefined` ; pas besoin de `distinctUntilChanged` : un signal ne notifie pas une valeur identique.
-Et le `@else` autour de la liste n'est pas décoratif : `value()` **lève** quand la resource est en
-erreur (voir « Le format » dans le [README](../README.md)). Pourquoi `httpResource` et pas `resource` + `fetch` avec `abortSignal` ? Ça marche
-aussi, mais `fetch` contourne `HttpClient`, donc l'intercepteur : vous ne verriez ni latence, ni
-« annulée » dans le log. Si vous voulez voir l'`abortSignal` à l'œuvre, faites-le en bonus et
-comparez l'onglet Réseau (la requête y apparaît *canceled*, puisqu'elle est partie).
+Quelques indices pour écrire les deux `TODO` :
+
+- `httpResource` accepte un objet `{ url, params }`, comme `HttpClient` (étape 0.4). L'URL est
+  `/api/locations`, à écrire en dur ici, car une resource prend une URL, pas un Observable.
+- L'option `{ defaultValue: [] }` joue le rôle de l'`initialValue` de `toSignal`, et évite un
+  `@for` sur `undefined`.
+- Pas besoin de `distinctUntilChanged` : un signal ne notifie pas une valeur identique.
+- Le `@else` autour de la liste n'est pas décoratif : `value()` **lève** quand la resource est en
+  erreur (voir « Le format » dans le [README](../README.md)).
+
+Pourquoi `httpResource` et pas `resource` + `fetch` avec `abortSignal` ? Ça marche aussi, mais
+`fetch` contourne `HttpClient`, donc l'intercepteur : vous ne verriez ni latence, ni « annulée »
+dans le log. Si vous voulez voir l'`abortSignal` à l'œuvre, faites-le en bonus et comparez l'onglet
+Réseau : la requête y apparaît *canceled*, puisqu'elle est partie.
 
 > 📖 [httpResource](https://angular.dev/guide/http/http-resource) ·
 > [toObservable](https://angular.dev/api/core/rxjs-interop/toObservable) ·
@@ -331,14 +362,15 @@ comparez l'onglet Réseau (la requête y apparaît *canceled*, puisqu'elle est p
 
 ## Critère de réussite
 
-Sur chaque volet : tapez « Jun », marquez une pause d'environ 400 ms (assez pour passer le
-debounce, pas assez pour que le chaos laisse partir la requête), puis « eau ». La liste n'affiche
-que Juneau, et le log montre `Jun => annulée`. Dans l'onglet Réseau, il n'y a que **deux**
-requêtes, `city_like=` (la liste complète, à la création du volet) et `city_like=Juneau` : celle de
-`Jun` n'est jamais partie. Si `Jun` apparaît en `+NNNms`, le chaos a
-tiré un délai court : recommencez (videz le champ, attendez que la liste complète revienne). Sans
-le debounce (essayez en retirant `debounceTime` côté RxJS), vous verriez une ligne par lettre,
-chacune annulée par la suivante.
+Sur chaque volet, tapez « Jun », marquez une pause d'environ 400 ms (assez pour passer le
+debounce, pas assez pour que le chaos laisse partir la requête), puis tapez « eau ». La liste
+n'affiche que Juneau, et le log montre `Jun => annulée`. Dans l'onglet Réseau, il n'y a que
+**deux** requêtes, `city_like=` (la liste complète, à la création du volet) et `city_like=Juneau` :
+celle de `Jun` n'est jamais partie.
+
+Si `Jun` apparaît en `+NNNms`, le chaos a tiré un délai court : recommencez (videz le champ,
+attendez que la liste complète revienne). Et sans le debounce (essayez en retirant `debounceTime`
+côté RxJS), vous verriez une ligne par lettre, chacune annulée par la suivante.
 
 > 💡 **Tester :** console, filtre `chaos`, les deux volets donnent la même chose :
 >

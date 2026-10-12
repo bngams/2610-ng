@@ -1,16 +1,19 @@
 # 🧮 S6 — Filtres : dérivation synchrone, sans requête
 
-**Contexte.** La liste est chargée une fois. Trois critères, ville (texte, insensible à la
-casse), prix max (nombre), tri (nom ou prix), se combinent **sans nouvel appel HTTP**. Il n'y a
-pas d'asynchrone dans la combinaison elle-même : c'est le scénario qui montre où les signals sont
-chez eux.
+**Contexte.** La liste est chargée une fois. Trois critères, la ville (texte, insensible à la
+casse), le prix max (nombre) et le tri (nom ou prix), se combinent ensuite **sans nouvel appel
+HTTP**. Il n'y a pas d'asynchrone dans la combinaison elle-même : c'est l'expérience qui montre où
+les signals sont chez eux.
+
+Les deux besoins de cet écran s'expriment ainsi :
 
 | Besoin | RxJS | Signals |
 |---|---|---|
 | Combiner trois sources qui changent indépendamment | `combineLatest([...])` + `map` ; attention, chaque source doit avoir émis une fois (`startWith`) | un `computed` qui lit trois signals |
 | Le chargement initial | un flux de plus dans le `combineLatest` | `toSignal(http)` ou `httpResource`, une fois |
 
-**Même geste qu'en S1** (pas d'`id` ici) :
+Pour la page, la route et le lien, refaites **le même geste que pour la recherche** (étape 01) :
+comme elle, la page n'a pas d'`id` à transmettre. Les noms sont les suivants :
 
 | Quoi | Nom |
 |---|---|
@@ -20,8 +23,9 @@ chez eux.
 | Route | `{ path: 's6', component: S6Page, title: 'S6 — Filtres : dérivation synchrone, sans requête' }` |
 | Lien | `<a routerLink="/s6" routerLinkActive="active">S6 Filtres</a>` |
 
-La logique de filtre et de tri est la même des deux côtés : seule la plomberie réactive change.
-Créez d'abord `src/app/scenarios/s6-filters/filters.ts`, la fonction pure partagée :
+Avant d'écrire les volets, isolez ce qu'ils ont en commun. La logique de filtre et de tri est la
+même des deux côtés : seule la plomberie réactive change. Elle tient donc dans une fonction pure,
+partagée par les deux volets. Créez d'abord `src/app/scenarios/s6-filters/filters.ts` :
 
 ```ts
 import { HousingLocationInfo } from '../../housinglocation';
@@ -41,12 +45,13 @@ export function applyFilters(
 }
 ```
 
-(`filter` renvoie un **nouveau** tableau, donc le `sort` en place qui suit ne mute pas la liste
-reçue : voir le piège 2 en fin de lab.)
+L'ordre des deux appels compte : `filter` renvoie un **nouveau** tableau, donc le `sort` en place
+qui suit ne mute pas la liste reçue (voir le piège 2 de l'étape bonus).
 
 ## Côté RxJS (donné)
 
-Créez `src/app/scenarios/s6-filters/s6-rxjs.ts` :
+Le volet RxJS branche cette fonction sur quatre sources : la liste chargée et les trois champs du
+formulaire. Créez `src/app/scenarios/s6-filters/s6-rxjs.ts` :
 
 ```ts
 import { Component, inject } from '@angular/core';
@@ -104,12 +109,19 @@ export class S6Rxjs {
 
 ## Côté signals (à vous)
 
-Créez `src/app/scenarios/s6-filters/s6-signals.ts`. Contraintes : la liste par
-`toSignal(this.housingService.getAllHousingLocations(), { initialValue: [] })` (une fois, c'est le
-seul pont) ; trois signals `city`, `maxPrice`, `sort` ; un `computed` `filtered` qui appelle
-`applyFilters`. Liez les champs comme vous voulez : `(input)="city.set(c.value)"` avec une
-variable de template `#c`, `(input)="maxPrice.set(p.valueAsNumber || 0)"`, `(change)` sur le
-`select`. Pas de code à trou ici : le volet entier tient en cinq lignes de logique (une ligne de
+Côté signals, la même combinaison devient une simple dérivation. Créez
+`src/app/scenarios/s6-filters/s6-signals.ts`, en respectant ces contraintes :
+
+- la liste est chargée par
+  `toSignal(this.housingService.getAllHousingLocations(), { initialValue: [] })`, une seule fois :
+  c'est le seul pont ;
+- trois signals `city`, `maxPrice` et `sort` portent les critères ;
+- un `computed` `filtered` appelle `applyFilters`.
+
+Liez les champs comme vous voulez : `(input)="city.set(c.value)"` avec une variable de template
+`#c`, `(input)="maxPrice.set(p.valueAsNumber || 0)"`, et `(change)` sur le `select`.
+
+Il n'y a pas de code à trou ici : le volet entier tient en cinq lignes de logique (une ligne de
 pont, trois signals, un `computed`), et c'est ce qu'il faut constater. Comptez-les.
 
 > 📖 [combineLatest](https://rxjs.dev/api/index/function/combineLatest) ·
@@ -118,10 +130,10 @@ pont, trois signals, un `computed`), et c'est ce qu'il faut constater. Comptez-l
 
 ## Critère de réussite
 
-Les deux volets réagissent pareil : tapez « oak », prix max 1400, tri par prix : deux résultats,
-dans l'ordre 890 puis 1390. L'onglet Réseau ne montre **aucune** requête pendant la saisie (une
-seule ligne `GET /api/locations` par volet, à sa création). Le volet signals tient en cinq lignes
-de logique.
+Les deux volets réagissent pareil. Tapez « oak », mettez le prix max à 1400 et triez par prix :
+vous obtenez deux résultats, dans l'ordre 890 puis 1390. L'onglet Réseau ne montre **aucune**
+requête pendant la saisie, seulement une ligne `GET /api/locations` par volet, à sa création. Et le
+volet signals tient en cinq lignes de logique.
 
 > 💡 **Tester :** après la saisie, les deux volets affichent :
 >
