@@ -1,0 +1,16 @@
+/* Styles minimaux de la démo : le sujet est HTTP, pas le CSS */
+body { font: 15px/1.5 system-ui, sans-serif; margin: 0; color: #0f172a; background: #f8fafc; }
+header { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; padding: 10px 20px; background: #0f172a; color: #e2e8f0; }
+header nav { display: flex; gap: 12px; }
+header a { color: #e2e8f0; text-decoration: none; }
+header a.active { color: #fb8f6f; font-weight: 600; }
+header small { margin-left: auto; color: #94a3b8; }
+main { max-width: 860px; margin: 0 auto; padding: 16px 20px; }
+h1 small { font-size: .55em; color: #64748b; font-weight: 500; }
+.products { list-style: none; padding: 0; }
+.products li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #e2e8f0; }
+.pager { display: flex; gap: 8px; margin-top: 12px; }
+table { border-collapse: collapse; margin: 8px 0; }
+th, td { border-bottom: 1px solid #e2e8f0; padding: 4px 10px; text-align: left; }
+.error { color: #be123c; }
+button { font: inherit; padding: 4px 10px; cursor: pointer; }
