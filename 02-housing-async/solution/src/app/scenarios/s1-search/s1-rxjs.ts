@@ -6,14 +6,14 @@ import { HousingLocationInfo } from '../../housinglocation';
 import { HousingService } from '../../housing.service';
 
 /**
- * S1 côté RxJS : le temps (debounce) et l'annulation (switchMap) sont des opérateurs.
+ * S1 côté RxJS : le temps (debounceTime) et l'annulation (switchMap) sont des opérateurs.
  * Le composant ne contient aucun subscribe() : toSignal s'abonne, et se désabonne à la destruction.
  */
 @Component({
   selector: 'app-s1-rxjs',
   imports: [ReactiveFormsModule],
   template: `
-    <input type="text" [formControl]="city" placeholder="Ville (ex. Chicago)" />
+    <input type="text" [formControl]="city" placeholder="Ville (ex. Juneau)" />
     @if (searching()) {
       <span class="status">recherche…</span>
     }

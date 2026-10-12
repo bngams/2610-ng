@@ -8,23 +8,20 @@ import { S1Signals } from './s1-signals';
   imports: [ModeToggle, S1Rxjs, S1Signals],
   template: `
     <div class="scenario">
-      <h1>S1 — Recherche live par ville</h1>
+      <h1>S1 — Recherche : anti-rebond et annulation</h1>
       <p class="hint">
-        Tapez vite « Chi » puis « Chicago » : seul le dernier résultat doit s'afficher, les
-        requêtes intermédiaires doivent apparaître « annulée » dans le log chaos.
+        Tapez « Jun », une courte pause, puis « eau » : seul le résultat de « Juneau » doit
+        s'afficher, et le log chaos doit montrer « Jun => annulée ».
       </p>
       <app-mode-toggle [(mode)]="mode" />
-      <div class="panes">
-        @if (mode() !== 'signals') {
-          <section class="pane rxjs"><h2>RxJS</h2><app-s1-rxjs /></section>
-        }
-        @if (mode() !== 'rxjs') {
-          <section class="pane signals"><h2>Signals</h2><app-s1-signals /></section>
-        }
-      </div>
+      @if (mode() === 'rxjs') {
+        <section class="pane rxjs"><h2>RxJS</h2><app-s1-rxjs /></section>
+      } @else {
+        <section class="pane signals"><h2>Signals</h2><app-s1-signals /></section>
+      }
     </div>
   `,
 })
 export class S1Page {
-  readonly mode = signal<Mode>('both');
+  readonly mode = signal<Mode>('rxjs');
 }

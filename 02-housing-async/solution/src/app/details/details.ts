@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { HousingService } from '../housing.service';
 
 @Component({
   selector: 'app-details',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule],
   template: `
     <article>
       <img
@@ -27,12 +27,6 @@ import { HousingService } from '../housing.service';
           <li>Does this location have laundry: {{ housingLocation()?.laundry }}</li>
           <li>Monthly rent: {{ housingLocation()?.price }} $</li>
         </ul>
-        <p class="scenario-links">
-          Scénarios sur ce logement :
-          <a [routerLink]="['/s2', id]">S2-S3</a> ·
-          <a [routerLink]="['/s4', id]">S4</a> ·
-          <a [routerLink]="['/s5', id]">S5</a>
-        </p>
       </section>
       <section class="listing-apply">
         <h2 class="section-heading">Apply now to live here</h2>
@@ -50,13 +44,14 @@ import { HousingService } from '../housing.service';
       </section>
     </article>
   `,
-  styleUrls: ['./details.css'],
+  styleUrl: './details.css',
 })
 export class Details {
   private readonly route = inject(ActivatedRoute);
   private readonly housingService = inject(HousingService);
 
   readonly id = Number(this.route.snapshot.params['id']);
+  /** Lab Init : then + markForCheck(). Ici : toSignal, et `housingLocation()` vaut undefined tant que la réponse n'est pas là. */
   readonly housingLocation = toSignal(this.housingService.getHousingLocationById(this.id));
 
   applyForm = new FormGroup({

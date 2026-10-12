@@ -14,9 +14,11 @@ header {
 }
 nav.scenarios {
   display: flex;
+  flex-wrap: wrap;
   gap: 16px;
 }
 nav.scenarios a {
+  white-space: nowrap;
   color: var(--primary-color);
   text-decoration: none;
   font-weight: bold;

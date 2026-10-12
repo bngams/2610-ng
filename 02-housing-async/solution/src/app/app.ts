@@ -14,7 +14,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
           <a routerLink="/s1" routerLinkActive="active">S1 Recherche</a>
           <a routerLink="/s2/3" routerLinkActive="active">S2-S3 Détail</a>
           <a routerLink="/s4/3" routerLinkActive="active">S4 Réserver</a>
-          <a routerLink="/s5/3" routerLinkActive="active">S5 Dispo</a>
+          <a routerLink="/s5/3" routerLinkActive="active">S5 Disponibilité</a>
           <a routerLink="/s6" routerLinkActive="active">S6 Filtres</a>
         </nav>
       </header>
@@ -23,7 +23,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
       </section>
     </main>
   `,
-  styleUrls: ['./app.css'],
+  styleUrl: './app.css',
 })
 export class App {
   title = 'homes';

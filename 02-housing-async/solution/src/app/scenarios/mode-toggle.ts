@@ -1,11 +1,11 @@
 import { Component, model } from '@angular/core';
 
-export type Mode = 'both' | 'rxjs' | 'signals';
+export type Mode = 'rxjs' | 'signals';
 
 /**
- * Bascule RxJS / Signals / les deux côte à côte, partagée par toutes les pages de scénario.
- * Chaque page fait son propre `@if` sur le mode : quand un volet est masqué, son composant est
- * réellement détruit (utile pour vérifier le nettoyage, S5).
+ * Bascule RxJS / Signals, partagée par toutes les pages de scénario. Un seul volet à la fois :
+ * quand on change de mode, le composant du volet précédent est détruit (c'est la façon de
+ * vérifier qu'un flux s'arrête bien, S5), et le log chaos ne montre que les requêtes d'un volet.
  */
 @Component({
   selector: 'app-mode-toggle',
@@ -18,7 +18,7 @@ export type Mode = 'both' | 'rxjs' | 'signals';
   `,
 })
 export class ModeToggle {
-  readonly mode = model<Mode>('both');
-  readonly modes: Mode[] = ['both', 'rxjs', 'signals'];
-  readonly labels: Record<Mode, string> = { both: 'Les deux', rxjs: 'RxJS seul', signals: 'Signals seul' };
+  readonly mode = model<Mode>('rxjs');
+  readonly modes: Mode[] = ['rxjs', 'signals'];
+  readonly labels: Record<Mode, string> = { rxjs: 'RxJS', signals: 'Signals' };
 }

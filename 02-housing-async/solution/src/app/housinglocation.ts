@@ -7,11 +7,11 @@ export interface HousingLocationInfo {
   availableUnits: number;
   wifi: boolean;
   laundry: boolean;
-  /** Loyer mensuel (ajouté pour le lab : filtres S6). */
+  /** Loyer mensuel (ajouté pour ce lab : filtres S6). */
   price: number;
-  /** 'apartment' | 'studio' | 'house' (ajouté pour le lab). */
+  /** 'apartment' | 'studio' | 'house' (ajouté pour ce lab). */
   type: 'apartment' | 'studio' | 'house';
-  /** Référence vers /agents/:id (ajouté pour le lab : S2). */
+  /** Référence vers /agents/:id (ajouté pour ce lab : S2). */
   agentId: number;
 }
 

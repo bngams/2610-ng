@@ -70,7 +70,3 @@ input {
     height: 400px;
   }
 }
-
-.scenario-links a {
-  color: var(--primary-color);
-}

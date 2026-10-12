@@ -19,12 +19,12 @@ import { HousingService } from '../housing.service';
       }
     </section>
   `,
-  styleUrls: ['./home.css'],
+  styleUrl: './home.css',
 })
 export class Home {
   private readonly housingService = inject(HousingService);
 
-  /** Tutoriel : `fetch` + markForCheck(). Ici : HttpClient + toSignal, le rendu suit tout seul. */
+  /** Lab Init : fetch + then + markForCheck(). Ici : un Observable lu par toSignal, le rendu suit tout seul. */
   readonly housingLocationList = toSignal(this.housingService.getAllHousingLocations(), {
     initialValue: [],
   });

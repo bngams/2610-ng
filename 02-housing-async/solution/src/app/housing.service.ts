@@ -4,11 +4,11 @@ import { Observable } from 'rxjs';
 import { Agent, Availability, Booking, HousingLocationInfo, Review } from './housinglocation';
 
 /**
- * Accès à l'API json-server, via le proxy du serveur de dev (`/api` -> http://localhost:3000).
+ * Accès à l'API json-server, à travers le proxy du serveur de dev (`/api` -> http://localhost:3000).
  *
- * Migré depuis le `fetch` du tutoriel vers `HttpClient` : chaque méthode renvoie un Observable
- * froid (rien ne part tant que personne ne s'abonne), annulable (unsubscribe = requête abandonnée),
- * et surtout interceptable : c'est ce qui permet à l'intercepteur "chaos" d'ajouter latence et
+ * Migré depuis le `fetch` du lab Init vers `HttpClient` : chaque méthode renvoie un Observable
+ * froid (rien ne part tant que personne ne s'abonne), annulable (se désabonner = abandonner la
+ * requête) et interceptable : c'est ce qui permet à l'intercepteur chaos d'ajouter latence et
  * erreurs sur chaque appel.
  */
 @Injectable({ providedIn: 'root' })
@@ -24,7 +24,7 @@ export class HousingService {
     return this.http.get<HousingLocationInfo>(`${this.url}/locations/${id}`);
   }
 
-  /** Recherche par ville, côté serveur (json-server : `?city_like=` est une regex insensible à la casse). */
+  /** Recherche par ville, côté serveur (json-server 0.17 : `?city_like=` est une regex insensible à la casse). */
   searchByCity(query: string): Observable<HousingLocationInfo[]> {
     return this.http.get<HousingLocationInfo[]>(`${this.url}/locations`, {
       params: { city_like: query },
@@ -43,7 +43,7 @@ export class HousingService {
     return this.http.get<Availability>(`${this.url}/availability/${locationId}`);
   }
 
-  /** Réserve : un POST qui crée une ligne dans /bookings (json-server l'ajoute à db.json). */
+  /** Réserve : un POST qui crée une ligne dans /bookings (json-server l'écrit dans db.json). */
   book(locationId: number): Observable<Booking> {
     const body: Booking = { locationId, at: new Date().toISOString() };
     return this.http.post<Booking>(`${this.url}/bookings`, body);
