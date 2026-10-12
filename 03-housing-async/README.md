@@ -1,4 +1,4 @@
-# 02 — Housing sous pression asynchrone
+# 03 — Housing sous pression asynchrone
 
 > **Scénario à réaliser en autonomie.** Vous partez de l'application Housing *terminée* (celle du
 > tutoriel officiel « first app » d'angular.dev), branchée sur une API locale qu'on a rendue

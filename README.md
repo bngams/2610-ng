@@ -12,8 +12,8 @@ Supports et cas pratiques. Deux parcours (**Init** et **Avancé**) autour d'un s
 | Matin | [learn-angular](https://angular.dev/tutorials/learn-angular), déroulé en live | tout le monde |
 | Matin | [00 — Synthèse des syntaxes](00-intro-syntax-recap/) : la page à garder sous la main, et le [repère de version v20](00-intro-syntax-recap/repere-v20.html) | tout le monde |
 | Matin | [01 — Lab Intro](01-lab-intro/) : le catalogue de formations, parcours Init ou Avancé | tout le monde |
-| Après-midi | [first-app : Housing](https://angular.dev/tutorials/first-app) | Init |
-| Après-midi | [02 — Housing sous pression asynchrone](03-housing-async/) : RxJS vs signals, 6 scénarios, une grille de décision | Avancé |
+| Après-midi | [02 — Housing, premiers pas](02-housing-init/) : le tutoriel officiel first-app en français, 14 étapes guidées | Init |
+| Après-midi | [03 — Housing sous pression asynchrone](03-housing-async/) : RxJS vs signals, 6 scénarios, une grille de décision | Avancé |
 
 ## Prérequis
 
