@@ -126,7 +126,7 @@ export class Details {
 | pas de `()` après `housingLocation` | ici c'est une propriété ordinaire, pas un input ni un signal |
 
 Enfin le style : **remplacez le contenu** (vide) de `src/app/details/details.css` par celui de
-`assets/11/details.css` (72 lignes, pré-remplies dans l'éditeur en ligne). Ouvrez aussi
+[`assets/11/details.css`](../assets/11/details.css) (72 lignes, pré-remplies dans l'éditeur en ligne). Ouvrez aussi
 `src/app/app.ts` et vérifiez que le logo est bien dans `<a [routerLink]="['/']">` (étape 10) :
 c'est le retour à la liste.
 

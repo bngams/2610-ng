@@ -29,7 +29,7 @@ npm install -D json-server@0.17.4
 | `@0.17.4` | la version pinnée : la version 1 de json-server a changé ses options (`--watch` a disparu) ; on reste sur celle du tutoriel |
 
 Créez le dossier `api/` à la racine du projet (à côté de `src/`) et dedans le fichier `db.json`,
-avec le contenu de `assets/db.json` : un objet `{ "locations": [ … ] }` avec les 10 logements, les
+avec le contenu de [`assets/db.json`](../assets/db.json) : un objet `{ "locations": [ … ] }` avec les 10 logements, les
 mêmes qu'à l'étape 8, photos comprises (toujours sur `angular.dev`). Puis ajoutez un script dans
 `package.json` : le bloc `"scripts"` doit devenir celui-ci (la ligne `"api"` est nouvelle, et la
 virgule à la fin de la ligne `"test"` aussi) :

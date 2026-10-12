@@ -17,8 +17,9 @@ Aujourd'hui, `api/db.json` ne contient que `/locations`. Les expériences de ce 
 plus : des avis et un agent à afficher sur la fiche, une disponibilité qui change, des
 réservations à créer, et un prix sur chaque logement pour filtrer.
 
-Ces données sont prêtes dans le dossier `assets/` du lab. Depuis la racine de votre projet `homes`,
-remplacez la base par la version enrichie :
+Ces données sont prêtes dans [`assets/api/db.json`](../assets/api/db.json) : ouvrez-le pour voir
+les cinq ressources et leurs champs. Depuis la racine de votre projet `homes`, remplacez la base
+par cette version enrichie :
 
 ```bash
 cp ../02-housing-async/assets/api/db.json api/db.json
@@ -26,7 +27,8 @@ cp ../02-housing-async/assets/api/db.json api/db.json
 
 json-server **écrit dans ce fichier** à chaque création ou modification, par exemple quand vous
 réserverez un logement. Après quelques essais, la base ne sera donc plus dans son état de départ.
-Pour pouvoir y revenir, gardez une copie de référence à côté :
+Pour pouvoir y revenir, gardez à côté une copie de référence,
+[`assets/api/db.seed.json`](../assets/api/db.seed.json), identique à la base de départ :
 
 ```bash
 cp ../02-housing-async/assets/api/db.seed.json api/db.seed.json
@@ -108,13 +110,15 @@ que vous ajouterez en 0.5 a besoin de reconnaître les appels à l'API par un pr
 
 La solution est de faire passer les appels par le serveur de développement : l'application appelle
 `/api/...` sur son propre port, et `ng serve` relaie vers json-server. Cette règle de relais tient
-dans un petit fichier, à copier à la racine du projet :
+dans un petit fichier, [`assets/proxy.conf.json`](../assets/proxy.conf.json), à copier à la racine
+du projet :
 
 ```bash
 cp ../02-housing-async/assets/proxy.conf.json proxy.conf.json
 ```
 
-Voici son contenu :
+Il ne contient qu'une règle : toute requête dont le chemin commence par `/api` part vers
+json-server, sans ce préfixe. La voici, détaillée clé par clé dans le tableau qui suit :
 
 ```json
 {
@@ -296,7 +300,10 @@ Sans latence ni erreur, aucun problème asynchrone n'est visible : une recherche
 répond en 5 ms ne s'annule jamais, un `forkJoin` sur trois appels instantanés ne montre pas de
 squelette, et un bouton cliqué trois fois sur un POST de 2 ms ne fait pas de course. D'où
 l'intercepteur « chaos » : il ajoute une attente aléatoire avant chaque requête et peut la remplacer
-par une erreur. Ses deux fichiers sont prêts dans `assets/`. Créez leur dossier et copiez-les :
+par une erreur. Ses deux fichiers sont prêts dans `assets/chaos/` :
+[`chaos.interceptor.ts`](../assets/chaos/chaos.interceptor.ts), l'intercepteur lui-même, et
+[`chaos.config.ts`](../assets/chaos/chaos.config.ts), ses réglages par route. Créez leur dossier et
+copiez-les :
 
 ```bash
 mkdir -p src/app/chaos

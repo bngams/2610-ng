@@ -17,7 +17,7 @@
 Dans `src/app/home/home.ts`, la classe `Home` contient `baseUrl` et `housingLocation` (le logement
 de test). Vous remplacez le logement de test par la propriété `housingLocationList`, un tableau de 10
 `HousingLocationInfo`. Les 10 objets sont longs à taper : ils sont dans le fichier
-`assets/08/housingLocationList.ts` du lab, **qui contient aussi la ligne `baseUrl`**. Une seule
+[`assets/08/housingLocationList.ts`](../assets/08/housingLocationList.ts) du lab, **qui contient aussi la ligne `baseUrl`**. Une seule
 consigne donc : **remplacez tout le corps de la classe `Home`** (de `readonly baseUrl` jusqu'au
 `};` du logement de test, les accolades de la classe restent) par le contenu de ce fichier. La classe
 doit ressembler à ceci :

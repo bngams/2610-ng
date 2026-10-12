@@ -74,7 +74,7 @@ export class App {
 > Dans un projet CLI, `public/` est servi à la racine, donc `/logo.svg`.
 
 Puis les styles de l'en-tête : **remplacez le contenu** (vide) de `src/app/app.css` par celui de
-`assets/02/app.css`, c'est-à-dire :
+[`assets/02/app.css`](../assets/02/app.css), c'est-à-dire :
 
 ```css
 :host {
@@ -110,7 +110,7 @@ rien pour l'instant : la recherche est l'étape 13) :
   `,
 ```
 
-Puis **remplacez le contenu** (vide) de `src/app/home/home.css` par celui de `assets/02/home.css`
+Puis **remplacez le contenu** (vide) de `src/app/home/home.css` par celui de [`assets/02/home.css`](../assets/02/home.css)
 (40 lignes : la grille des résultats, le champ et le bouton). Ce fichier est pré-rempli dans
 l'éditeur en ligne du tutoriel ; en local, vous le copiez.
 

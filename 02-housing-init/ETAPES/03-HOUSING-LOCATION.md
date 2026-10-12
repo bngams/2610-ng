@@ -67,7 +67,7 @@ export class Home {}
 ## 🎨 3 — Les styles de la carte
 
 **Remplacez le contenu** (vide) de `src/app/housing-location/housing-location.css` par celui de
-`assets/03/housing-location.css` (31 lignes : fond, coins arrondis, photo, pictogramme de
+[`assets/03/housing-location.css`](../assets/03/housing-location.css) (31 lignes : fond, coins arrondis, photo, pictogramme de
 localisation). Ce fichier est pré-rempli dans l'éditeur en ligne ; en local, vous le copiez.
 
 > ℹ️ Dans ce CSS, `content: url('/location-pin.svg')` charge le pictogramme copié dans `public/` à

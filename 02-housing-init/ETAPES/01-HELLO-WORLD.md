@@ -104,7 +104,7 @@ le routeur est le sujet de l'étape 10) et remplacé le template.
 
 Enfin les styles globaux et les deux images : l'éditeur en ligne du tutoriel les pré-remplit, en
 local c'est vous qui les copiez. **Remplacez tout le contenu** de `src/styles.css` par celui de
-`assets/01/styles.css`, c'est-à-dire :
+[`assets/01/styles.css`](../assets/01/styles.css), c'est-à-dire :
 
 ```css
 /* You can add global styles to this file, and also import other style files */
@@ -132,7 +132,7 @@ button.primary {
 }
 ```
 
-Et copiez `assets/01/logo.svg` et `assets/01/location-pin.svg` dans le dossier `public/` du projet,
+Et copiez [`assets/01/logo.svg`](../assets/01/logo.svg) et [`assets/01/location-pin.svg`](../assets/01/location-pin.svg) dans le dossier `public/` du projet,
 à côté de `favicon.ico` (ils serviront aux étapes 2 et 3).
 
 > 💡 **Tester :** le navigateur s'est rechargé tout seul et affiche **Hello world!** en police

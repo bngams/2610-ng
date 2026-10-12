@@ -20,8 +20,12 @@ geste que pour la recherche » et ne donneront plus que les noms.
 
 ### La mise en page et la bascule
 
-Les pages d'expérience partagent une petite feuille de style, prête dans `assets/`. Depuis la
-racine de votre projet `homes`, copiez-la à côté de `src/styles.css` :
+Les pages d'expérience ont besoin d'un peu de mise en forme qui n'existe pas dans le tutoriel : la
+bascule RxJS / Signals, le cadre de chaque volet (rouge pour RxJS, bleu pour signals), les messages
+d'état et d'erreur, et un squelette gris pendant le chargement. Ces règles sont écrites pour vous
+dans [`assets/scenarios.css`](../assets/scenarios.css), une centaine de lignes de CSS sans rien de
+spécifique à Angular : ouvrez-la pour voir ce qu'elle contient. Depuis la racine de votre projet
+`homes`, copiez-la à côté de `src/styles.css` :
 
 ```bash
 cp ../02-housing-async/assets/scenarios.css src/scenarios.css
