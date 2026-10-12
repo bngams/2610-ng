@@ -1,22 +1,39 @@
 # 🌪️ Étape 0 — Mise sous pression
 
-Rien de ce qui suit n'est un exercice : ce code vous est **donné**, parce que vous l'avez vu ce
-matin, et parce que les scénarios n'ont d'intérêt que sur une API lente et faillible. Vous le
-copiez, vous le lisez avec les tableaux qui l'accompagnent, et vous vérifiez le critère de
-réussite en bas de la section. Il y a six gestes.
+Vous repartez de l'application Housing terminée : dix logements, une recherche, une fiche, un
+formulaire, des données servies par json-server et lues avec `fetch`. Elle marche, mais elle vit
+dans un monde idéal : une seule ressource, une API qui répond en quelques millisecondes et ne se
+trompe jamais. Dans ce monde-là, aucun problème asynchrone n'est visible.
+
+Cette étape rend l'application plus réaliste en six gestes : plus de données, un proxy, des
+modèles, un service sur `HttpClient`, un intercepteur qui ralentit et fait échouer certaines
+requêtes, et des composants qui lisent des Observables. Rien de ce qui suit n'est un exercice : le
+code est **donné**, vous le copiez et le lisez avec les tableaux qui l'accompagnent. Les
+expériences commencent à l'étape suivante.
 
 ## 0.1 — L'API enrichie
 
-Le tutoriel ne connaît que `/locations`. Les scénarios ont besoin d'avis à charger en parallèle
-(S2), d'un agent qui dépend du logement (S2), d'une disponibilité qui change (S5), de
-réservations à créer (S4) et d'un prix à filtrer (S6). Remplacez `api/db.json` par la base
-enrichie, gardez-en une copie de référence, et ajoutez un script de remise à zéro dans
-`package.json` :
+Aujourd'hui, `api/db.json` ne contient que `/locations`. Les expériences de ce lab ont besoin de
+plus : des avis et un agent à afficher sur la fiche, une disponibilité qui change, des
+réservations à créer, et un prix sur chaque logement pour filtrer.
+
+Ces données sont prêtes dans le dossier `assets/` du lab. Depuis la racine de votre projet `homes`,
+remplacez la base par la version enrichie :
 
 ```bash
 cp ../02-housing-async/assets/api/db.json api/db.json
+```
+
+json-server **écrit dans ce fichier** à chaque création ou modification, par exemple quand vous
+réserverez un logement. Après quelques essais, la base ne sera donc plus dans son état de départ.
+Pour pouvoir y revenir, gardez une copie de référence à côté :
+
+```bash
 cp ../02-housing-async/assets/api/db.seed.json api/db.seed.json
 ```
+
+Il reste à rendre ce retour à zéro facile. Dans `package.json`, ajoutez un script `api:reset` à la
+fin du bloc `"scripts"`, sans oublier la virgule sur la ligne `"api"` qui le précède :
 
 ```json
   "scripts": {
@@ -30,23 +47,30 @@ cp ../02-housing-async/assets/api/db.seed.json api/db.seed.json
   },
 ```
 
-json-server est épinglé en **0.17.4** : c'est cette branche qui supporte le filtre `_like` (regex,
-insensible à la casse) dont S1 a besoin ; la branche 1.x a changé les opérateurs. Voici les
-endpoints, et le scénario qui s'en sert :
+| Ligne | Rôle |
+|---|---|
+| `"api"` | inchangée depuis le lab Init : json-server sert `api/db.json` sur le port 3000 et relit le fichier s'il change (`--watch`) |
+| `"api:reset"` | recopie `db.seed.json` sur `db.json` avec Node, sans dépendre de `cp` (que l'invite de commandes Windows ne connaît pas, et c'est elle qui exécute les scripts npm) |
 
-| Endpoint | Rôle | Scénario |
+Voici ce que la base enrichie expose désormais, et à quoi chaque ressource servira :
+
+| Endpoint | Ce qu'il renvoie | Servira à |
 |---|---|---|
-| `GET /locations` | les 10 logements, avec trois champs en plus : `price`, `type`, `agentId` | tous |
-| `GET /locations?city_like=chi` | recherche par ville, côté serveur | S1 |
-| `GET /locations/:id` | un logement | S2 |
-| `GET /reviews?locationId=:id` | 3 à 5 avis par logement | S2, S3 |
-| `GET /agents/:id` | l'agent référencé par `location.agentId` | S2 |
-| `GET /availability/:locationId` | `{ available: boolean }` (l'`id` vaut le `locationId`) | S5 |
-| `PATCH /availability/:locationId` | pour basculer `available` sans éditer le fichier | S5 |
-| `POST /bookings` | crée une réservation `{ locationId, at }` | S4 |
-| `GET /bookings?locationId=:id` | pour compter ce que le serveur a vraiment reçu | S4 |
+| `GET /locations` | les 10 logements, avec trois champs en plus : `price`, `type`, `agentId` | toute l'application |
+| `GET /locations?city_like=chi` | les logements dont la ville contient « chi », sans tenir compte de la casse | la recherche |
+| `GET /locations/:id` | un logement | la fiche détail |
+| `GET /reviews?locationId=:id` | 3 à 5 avis pour ce logement | la fiche détail |
+| `GET /agents/:id` | l'agent référencé par `location.agentId` | la fiche détail |
+| `GET /availability/:locationId` | `{ available: boolean }` (l'`id` vaut le `locationId`) | le suivi de disponibilité |
+| `PATCH /availability/:locationId` | bascule `available` sans éditer le fichier à la main | le suivi de disponibilité |
+| `POST /bookings` | crée une réservation `{ locationId, at }` | la réservation |
+| `GET /bookings?locationId=:id` | les réservations que le serveur a vraiment reçues | la réservation |
 
-Relancez l'API (`Ctrl-C` puis `npm run api` dans le terminal 1).
+> ℹ️ json-server reste **épinglé en 0.17.4**, comme dans le lab Init. C'est cette version qui
+> connaît le filtre `_like` utilisé par la recherche ; la branche 1.x a changé ses opérateurs.
+
+Pour que json-server charge la nouvelle base, relancez-le : `Ctrl-C` puis `npm run api` dans le
+terminal 1.
 
 > 💡 **Tester :** la bannière de json-server liste maintenant cinq ressources :
 >
@@ -59,9 +83,9 @@ Relancez l'API (`Ctrl-C` puis `npm run api` dans le terminal 1).
 >   http://localhost:3000/bookings
 > ```
 >
-> Et dans le terminal 3 : `curl -s "http://localhost:3000/locations?city_like=chi" | grep '"city"'`
-> renvoie deux lignes `"city": "Chicago",` ; `curl -s http://localhost:3000/availability/3`
-> renvoie, indenté par json-server :
+> Dans le terminal 3, `curl -s "http://localhost:3000/locations?city_like=chi" | grep '"city"'`
+> renvoie deux lignes `"city": "Chicago",`. Et `curl -s http://localhost:3000/availability/3`
+> renvoie :
 >
 > ```json
 > {
@@ -72,20 +96,25 @@ Relancez l'API (`Ctrl-C` puis `npm run api` dans le terminal 1).
 > }
 > ```
 
-⚠️ json-server **écrit dans `api/db.json`** à chaque `POST` / `PATCH` (et, grâce à `--watch`, relit
-le fichier si vous l'éditez à la main). Pour repartir d'une base propre entre deux essais de S4 ou
-S5, trois gestes : `Ctrl-C` sur le terminal de l'API, `npm run api:reset` (qui recopie
-`db.seed.json`, où `bookings` est vide), puis `npm run api`.
+Gardez ce geste en tête, il servira plusieurs fois : pour repartir d'une base propre, faites
+`Ctrl-C` sur le terminal de l'API, puis `npm run api:reset`, puis `npm run api`.
 
 ## 0.2 — Le proxy de développement
 
-Le service du lab Init appelle `http://localhost:3000/locations` en absolu. On va passer par le
-serveur de dev : l'app appelle `/api/...`, et `ng serve` relaie vers json-server. Copiez le
-fichier, puis déclarez-le dans `angular.json` :
+Le service du lab Init appelle `http://localhost:3000/locations` : une adresse absolue, celle de
+json-server. Cela fonctionne en local, mais deux choses vont nous gêner. L'application et l'API
+sont sur deux ports différents, donc deux origines, ce qui oblige à gérer CORS. Et l'intercepteur
+que vous ajouterez en 0.5 a besoin de reconnaître les appels à l'API par un préfixe commun.
+
+La solution est de faire passer les appels par le serveur de développement : l'application appelle
+`/api/...` sur son propre port, et `ng serve` relaie vers json-server. Cette règle de relais tient
+dans un petit fichier, à copier à la racine du projet :
 
 ```bash
 cp ../02-housing-async/assets/proxy.conf.json proxy.conf.json
 ```
+
+Voici son contenu :
 
 ```json
 {
@@ -97,8 +126,16 @@ cp ../02-housing-async/assets/proxy.conf.json proxy.conf.json
 }
 ```
 
-Dans `angular.json`, la cible `serve` du projet `homes` a deux clés, `configurations` et
-`defaultConfiguration`. Ajoutez-lui une clé `options` :
+| Clé | Rôle |
+|---|---|
+| `"/api"` | les requêtes concernées : toutes celles dont le chemin commence par `/api` |
+| `target` | où les relayer : json-server |
+| `secure: false` | json-server est en `http`, pas en `https` : on n'exige pas de certificat |
+| `pathRewrite` | retire le préfixe au passage : `/api/locations` arrive chez json-server comme `/locations` |
+
+Un fichier de proxy ne sert à rien tant que `ng serve` ne le connaît pas. Ouvrez `angular.json` :
+dans le projet `homes`, la cible `serve` contient deux clés, `configurations` et
+`defaultConfiguration`. Ajoutez-lui une troisième clé, `options`, qui pointe vers le fichier :
 
 ```json
         "serve": {
@@ -111,15 +148,12 @@ Dans `angular.json`, la cible `serve` du projet `homes` a deux clés, `configura
         }
 ```
 
-| Pourquoi un proxy | Ce que ça change |
-|---|---|
-| Même origine : `/api` est servi par `localhost:4200` | plus de CORS à gérer, et des URL relatives dans le service, comme en production derrière un reverse proxy |
-| `pathRewrite` retire le préfixe | `/api/locations` devient `http://localhost:3000/locations` : json-server ne voit jamais `/api` |
-| Les URL commencent toutes par `/api` | c'est sur ce préfixe que les règles du chaos (0.5) vont se brancher |
+`ng serve` ne surveille pas `angular.json` : une modification de ce fichier n'est prise en compte
+qu'au redémarrage. Faites `Ctrl-C` puis `npm start` dans le terminal 2.
 
-> 💡 **Tester :** `angular.json` n'est **pas surveillé** par `ng serve` : `Ctrl-C` puis `npm start`
-> dans le terminal 2. Puis `curl -s http://localhost:4200/api/locations/3 | head -3` renvoie
-> `{ "id": 3, "name": "Homesteady Housing", …`.
+> 💡 **Tester :** `curl -s http://localhost:4200/api/locations/3 | head -3` renvoie
+> `{ "id": 3, "name": "Homesteady Housing", …`. La requête est partie vers le port 4200, celui de
+> l'application, et c'est json-server qui a répondu.
 
 ## 0.3 — Les modèles
 
@@ -136,11 +170,11 @@ export interface HousingLocationInfo {
   availableUnits: number;
   wifi: boolean;
   laundry: boolean;
-  /** Loyer mensuel (ajouté pour ce lab : filtres S6). */
+  /** Loyer mensuel (ajouté pour ce lab : les filtres). */
   price: number;
   /** 'apartment' | 'studio' | 'house' (ajouté pour ce lab). */
   type: 'apartment' | 'studio' | 'house';
-  /** Référence vers /agents/:id (ajouté pour ce lab : S2). */
+  /** Référence vers /agents/:id (ajouté pour ce lab : la fiche détail). */
   agentId: number;
 }
 
@@ -178,11 +212,11 @@ export interface Booking {
 ## 0.4 — Le service : de `fetch` à `HttpClient`
 
 Le lab Init termine sur `fetch` + `await`. On le remplace par `HttpClient`, pour trois raisons qui
-sont exactement les trois choses dont les scénarios ont besoin :
+sont exactement ce dont les expériences auront besoin :
 
 | Pourquoi | Ce que ça change pour la suite |
 |---|---|
-| Un `Observable` est **froid et annulable** : se désabonner, c'est abandonner la requête | sans ça, pas de `switchMap`, pas de « dernier gagne » (S1, S4) |
+| Un `Observable` est **froid et annulable** : se désabonner, c'est abandonner la requête | sans ça, impossible d'abandonner une requête devenue inutile : c'est le cœur de la recherche et de la réservation |
 | `HttpClient` passe par les **intercepteurs** | sans ça, pas de chaos : `fetch` contourne tout |
 | Les composants lisent via `toSignal` ou `resource` : plus de `markForCheck()` | l'app est zoneless, le rendu suit les signals (0.6) |
 
@@ -250,7 +284,7 @@ export class HousingService {
 | `readonly url = '/api'` | relatif, grâce au proxy ; plus de `localhost:3000` dans le code |
 | `this.http.get<T>(url)` | renvoie un `Observable<T>` **froid** : la requête ne part qu'au premier `subscribe` (ou `toSignal`, ou `resource`) |
 | `{ params: { city_like: query } }` | `HttpClient` encode la query string ; l'intercepteur verra `/api/locations?city_like=Jun` |
-| `this.http.post<T>(url, body)` | une mutation : c'est elle qui fait de S4 une course |
+| `this.http.post<T>(url, body)` | une mutation : le serveur crée une ligne ; cliquée trois fois vite, elle en crée peut-être trois |
 
 Le terminal de `ng serve` affiche maintenant des erreurs dans `home.ts` et `details.ts` : les
 composants attendent une `Promise`, ils reçoivent un `Observable`. C'est 0.6 ; d'abord
@@ -258,17 +292,19 @@ l'intercepteur, puisque c'est lui qu'on branche dans `app.config.ts`.
 
 ## 0.5 — L'intercepteur chaos
 
-Sans latence ni erreur, aucun scénario n'est visible : une recherche annulée sur une API qui
+Sans latence ni erreur, aucun problème asynchrone n'est visible : une recherche annulée sur une API qui
 répond en 5 ms ne s'annule jamais, un `forkJoin` sur trois appels instantanés ne montre pas de
 squelette, et un bouton cliqué trois fois sur un POST de 2 ms ne fait pas de course. D'où
-l'intercepteur. Copiez le dossier, puis branchez-le :
+l'intercepteur « chaos » : il ajoute une attente aléatoire avant chaque requête et peut la remplacer
+par une erreur. Ses deux fichiers sont prêts dans `assets/`. Créez leur dossier et copiez-les :
 
 ```bash
 mkdir -p src/app/chaos
 cp ../02-housing-async/assets/chaos/chaos.config.ts ../02-housing-async/assets/chaos/chaos.interceptor.ts src/app/chaos/
 ```
 
-`src/app/app.config.ts`, en entier :
+Copier l'intercepteur ne suffit pas : il faut le déclarer là où Angular fournit `HttpClient`.
+Remplacez `src/app/app.config.ts` en entier :
 
 ```ts
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
@@ -300,9 +336,9 @@ toucherez pendant le lab. En voici l'extrait utile (le fichier complet, avec l'i
 export const CHAOS_ENABLED = true;
 export const CHAOS_DEFAULT = { minDelayMs: 300, maxDelayMs: 1500, errorRate: 0 };
 export const CHAOS_RULES: ChaosRule[] = [
-  // S3 : passez errorRate à 0.5 pour que les avis tombent une fois sur deux.
+  // Les avis : passez errorRate à 0.5 pour qu'ils échouent une fois sur deux.
   { match: /\/api\/reviews/, minDelayMs: 300, maxDelayMs: 1500, errorRate: 0 },
-  // S4 : décommentez pour que « trois clics rapides » soit atteignable à la souris.
+  // Les réservations : décommentez pour que trois clics rapides soient faisables à la souris.
   // { match: /\/api\/bookings/, minDelayMs: 1000, maxDelayMs: 2000, errorRate: 0 },
 ];
 ```
@@ -338,7 +374,7 @@ console.
 Le lab Init faisait `then(...)` puis `markForCheck()` pour prévenir Angular qu'une propriété
 ordinaire avait changé. Avec un Observable, deux formes sont possibles dans un composant ; ce lab
 prend la première partout où la donnée est un **état** à afficher, et réserve la seconde aux
-**événements** (S4, S5) :
+**événements** (un clic, un minuteur) :
 
 | | `toSignal(obs$)` | `obs$.subscribe(...)` |
 |---|---|---|
@@ -498,4 +534,4 @@ la console montre le chaos à l'œuvre.
 
 ---
 
-➡️ [S1 — Recherche](01-RECHERCHE.md)
+➡️ [01 — Recherche : anti-rebond et annulation](01-RECHERCHE.md)
