@@ -1,6 +1,6 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { HousingLocation } from '../housing-location/housing-location';
-import { HousingLocationInfo } from '../housinglocation';
 import { HousingService } from '../housing.service';
 
 @Component({
@@ -14,7 +14,7 @@ import { HousingService } from '../housing.service';
       </form>
     </section>
     <section class="results">
-      @for (housingLocation of filteredLocationList; track $index) {
+      @for (housingLocation of filteredLocationList(); track $index) {
         <app-housing-location [housingLocation]="housingLocation" />
       }
     </section>
@@ -22,29 +22,22 @@ import { HousingService } from '../housing.service';
   styleUrl: './home.css',
 })
 export class Home {
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
-  housingLocationList: HousingLocationInfo[] = [];
   housingService: HousingService = inject(HousingService);
-  filteredLocationList: HousingLocationInfo[] = [];
-
-  constructor() {
-    this.housingService
-      .getAllHousingLocations()
-      .then((housingLocationList: HousingLocationInfo[]) => {
-        this.housingLocationList = housingLocationList;
-        this.filteredLocationList = housingLocationList;
-        this.changeDetectorRef.markForCheck();
-      });
-  }
+  housingLocationList = toSignal(this.housingService.getAllHousingLocations(), {
+    initialValue: [],
+  });
+  filterText = signal('');
+  filteredLocationList = computed(() => {
+    const text = this.filterText().toLowerCase();
+    if (!text) {
+      return this.housingLocationList();
+    }
+    return this.housingLocationList().filter((housingLocation) =>
+      housingLocation.city.toLowerCase().includes(text),
+    );
+  });
 
   filterResults(text: string) {
-    if (!text) {
-      this.filteredLocationList = this.housingLocationList;
-      return;
-    }
-
-    this.filteredLocationList = this.housingLocationList.filter((housingLocation) =>
-      housingLocation?.city.toLowerCase().includes(text.toLowerCase()),
-    );
+    this.filterText.set(text);
   }
 }

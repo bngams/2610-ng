@@ -2,18 +2,21 @@
 
 > **Scénario à réaliser en autonomie.** Vous construisez *Homes*, une petite application de
 > recherche de logements : une liste de cartes, une recherche par ville, une page de détail et un
-> formulaire de candidature, d'abord sur des données en dur, puis sur une vraie API locale. C'est
-> la version française, en 14 étapes, du tutoriel officiel
+> formulaire de candidature, d'abord sur des données en dur, puis sur une vraie API locale. Les
+> étapes 1 à 14 sont la version française du tutoriel officiel
 > [« Build your first Angular app »](https://angular.dev/tutorials/first-app) d'angular.dev : à
-> chaque étape, le lien vers la page officielle est donné, vous pouvez l'ouvrir en parallèle. Vous
-> écrivez le code vous-même, en complétant les `// TODO` ; le dossier `solution/` est là en dernier
-> recours.
+> chaque étape, le lien vers la page officielle est donné, vous pouvez l'ouvrir en parallèle. Les
+> étapes 15 à 17 vous font ensuite pratiquer, sur ce même projet, la démo de ce matin :
+> `HttpClient`, les intercepteurs et les fichiers d'environnement. Vous écrivez le code vous-même,
+> en complétant les `// TODO` ; le dossier `solution/` est là en dernier recours.
 
 > **Niveau : débutant.** Ce lab suppose la matinée : la [synthèse des syntaxes](../00-intro-syntax-recap/index.html)
 > et le [lab Intro](../01-lab-intro/) (un composant, `@for`, `input()`/`output()`, un service avec
 > `inject()`, un signal). Il **ne suppose pas** le routing (la synthèse n'en donne qu'un aperçu), les formulaires ni HTTP : ces trois
-> notions sont introduites ici, pas à pas. Il ne suppose pas non plus que vous sachiez créer un
-> projet Angular : la première étape le fait avec vous, fichier par fichier.
+> notions sont introduites ici, pas à pas. `HttpClient`, les intercepteurs et les environnements
+> n'ont été vus qu'en démonstration : les étapes 15 à 17 les reprennent geste par geste. Il ne
+> suppose pas non plus que vous sachiez créer un projet Angular : la première étape le fait avec
+> vous, fichier par fichier.
 
 ## ✨ Objectifs
 
@@ -24,6 +27,9 @@
 - **Nouveau cet après-midi** : naviguer entre deux pages avec le routeur (`routerLink`, `:id`,
   `ActivatedRoute`), saisir des données avec un formulaire réactif, puis lire les données d'une API
   locale (`json-server`) avec `fetch`.
+- **Pratiquer la démo du matin** : passer à `HttpClient` et `toSignal`, écrire deux intercepteurs
+  (un journal des requêtes, un indicateur de chargement), puis sortir l'URL de l'API dans
+  `environment.ts` (facultatif).
 
 ## 🚀 Prérequis
 
@@ -47,7 +53,7 @@ npm install -g @angular/cli@22       # la CLI Angular, une seule fois ; vérifie
 ## 📁 Ce que vous allez construire
 
 Vous partez d'un projet vide créé par `ng new`. Voici l'arborescence que vous obtiendrez à la fin
-de l'étape 14 (seuls les fichiers que vous touchez sont listés) :
+de l'étape 17 (seuls les fichiers que vous touchez sont listés) :
 
 ```
 homes/
@@ -61,15 +67,20 @@ homes/
 │   ├── index.html                     <- titre + police (étape 1)
 │   ├── styles.css                     <- styles globaux (étape 1)
 │   ├── main.ts                        <- le démarrage, vous n'y touchez pas
+│   ├── environments/                  <- environment.ts, environment.development.ts : apiUrl (étape 17, facultative)
 │   └── app/
-│       ├── app.ts, app.css            <- le composant racine App : en-tête + <router-outlet> (étapes 1, 2, 10)
-│       ├── app.config.ts              <- provideRouter(routes), déjà écrit par la CLI
+│       ├── app.ts, app.css            <- le composant racine App : en-tête, <router-outlet>, « Loading… » (étapes 1, 2, 10, 16)
+│       ├── app.config.ts              <- provideRouter(routes) écrit par la CLI, puis provideHttpClient (étapes 15, 16)
 │       ├── app.routes.ts              <- vos deux routes (étape 10)
 │       ├── housinglocation.ts         <- l'interface HousingLocationInfo (étape 4)
-│       ├── housing.service.ts         <- HousingService : les données, puis l'API (étapes 9, 12, 14)
-│       ├── home/home.ts, home.css     <- la liste + la recherche (étapes 2 à 9, 13, 14)
+│       ├── housing.service.ts         <- HousingService : les données, puis l'API (étapes 9, 12, 14, 15, 17)
+│       ├── logging-interceptor.ts     <- le journal des requêtes (étape 16)
+│       ├── loading-interceptor.ts     <- compte les requêtes en cours (étape 16)
+│       ├── loading.service.ts         <- LoadingService : le compteur partagé (étape 16)
+│       ├── home/home.ts, home.css     <- la liste + la recherche (étapes 2 à 9, 13, 14, 15)
 │       ├── housing-location/…         <- une carte (étapes 3, 5, 7, 11)
-│       └── details/…                  <- la page de détail + le formulaire (étapes 10 à 12, 14)
+│       └── details/…                  <- la page de détail + le formulaire (étapes 10 à 12, 14, 15)
+├── angular.json                       <- le fileReplacements ajouté par la CLI (étape 17)
 └── package.json                       <- scripts start, build, api
 ```
 
@@ -90,12 +101,14 @@ l'affiche et l'étape qui la construit :
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## 🧭 Les 14 étapes
+## 🧭 Les 17 étapes
 
-Les étapes suivent **une pour une** celles du tutoriel officiel ; la colonne « Fichiers » indique ce
-que vous créez ou modifiez, avec les noms de fichiers d'Angular 22 (`app.ts`, `home.ts`…).
+Les étapes 1 à 14 suivent **une pour une** celles du tutoriel officiel ; les étapes 15 à 17 vont
+au-delà, et la dernière colonne donne alors la page du guide angular.dev correspondante. La colonne
+« Fichiers » indique ce que vous créez ou modifiez, avec les noms de fichiers d'Angular 22
+(`app.ts`, `home.ts`…).
 
-| Étape | Vous apprenez | Fichiers | Officiel |
+| Étape | Vous apprenez | Fichiers | Officiel / doc |
 |---|---|---|---|
 | [01 — Hello world](ETAPES/01-HELLO-WORLD.md) | `ng new`, `ng serve`, les fichiers du projet | `index.html`, `styles.css`, `app.ts`, `public/` | [hello-world](https://angular.dev/tutorials/first-app/01-hello-world) |
 | [02 — Le composant Home](ETAPES/02-HOME.md) | `ng generate component`, utiliser un composant | `home/` (+ `home.css` depuis `assets/02`), `app.ts`, `app.css` (depuis `assets/02`) | [02-Home](https://angular.dev/tutorials/first-app/02-Home) |
@@ -111,11 +124,17 @@ que vous créez ou modifiez, avec les noms de fichiers d'Angular 22 (`app.ts`, `
 | [12 — Le formulaire](ETAPES/12-FORMS.md) | `FormGroup`, `FormControl`, `(submit)` | `housing.service.ts`, `details.ts` | [12-forms](https://angular.dev/tutorials/first-app/12-forms) |
 | [13 — La recherche](ETAPES/13-SEARCH.md) | variable de template `#filter`, `(click)`, `filter()` | `home.ts` | [13-search](https://angular.dev/tutorials/first-app/13-search) |
 | [14 — HTTP](ETAPES/14-HTTP.md) | `json-server`, `fetch`, `async`/`await` | `package.json`, `api/db.json`, `housing.service.ts`, `home.ts`, `details.ts` | [14-http](https://angular.dev/tutorials/first-app/14-http) |
+| [15 — Passer à HttpClient](ETAPES/15-HTTPCLIENT.md) | `provideHttpClient()`, `Observable`, `toSignal`, `signal` + `computed` | `app.config.ts`, `housing.service.ts`, `home.ts`, `details.ts` | [http/setup](https://angular.dev/guide/http/setup) |
+| [16 — Un premier intercepteur](ETAPES/16-INTERCEPTEUR.md) | `ng generate interceptor`, `withInterceptors`, `tap`/`finalize`, l'ordre des intercepteurs | `logging-interceptor.ts`, `loading-interceptor.ts`, `loading.service.ts`, `app.config.ts`, `app.ts`, `app.css` | [http/interceptors](https://angular.dev/guide/http/interceptors) |
+| [17 — L'URL de l'API dans `environment.ts`](ETAPES/17-ENVIRONNEMENTS.md) *(facultative)* | `ng generate environments`, `fileReplacements`, rien de secret dans le front | `environments/`, `angular.json`, `housing.service.ts` | [cli/environments](https://angular.dev/tools/cli/environments) |
 
 **Le guidage évolue avec vous**, comme dans le lab Intro : les étapes 1 à 4 écrivent chaque action
 sur chaque fichier ; les étapes 5, 7 et 8 passent aux codes à trous (`// TODO` + un tableau qui explique
-chaque morceau) parce que vous avez déjà fait ces gestes ce matin ; les étapes 9 à 12 et 14 redeviennent guidées (l'étape 13 garde un petit code à trous) parce que les notions sont nouvelles (services, routes, formulaires, HTTP). Si vous êtes à
-l'aise, sautez les blocs de code et travaillez à partir des liens de doc.
+chaque morceau) parce que vous avez déjà fait ces gestes ce matin ; les étapes 9 à 12 et 14 redeviennent guidées (l'étape 13 garde un petit code à trous) parce que les notions sont nouvelles (services, routes, formulaires, HTTP). Les
+étapes 15 et 16 restent guidées : `HttpClient` et les intercepteurs n'ont été vus qu'en démo, et
+chaque fichier y est donné en entier ou morceau par morceau. L'étape 17 est facultative : faites-la
+si vous avez de l'avance.
+Si vous êtes à l'aise, sautez les blocs de code et travaillez à partir des liens de doc.
 
 ### 🗣️ Débriefs collectifs, ou points à noter
 
@@ -173,15 +192,20 @@ Votre application est terminée quand vous pouvez cocher chacune de ces cases :
 - [ ] **Learn More** ouvre `/details/5` avec la photo, le nom et les 3 caractéristiques du logement.
 - [ ] Le formulaire envoyé écrit `Homes application received: …` dans la console (F12).
 - [ ] Le logo en haut ramène à la liste sans recharger la page.
+- [ ] Il ne reste ni `fetch`, ni `ChangeDetectorRef`, ni `markForCheck()` dans `src/app/` (étape 15).
+- [ ] Chaque requête écrit une ligne `GET http://localhost:3000/locations => 200 (… ms)` dans la console (étape 16).
+- [ ] Avec `npm run api -- --delay 1500`, le bandeau **Loading…** s'affiche le temps de la requête, puis disparaît (étape 16).
+- [ ] *(facultatif, étape 17)* `HousingService` lit `environment.apiUrl`, et le fichier produit par `ng build` contient `localhost:3000`.
 
 ## ✅ Pour aller plus loin
 
-Si vous avez fini en avance, voici trois prolongements, du plus simple au plus ambitieux :
+Si vous avez fini en avance, voici quelques prolongements, du plus simple au plus ambitieux :
 
 - Affichez « Units available » sur la carte, et grisez le lien quand `availableUnits` vaut 0 (`@if`).
-- Faites chercher sur le nom **ou** la ville.
-- Remplacez `housingLocationList` et `filteredLocationList` par un `signal` et un `computed`, comme
-  le panier du lab Intro : vous n'aurez plus besoin de `markForCheck()` (étape 14).
+- Faites chercher sur le nom **ou** la ville (une ligne à changer dans le `computed` de l'étape 15).
+- Dans `Details`, remplacez `toSignal(…)` par `httpResource`, qui renvoie directement un signal et
+  passe lui aussi par vos intercepteurs : voir [le guide `httpResource`](https://angular.dev/guide/http/http-resource).
+- Vous avez de l'avance ? Le lab avancé [02-housing-async](../02-housing-async/) part de ce projet.
 
 ## Récap
 
@@ -191,5 +215,8 @@ Si vous avez fini en avance, voici trois prolongements, du plus simple au plus a
 - Le routeur affiche un composant selon l'URL (`<router-outlet>`), et `:id` transporte une valeur.
 - Un formulaire réactif = un `FormGroup` de `FormControl`, lu au `(submit)`.
 - Une API, c'est juste une fonction `async` dans le service ; le reste de l'app ne change presque pas.
+- `HttpClient` renvoie des `Observable` froids ; `toSignal` s'y abonne et le rendu suit les signals, sans `markForCheck()`.
+- Un intercepteur voit passer toutes les requêtes : `withInterceptors([a, b])`, `a` puis `b` à l'aller, l'inverse au retour.
+- Un fichier d'environnement change une valeur selon le build ; tout ce qu'il contient est public.
 
 ➡️ Commencez par [01 — Hello world](ETAPES/01-HELLO-WORLD.md).

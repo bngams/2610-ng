@@ -10,3 +10,8 @@ header {
 .content {
   padding: var(--content-padding);
 }
+.loading {
+  padding: 4px var(--content-padding);
+  background: var(--accent-color);
+  color: var(--primary-color);
+}

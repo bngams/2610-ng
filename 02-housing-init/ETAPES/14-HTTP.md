@@ -1,6 +1,6 @@
 # 14 — HTTP : les données viennent d'une API
 
-> Dernière étape : les 10 logements quittent le code pour une **API locale**, `json-server`, qui
+> Dernière étape du tutoriel officiel : les 10 logements quittent le code pour une **API locale**, `json-server`, qui
 > les sert sur http://localhost:3000/locations. Le service va les chercher avec `fetch`, et comme
 > une requête réseau prend du temps, `Home` et `Details` apprennent à attendre une réponse.
 
@@ -182,9 +182,8 @@ compare à `HttpClient`, l'outil fourni par Angular lui-même :
 | Renvoie | une `Promise` | un `Observable` (RxJS), ou un signal avec `httpResource` |
 | Pour | découvrir, un script simple | une vraie app : intercepteurs (jeton d'auth, erreurs), tests, annulation |
 
-Le tutoriel officiel choisit `fetch` pour sa simplicité ; le lab Avancé repart de la même app
-migrée sur `HttpClient`. Avec un `signal` à la place des propriétés, `markForCheck()` devient
-inutile : c'est le bonus proposé dans le README.
+Le tutoriel officiel choisit `fetch` pour sa simplicité. L'étape 15 migre l'application sur
+`HttpClient` ; avec un `signal` à la place des propriétés, `markForCheck()` y devient inutile.
 
 ## ⚠️ Pièges
 
@@ -204,4 +203,4 @@ inutile : c'est le bonus proposé dans le README.
 - Service `async` + `fetch` ; composant `.then(...)` + `markForCheck()` (ou un signal).
 - Vous avez terminé le tutoriel officiel : 3 composants, 1 interface, 1 service, 2 routes, 1 formulaire, 1 API.
 
-➡️ Retour au [README](../README.md) pour le challenge final et les bonus.
+➡️ [15 — Passer à `HttpClient`](15-HTTPCLIENT.md)

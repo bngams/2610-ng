@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
+import { LoadingService } from './loading.service';
 
 @Component({
   selector: 'app-root',
@@ -11,6 +12,9 @@ import { RouterLink, RouterOutlet } from '@angular/router';
           <img class="brand-logo" src="/logo.svg" alt="logo" aria-hidden="true" />
         </header>
       </a>
+      @if (loadingService.pending() > 0) {
+        <p class="loading">Loading…</p>
+      }
       <section class="content">
         <router-outlet />
       </section>
@@ -20,4 +24,5 @@ import { RouterLink, RouterOutlet } from '@angular/router';
 })
 export class App {
   title = 'homes';
+  loadingService = inject(LoadingService);
 }
