@@ -1,4 +1,4 @@
-# 03 — Housing sous pression asynchrone
+# 02 — Housing sous pression asynchrone
 
 > **Scénario à réaliser en autonomie.** Vous partez de l'application Housing *terminée* (celle du
 > tutoriel officiel « first app » d'angular.dev), branchée sur une API locale qu'on a rendue
@@ -44,7 +44,7 @@ Vous copiez `base/`, qui contient l'app Housing finie, une API enrichie et l'int
 Voici ce qui est déjà là, et ce que vous écrivez :
 
 ```
-03-housing-async/
+02-housing-async/
 ├── README.md                     <- cet énoncé
 ├── GRILLE.md                     <- le gabarit de grille à remplir (le livrable)
 ├── base/                         <- ce que vous copiez
@@ -105,7 +105,7 @@ pour l'app.
 nvm use 24            # ou nvm install 24 si besoin
 node -v               # -> v24.x
 
-cd 03-housing-async
+cd 02-housing-async
 cp -r base mon-housing && cd mon-housing
 npm install
 
