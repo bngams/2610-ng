@@ -102,7 +102,9 @@ Faites-la marcher (elle marche), puis répondez à trois questions avant d'ouvri
   traîne ?
 - Que se passe-t-il si vous oubliez `clearInterval` ?
 
-Une fois vos réponses notées, lisez `solution/src/app/scenarios/s5-polling/s5-signals.ts` : elle garde votre tentative
+Une fois vos réponses notées, lisez `solution/src/app/scenarios/s5-polling/s5-signals.ts`. La
+solution est dans l'état final du lab (après l'étape 08) : `this.availabilityService.get(params)` y
+tient la place de votre `this.housingService.getAvailability(params)`. Elle garde votre tentative
 (version A) et ajoute la version B, **le pont** : un `rxResource` dont le `stream` est
 `timer(0, 3000).pipe(switchMap(http))`. Le temps reste RxJS, la resource ne fait que consommer le
 flux, et à la destruction elle se désabonne : le polling cesse. Les deux versions sont derrière un

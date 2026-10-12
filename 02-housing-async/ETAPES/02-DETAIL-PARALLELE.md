@@ -143,13 +143,13 @@ export class S2Rxjs {
           this.housingService.getAgent(location.agentId).pipe(map((agent) => ({ location, agent }))),
         ),
       ),
-      // catchError PAR FLUX : l'erreur devient une valeur, forkJoin ne la voit jamais (S3).
+      // catchError PAR FLUX : l'erreur devient une valeur, forkJoin ne la voit jamais (l'erreur partielle).
       reviews: withCatch
         ? reviews$.pipe(catchError((err: unknown) => of({ reviews: null, reviewsError: describe(err) })))
         : reviews$,
     }).pipe(
       map(({ location, reviews }) => ({ ...location, ...reviews, fatal: null })),
-      // Sans le catchError par flux, c'est celui-ci qui attrape : tout l'écran tombe (S3).
+      // Sans le catchError par flux, c'est celui-ci qui attrape : tout l'écran tombe (l'erreur partielle).
       catchError((err: unknown) =>
         of({ location: null, agent: null, reviews: null, reviewsError: null, fatal: describe(err) }),
       ),
@@ -193,6 +193,7 @@ et des avis sont à écrire sur le même modèle, ainsi que les quatre déclarat
 import { Component, computed, input } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { Agent, HousingLocationInfo, Review } from '../../housinglocation';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-s2-signals',
@@ -215,9 +216,9 @@ import { Agent, HousingLocationInfo, Review } from '../../housinglocation';
 export class S2Signals {
   readonly locationId = input.required<number>();
 
-  // TODO : location = httpResource<HousingLocationInfo>(() => `/api/locations/${...}`)
-  // TODO : reviews  = httpResource<Review[]>(() => ({ url: '/api/reviews', params: { locationId: ... } }))
-  // TODO : agent    = httpResource<Agent>(() => ... ? `/api/agents/${...agentId}` : undefined)
+  // TODO : location = httpResource<HousingLocationInfo>(() => `${environment.apiUrl}/locations/${...}`)
+  // TODO : reviews  = httpResource<Review[]>(() => ({ url: `${environment.apiUrl}/reviews`, params: { locationId: ... } }))
+  // TODO : agent    = httpResource<Agent>(() => ... ? `${environment.apiUrl}/agents/${...agentId}` : undefined)
   // TODO : ready    = computed(() => ... && ... && ...)
 }
 ```
@@ -259,7 +260,8 @@ et pourquoi.
 - La **dépendance** (agent après logement) s'écrit `switchMap` dans le flux concerné en RxJS, et
   `undefined` tant que la dépendance n'a pas de valeur en signals.
 - Côté signals, aucun pont : la sortie est déjà un signal. Le prix à payer : trois URL dupliquées
-  depuis le service (`rxResource` les éviterait, au prix d'un peu de plomberie).
+  depuis le service (`rxResource` les éviterait, au prix d'un peu de plomberie ; l'étape 08 les
+  range dans le service, avec `getResource` et `listResource`).
 </details>
 
 ---

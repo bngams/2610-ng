@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { combineLatest, map, startWith } from 'rxjs';
 import { HousingLocationInfo } from '../../housinglocation';
-import { HousingService } from '../../housing.service';
+import { LocationsService } from '../../api/locations.service';
 import { SortKey, applyFilters } from './filters';
 
 /**
@@ -31,7 +31,7 @@ import { SortKey, applyFilters } from './filters';
   `,
 })
 export class S6Rxjs {
-  private readonly housingService = inject(HousingService);
+  private readonly locationsService = inject(LocationsService);
 
   readonly city = new FormControl('', { nonNullable: true });
   readonly maxPrice = new FormControl(2000, { nonNullable: true });
@@ -39,7 +39,7 @@ export class S6Rxjs {
 
   readonly filtered = toSignal(
     combineLatest([
-      this.housingService.getAllHousingLocations(),
+      this.locationsService.list(),
       this.city.valueChanges.pipe(startWith(this.city.value)),
       this.maxPrice.valueChanges.pipe(startWith(this.maxPrice.value)),
       this.sort.valueChanges.pipe(startWith(this.sort.value)),

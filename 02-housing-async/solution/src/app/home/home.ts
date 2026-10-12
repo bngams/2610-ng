@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { HousingLocation } from '../housing-location/housing-location';
-import { HousingService } from '../housing.service';
+import { LocationsService } from '../api/locations.service';
 
 @Component({
   selector: 'app-home',
@@ -13,6 +13,11 @@ import { HousingService } from '../housing.service';
         <button class="primary" type="button" (click)="filterResults(filter.value)">Search</button>
       </form>
     </section>
+    <section class="pager">
+      <button type="button" [disabled]="page() <= 1" (click)="page.set(page() - 1)">Précédent</button>
+      <span>Page {{ page() }} / {{ lastPage() }} ({{ total() }} logements)</span>
+      <button type="button" [disabled]="page() >= lastPage()" (click)="page.set(page() + 1)">Suivant</button>
+    </section>
     <section class="results">
       @for (housingLocation of filteredLocationList(); track housingLocation.id) {
         <app-housing-location [housingLocation]="housingLocation" />
@@ -22,20 +27,25 @@ import { HousingService } from '../housing.service';
   styleUrl: './home.css',
 })
 export class Home {
-  private readonly housingService = inject(HousingService);
+  locationsService = inject(LocationsService);
+  readonly pageSize = 4;
 
-  /** Lab Init : fetch + then + markForCheck(). Ici : un Observable lu par toSignal, le rendu suit tout seul. */
-  readonly housingLocationList = toSignal(this.housingService.getAllHousingLocations(), {
-    initialValue: [],
+  filterText = signal('');
+  page = signal(1);
+
+  /** Bonus de l'étape 08 : la ville et la page partent au serveur (city_like, _page, _limit). */
+  readonly result = rxResource({
+    params: () => ({ city: this.filterText(), page: this.page() }),
+    stream: ({ params }) =>
+      this.locationsService.page({ city_like: params.city }, params.page, this.pageSize),
   });
-  readonly filterText = signal('');
-  readonly filteredLocationList = computed(() => {
-    const text = this.filterText().toLowerCase();
-    const list = this.housingLocationList();
-    return text ? list.filter((l) => l.city.toLowerCase().includes(text)) : list;
-  });
+
+  filteredLocationList = computed(() => this.result.value()?.data ?? []);
+  readonly total = computed(() => this.result.value()?.meta?.total ?? 0);
+  readonly lastPage = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize)));
 
   filterResults(text: string) {
     this.filterText.set(text);
+    this.page.set(1);
   }
 }

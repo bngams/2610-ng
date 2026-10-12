@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { catchError, debounceTime, distinctUntilChanged, of, startWith, switchMap, tap } from 'rxjs';
 import { HousingLocationInfo } from '../../housinglocation';
-import { HousingService } from '../../housing.service';
+import { LocationsService } from '../../api/locations.service';
 
 /**
  * S1 côté RxJS : le temps (debounceTime) et l'annulation (switchMap) sont des opérateurs.
@@ -27,7 +27,7 @@ import { HousingService } from '../../housing.service';
   `,
 })
 export class S1Rxjs {
-  private readonly housingService = inject(HousingService);
+  private readonly locationsService = inject(LocationsService);
 
   readonly city = new FormControl('', { nonNullable: true });
   readonly searching = signal(false);
@@ -40,7 +40,7 @@ export class S1Rxjs {
       tap(() => this.searching.set(true)),
       // switchMap : une nouvelle valeur désabonne la requête précédente -> "annulée" dans le log chaos.
       switchMap((q) =>
-        this.housingService.searchByCity(q).pipe(
+        this.locationsService.searchByCity(q).pipe(
           catchError(() => of([] as HousingLocationInfo[])),
           tap(() => this.searching.set(false)),
         ),

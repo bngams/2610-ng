@@ -134,7 +134,7 @@ export class S4Rxjs {
 | `takeUntilDestroyed()` puis `subscribe` | la première exception à la règle : un événement, donc un `subscribe` ; `takeUntilDestroyed` coupe le flux à la destruction du composant (sans ça, les `Subject` survivent à la page) |
 | `catchError(() => of(null))` dans `book()` | une réservation en erreur ne doit pas tuer le flux des clics suivants |
 | `this.locationId()` dans `book()` | lu au **clic**, donc bien après la construction : pas de `NG0950` ici |
-| `bookingsCount` : `combineLatest([toObservable(locationId), refresh$])` | le compteur côté serveur, relancé par « Compter » ; `toObservable(this.locationId)` parce que `startWith` émet à la construction (piège 3 de l'étape bonus) |
+| `bookingsCount` : `combineLatest([toObservable(locationId), refresh$])` | le compteur côté serveur, relancé par « Compter » ; `toObservable(this.locationId)` parce que `startWith` émet à la construction (piège 3 de l'[étape bonus 09](09-BONUS.md)) |
 
 ## Côté signals (à vous)
 

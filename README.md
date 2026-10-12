@@ -19,7 +19,7 @@ Supports et cas pratiques. Deux parcours (**Init** et **Avancé**) autour d'un s
 |---|---|---|
 | Matin | [02 — Démo HTTP](02-demo-http/) : `ng new`, routing, `HttpClient`, typage, enveloppe générique, `ResourceService<I, T>`, environnements, intercepteurs ([version en ligne](https://bngams.github.io/2610-ng/02-demo-http/)) | tout le monde |
 | Ensuite | [02 — Housing, premiers pas](02-housing-init/) : le tutoriel officiel first-app en français, guidé pas à pas, jusqu'à `HttpClient`, un intercepteur et les environnements | Init |
-| Ensuite | [02 — Housing sous pression asynchrone](02-housing-async/) : à la suite du Housing Init, des scénarios RxJS donnés, côté signals à écrire, une grille de décision | Avancé |
+| Ensuite | [02 — Housing sous pression asynchrone](02-housing-async/) : à la suite du Housing Init, des scénarios RxJS donnés et côté signals à écrire, puis un intercepteur de reprise et un service générique `ResourceService<I, T>` | Avancé |
 | Fin de journée | Débrief final : la grille de décision RxJS / signals | tout le monde |
 
 ## Prérequis

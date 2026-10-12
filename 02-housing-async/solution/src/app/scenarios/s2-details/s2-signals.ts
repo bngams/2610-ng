@@ -1,6 +1,7 @@
-import { Component, computed, input } from '@angular/core';
-import { httpResource } from '@angular/common/http';
-import { Agent, HousingLocationInfo, Review } from '../../housinglocation';
+import { Component, computed, inject, input } from '@angular/core';
+import { AgentsService } from '../../api/agents.service';
+import { LocationsService } from '../../api/locations.service';
+import { ReviewsService } from '../../api/reviews.service';
 
 /**
  * S2 côté signals : trois resources indépendantes, chacune avec son propre statut.
@@ -56,15 +57,12 @@ import { Agent, HousingLocationInfo, Review } from '../../housinglocation';
 export class S2Signals {
   readonly locationId = input.required<number>();
 
-  readonly location = httpResource<HousingLocationInfo>(() => `/api/locations/${this.locationId()}`);
+  readonly location = inject(LocationsService).getResource(() => this.locationId());
 
-  readonly reviews = httpResource<Review[]>(() => ({
-    url: '/api/reviews',
-    params: { locationId: this.locationId() },
-  }));
+  readonly reviews = inject(ReviewsService).listResource(() => ({ locationId: this.locationId() }));
 
-  readonly agent = httpResource<Agent>(() =>
-    this.location.hasValue() ? `/api/agents/${this.location.value().agentId}` : undefined,
+  readonly agent = inject(AgentsService).getResource(() =>
+    this.location.hasValue() ? this.location.value().agentId : undefined,
   );
 
   readonly ready = computed(

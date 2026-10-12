@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { LoadingService } from './loading.service';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +19,9 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
           <a routerLink="/s6" routerLinkActive="active">S6 Filtres</a>
         </nav>
       </header>
+      @if (loadingService.pending() > 0) {
+        <p class="loading">Loading…</p>
+      }
       <section class="content">
         <router-outlet />
       </section>
@@ -27,4 +31,5 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 })
 export class App {
   title = 'homes';
+  loadingService = inject(LoadingService);
 }

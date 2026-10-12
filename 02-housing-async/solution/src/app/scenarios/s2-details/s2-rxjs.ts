@@ -13,7 +13,9 @@ import {
   switchMap,
 } from 'rxjs';
 import { Agent, HousingLocationInfo, Review } from '../../housinglocation';
-import { HousingService } from '../../housing.service';
+import { AgentsService } from '../../api/agents.service';
+import { LocationsService } from '../../api/locations.service';
+import { ReviewsService } from '../../api/reviews.service';
 
 interface Vm {
   location: HousingLocationInfo | null;
@@ -72,7 +74,9 @@ export class S2Rxjs {
   readonly withCatch = signal(true);
   readonly reload$ = new Subject<void>();
 
-  private readonly housingService = inject(HousingService);
+  private readonly locationsService = inject(LocationsService);
+  private readonly reviewsService = inject(ReviewsService);
+  private readonly agentsService = inject(AgentsService);
 
   readonly vm = toSignal(
     combineLatest([
@@ -86,15 +90,15 @@ export class S2Rxjs {
   );
 
   private load(id: number, withCatch: boolean): Observable<Vm> {
-    const reviews$ = this.housingService.getReviews(id).pipe(
+    const reviews$ = this.reviewsService.list({ locationId: id }).pipe(
       map((reviews) => ({ reviews, reviewsError: null as string | null })),
     );
 
     return forkJoin({
       // L'agent dépend du logement : switchMap à l'intérieur, forkJoin n'en sait rien.
-      location: this.housingService.getHousingLocationById(id).pipe(
+      location: this.locationsService.get(id).pipe(
         switchMap((location) =>
-          this.housingService.getAgent(location.agentId).pipe(map((agent) => ({ location, agent }))),
+          this.agentsService.get(location.agentId).pipe(map((agent) => ({ location, agent }))),
         ),
       ),
       // catchError PAR FLUX : l'erreur devient une valeur, forkJoin ne la voit jamais.

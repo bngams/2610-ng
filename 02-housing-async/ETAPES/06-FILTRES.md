@@ -46,7 +46,7 @@ export function applyFilters(
 ```
 
 L'ordre des deux appels compte : `filter` renvoie un **nouveau** tableau, donc le `sort` en place
-qui suit ne mute pas la liste reçue (voir le piège 2 de l'étape bonus).
+qui suit ne mute pas la liste reçue (voir le piège 2 de l'[étape bonus 09](09-BONUS.md)).
 
 ## Côté RxJS (donné)
 
@@ -155,5 +155,9 @@ volet signals tient en cinq lignes de logique.
 
 ---
 
-🎉 Les six expériences sont faites : finissez la [grille de décision](../GRILLE.md) pour le [débrief final](../README.md).
-S'il vous reste du temps : ➡️ [07 — Bonus : trois pièges RxJS](07-BONUS.md)
+🎉 Les six expériences sont faites : complétez la [grille de décision](../GRILLE.md) pour le
+[débrief final](../README.md). La ligne « Flux dans le temps » se termine à l'étape 07, avec la
+reprise.
+
+La suite revient sur l'infrastructure HTTP de l'application, maintenant que vous l'avez vue sous
+pression : ➡️ [07 — Écrire un intercepteur de reprise](07-REPRISE.md)

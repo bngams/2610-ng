@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { HousingService } from '../../housing.service';
+import { LocationsService } from '../../api/locations.service';
 import { SortKey, applyFilters } from './filters';
 
 /**
@@ -27,9 +27,9 @@ import { SortKey, applyFilters } from './filters';
   `,
 })
 export class S6Signals {
-  private readonly housingService = inject(HousingService);
+  private readonly locationsService = inject(LocationsService);
 
-  readonly list = toSignal(this.housingService.getAllHousingLocations(), { initialValue: [] });
+  readonly list = toSignal(this.locationsService.list(), { initialValue: [] });
   readonly city = signal('');
   readonly maxPrice = signal(2000);
   readonly sort = signal<SortKey>('name');

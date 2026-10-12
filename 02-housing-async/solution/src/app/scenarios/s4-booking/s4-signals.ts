@@ -1,7 +1,7 @@
 import { Component, inject, input, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
-import { HousingService } from '../../housing.service';
+import { BookingsService } from '../../api/bookings.service';
 
 /**
  * S4 côté signals.
@@ -38,14 +38,14 @@ import { HousingService } from '../../housing.service';
 })
 export class S4Signals {
   readonly locationId = input.required<number>();
-  private readonly housingService = inject(HousingService);
+  private readonly bookingsService = inject(BookingsService);
 
   // --- Version A : resource ≈ switchMap --------------------------------------------------------
   readonly clicksA = signal(0);
   readonly bookingA = rxResource({
     // undefined au départ : le resource reste idle tant qu'on n'a pas cliqué.
     params: () => this.clicksA() || undefined,
-    stream: () => this.housingService.book(this.locationId()),
+    stream: () => this.bookingsService.book(this.locationId()),
   });
 
   // --- Version B : garde manuelle ≈ exhaustMap -------------------------------------------------
@@ -59,7 +59,7 @@ export class S4Signals {
       return; // le bouton est déjà disabled, la garde est une ceinture en plus des bretelles
     }
     this.pending.set(true);
-    this.housingService
+    this.bookingsService
       .book(this.locationId())
       .pipe(finalize(() => this.pending.set(false)))
       .subscribe({ next: () => this.confirmedB.update((n) => n + 1), error: () => {} });

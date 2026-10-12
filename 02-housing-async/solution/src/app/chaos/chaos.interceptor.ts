@@ -23,7 +23,7 @@ function randomBetween(min: number, max: number): number {
  *
  * Trois lignes de log possibles dans la console du navigateur :
  *   [chaos] GET /api/reviews?locationId=3 +842ms
- *   [chaos] GET /api/reviews?locationId=3 => 503
+ *   [chaos] GET /api/reviews?locationId=3 => 503 (après 537 ms)
  *   [chaos] GET /api/locations?city_like=Chi => annulée
  */
 export const chaosInterceptor: HttpInterceptorFn = (req, next) => {

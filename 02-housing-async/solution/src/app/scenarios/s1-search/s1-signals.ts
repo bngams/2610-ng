@@ -1,8 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { httpResource } from '@angular/common/http';
 import { debounceTime } from 'rxjs';
-import { HousingLocationInfo } from '../../housinglocation';
+import { LocationsService } from '../../api/locations.service';
 
 /**
  * S1 côté signals : httpResource annule tout seul la requête précédente quand sa requête change
@@ -44,8 +43,7 @@ export class S1Signals {
   );
 
   /** La requête dérive du signal débouncé : chaque changement relance (et annule) la requête. */
-  readonly results = httpResource<HousingLocationInfo[]>(
-    () => ({ url: '/api/locations', params: { city_like: this.debouncedQuery() } }),
-    { defaultValue: [] },
-  );
+  readonly results = inject(LocationsService).listResource(() => ({
+    city_like: this.debouncedQuery(),
+  }));
 }

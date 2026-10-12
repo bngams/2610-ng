@@ -8,6 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "api": "json-server --watch api/db.json --port 3000",
+    "api:v2": "node api/server.js",
     "api:reset": "node -e \"require('fs').copyFileSync('api/db.seed.json','api/db.json')\""
   },
   "private": true,

@@ -32,13 +32,11 @@ cp ../02-housing-async/assets/scenarios.css src/scenarios.css
 ```
 
 Copier le fichier ne suffit pas : Angular ne charge que les feuilles déclarées dans `angular.json`.
-Dans la cible `build` du projet, ajoutez-la au tableau `styles`, juste après `src/styles.css` :
+Dans la cible `build` du projet, ajoutez-la au tableau `styles`, juste après `src/styles.css`
+(depuis l'étape 17 du lab Init, la CLI a écrit ce tableau sur une seule ligne) :
 
 ```json
-            "styles": [
-              "src/styles.css",
-              "src/scenarios.css"
-            ]
+            "styles": ["src/styles.css", "src/scenarios.css"]
 ```
 
 Comme pour le proxy, `angular.json` n'est pas surveillé : faites `Ctrl-C` puis `npm start` dans le
@@ -116,26 +114,28 @@ export class S1Page {
 | `@if (mode() === 'rxjs') … @else` | un seul volet dans le DOM ; changer de mode détruit l'autre composant |
 | `imports: [ModeToggle, S1Rxjs, S1Signals]` | les deux composants de volet n'existent pas encore : vous les créez dans la suite de cette étape, et le build restera rouge jusque-là |
 
-Une page n'est atteignable que si une route y mène. Ajoutez-la dans `src/app/app.routes.ts`, en
-gardant les deux routes du tutoriel :
+Une page n'est atteignable que si une route y mène. Dans `src/app/app.routes.ts`, ajoutez
+l'import de `S1Page` sous les deux imports existants, puis une troisième route après celles du
+tutoriel (`''` et `'details/:id'`, que vous gardez telles quelles) :
 
 ```ts
 import { S1Page } from './scenarios/s1-search/s1-page';
 
 export const routes: Routes = [
-  { path: '', component: Home, title: 'Home page' },
-  { path: 'details/:id', component: Details, title: 'Home details' },
+  // … les routes '' et 'details/:id' du tutoriel, inchangées …
   { path: 's1', component: S1Page, title: 'S1 — Recherche : anti-rebond et annulation' },
 ];
 ```
 
 Reste à rendre cette route accessible d'un clic. Le `app.ts` du tutoriel enveloppe tout l'en-tête
 dans un `<a>` vers l'accueil : il n'y a pas de place pour d'autres liens. On le restructure donc
-pour loger une barre de navigation à côté du logo. Remplacez `src/app/app.ts` en entier :
+pour loger une barre de navigation à côté du logo, en gardant le bandeau « Loading… » de l'étape
+16 du lab Init. Remplacez `src/app/app.ts` en entier :
 
 ```ts
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { LoadingService } from './loading.service';
 
 @Component({
   selector: 'app-root',
@@ -150,6 +150,9 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
           <a routerLink="/s1" routerLinkActive="active">S1 Recherche</a>
         </nav>
       </header>
+      @if (loadingService.pending() > 0) {
+        <p class="loading">Loading…</p>
+      }
       <section class="content">
         <router-outlet />
       </section>
@@ -159,16 +162,19 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 })
 export class App {
   title = 'homes';
+  loadingService = inject(LoadingService);
 }
 ```
 
 Le lien vers l'accueil n'entoure plus que le logo, et le `<nav class="scenarios">` accueille les
 liens des expériences ; `routerLinkActive="active"` ajoute la classe `active` au lien de la page
-courante.
+courante. Le bloc `@if` et l'injection de `LoadingService` sont repris du lab Init sans
+changement.
 
 Cette nouvelle structure a besoin de styles : sans eux, le logo et les liens s'empileraient. Dans
 la nouvelle version de `src/app/app.css`, l'en-tête passe en `flex` pour aligner le logo et les
-liens, et le lien actif est souligné. Remplacez le fichier en entier :
+liens, le lien actif est souligné, et la règle `.loading` du lab Init reste à la fin. Remplacez
+le fichier en entier :
 
 ```css
 :host {
@@ -201,6 +207,11 @@ nav.scenarios a.active {
 }
 .content {
   padding: var(--content-padding);
+}
+.loading {
+  padding: 4px var(--content-padding);
+  background: var(--accent-color);
+  color: var(--primary-color);
 }
 ```
 
@@ -311,6 +322,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { httpResource } from '@angular/common/http';
 import { debounceTime } from 'rxjs';
 import { HousingLocationInfo } from '../../housinglocation';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-s1-signals',
@@ -345,8 +357,10 @@ export class S1Signals {
 
 Quelques indices pour écrire les deux `TODO` :
 
-- `httpResource` accepte un objet `{ url, params }`, comme `HttpClient` (étape 0.4). L'URL est
-  `/api/locations`, à écrire en dur ici, car une resource prend une URL, pas un Observable.
+- `httpResource` accepte un objet `{ url, params }`, comme `HttpClient` dans `searchByCity`. Une resource
+  prend une URL, pas un Observable : construisez-la comme le service, avec
+  `` `${environment.apiUrl}/locations` `` (l'import d'`environment` est déjà dans le squelette).
+  L'étape 08 supprimera cette duplication.
 - L'option `{ defaultValue: [] }` joue le rôle de l'`initialValue` de `toSignal`, et évite un
   `@for` sur `undefined`.
 - Pas besoin de `distinctUntilChanged` : un signal ne notifie pas une valeur identique.

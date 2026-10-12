@@ -13,6 +13,6 @@
 | **Requêtes en parallèle** (plusieurs appels, une seule page) | _quel combinateur, et quelle UX en découle ?_ | _comment savoir que tout est là ?_ | _sans objet ?_ | S2 |
 | **Annulation, « dernier gagne »** (nouvelle saisie, nouvelle route) | _quel opérateur ?_ | _qu'est-ce qui annule, et sur quelle condition ?_ | _comment ajouter un debounce côté signals ?_ | S1, S4 (et piège 1) |
 | **File ou anti-rebond d'action** (paiement, sauvegarde automatique, double clic) | _un opérateur par cas : recherche / paiement / sauvegarde automatique_ | _quel équivalent pour chacun ? lequel n'existe pas ?_ | _sans objet ?_ | S4 |
-| **Flux dans le temps** (polling, debounce ; par extension websocket, retry avec repli) | _les briques vues en S5 et S1_ | _ce que ça coûte en « signals seuls »_ | _la forme du pont qui garde le temps côté RxJS_ | S5, S1 |
+| **Flux dans le temps** (polling, debounce ; par extension websocket, retry avec repli) | _les briques vues en S5 et S1_ | _ce que ça coûte en « signals seuls »_ | _la forme du pont qui garde le temps côté RxJS_ | S5, S1, reprise (étape 07) |
 | **Formulaire => état** (une saisie qui pilote le reste) | _Reactive Forms : quel observable, quelle sortie ?_ | _v22 : Signal Forms (lab suivant) ; v20 : ?_ | _la ligne qui relie les deux_ | S1, S6 (RxJS), Signal Forms (signals) |
 

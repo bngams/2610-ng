@@ -1,7 +1,9 @@
-# ✅ 07 — Bonus : trois pièges RxJS qu'on voit dans toutes les revues de code
+# ✅ 09 — Bonus : trois pièges RxJS qu'on voit dans toutes les revues de code
 
-> Facultatif, à faire si vous avez fini les six expériences avant le débrief final. Gardez le
-> chaos actif : le symptôme du piège 1 se lit dans son log.
+> Facultatif, à faire si vous avez fini l'étape 08 avant le débrief final. Gardez le
+> chaos actif : le symptôme du piège 1 se lit dans son log. Les extraits reprennent les noms de
+> `HousingService` (étapes 00 à 06) ; après l'étape 08, lisez par exemple
+> `locationsService.get(id)` à la place de `housingService.getHousingLocationById(id)`.
 
 Voici trois extraits bugués, à corriger. Pour chacun, lisez d'abord le code et cherchez le bug
 par vous-même, puis lisez le symptôme, la cause et le correctif.

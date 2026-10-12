@@ -2,7 +2,7 @@ import { Component, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { EMPTY, catchError, switchMap, timer } from 'rxjs';
 import { Availability } from '../../housinglocation';
-import { HousingService } from '../../housing.service';
+import { AvailabilityService } from '../../api/availability.service';
 
 /**
  * S5 côté RxJS : le temps est un flux comme un autre.
@@ -25,7 +25,7 @@ import { HousingService } from '../../housing.service';
 })
 export class S5Rxjs {
   readonly locationId = input.required<number>();
-  private readonly housingService = inject(HousingService);
+  private readonly availabilityService = inject(AvailabilityService);
 
   readonly availability = signal<Availability | undefined>(undefined);
   readonly calls = signal(0);
@@ -37,7 +37,7 @@ export class S5Rxjs {
         switchMap((id) =>
           timer(0, 3000).pipe(
             switchMap(() =>
-              this.housingService.getAvailability(id).pipe(catchError(() => EMPTY)),
+              this.availabilityService.get(id).pipe(catchError(() => EMPTY)),
             ),
           ),
         ),

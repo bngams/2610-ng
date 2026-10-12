@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
+import { LocationsService } from '../api/locations.service';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { HousingService } from '../housing.service';
 
 @Component({
   selector: 'app-details',
@@ -47,12 +47,10 @@ import { HousingService } from '../housing.service';
   styleUrl: './details.css',
 })
 export class Details {
-  private readonly route = inject(ActivatedRoute);
-  private readonly housingService = inject(HousingService);
-
-  readonly id = Number(this.route.snapshot.params['id']);
-  /** Lab Init : then + markForCheck(). Ici : toSignal, et `housingLocation()` vaut undefined tant que la réponse n'est pas là. */
-  readonly housingLocation = toSignal(this.housingService.getHousingLocationById(this.id));
+  route: ActivatedRoute = inject(ActivatedRoute);
+  locationsService = inject(LocationsService);
+  housingLocationId = Number(this.route.snapshot.params['id']);
+  housingLocation = toSignal(this.locationsService.get(this.housingLocationId));
 
   applyForm = new FormGroup({
     firstName: new FormControl(''),
@@ -61,7 +59,7 @@ export class Details {
   });
 
   submitApplication() {
-    this.housingService.submitApplication(
+    this.locationsService.submitApplication(
       this.applyForm.value.firstName ?? '',
       this.applyForm.value.lastName ?? '',
       this.applyForm.value.email ?? '',

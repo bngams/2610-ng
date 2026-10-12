@@ -1,7 +1,7 @@
 import { Component, effect, inject, input, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { EMPTY, catchError, switchMap, timer } from 'rxjs';
-import { HousingService } from '../../housing.service';
+import { AvailabilityService } from '../../api/availability.service';
 
 /**
  * S5 côté signals, version A : « signals seuls ».
@@ -25,12 +25,12 @@ import { HousingService } from '../../housing.service';
 })
 export class S5SignalsEffect {
   readonly locationId = input.required<number>();
-  private readonly housingService = inject(HousingService);
+  private readonly availabilityService = inject(AvailabilityService);
 
   readonly ticks = signal(0);
   readonly availability = rxResource({
     params: () => this.locationId(),
-    stream: ({ params }) => this.housingService.getAvailability(params),
+    stream: ({ params }) => this.availabilityService.get(params),
   });
 
   constructor() {
@@ -61,13 +61,13 @@ export class S5SignalsEffect {
 })
 export class S5SignalsStream {
   readonly locationId = input.required<number>();
-  private readonly housingService = inject(HousingService);
+  private readonly availabilityService = inject(AvailabilityService);
 
   readonly availability = rxResource({
     params: () => this.locationId(),
     stream: ({ params }) =>
       timer(0, 3000).pipe(
-        switchMap(() => this.housingService.getAvailability(params).pipe(catchError(() => EMPTY))),
+        switchMap(() => this.availabilityService.get(params).pipe(catchError(() => EMPTY))),
       ),
   });
 }

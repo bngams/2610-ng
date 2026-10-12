@@ -1,12 +1,15 @@
 # 02 — Housing sous pression asynchrone
 
 > **Scénario à réaliser en autonomie.** Vous arrivez du lab [Housing Init](../02-housing-init/)
-> avec l'application *Homes* terminée (ou vous partez de sa solution, `../02-housing-init/solution/`).
-> Vous allez d'abord la **mettre sous pression** : une API enrichie (avis, agents, disponibilité,
-> réservations), une migration de `fetch` vers `HttpClient`, et un intercepteur « chaos » qui
-> ajoute latence aléatoire et erreurs sur certaines routes. Puis vous traitez **cinq scénarios
-> asynchrones et un scénario synchrone, chacun deux fois** : le côté RxJS vous est **donné et
-> expliqué**, le côté signals est **à écrire**, et vous comparez. L'important n'est pas le code,
+> avec l'application *Homes* terminée à l'étape 17 (ou vous partez de sa solution,
+> `../02-housing-init/solution/`) : `HttpClient`, deux intercepteurs, l'adresse de l'API dans
+> `environment.ts`. Vous allez d'abord la **mettre sous pression** : une API enrichie (avis,
+> agents, disponibilité, réservations), un service qui couvre toute cette API, et un intercepteur
+> « chaos » qui ajoute latence aléatoire et erreurs sur certaines routes. Puis vous traitez **cinq
+> scénarios asynchrones et un scénario synchrone, chacun deux fois** : le côté RxJS vous est
+> **donné et expliqué**, le côté signals est **à écrire**, et vous comparez. Deux étapes reviennent
+> ensuite sur l'infrastructure HTTP, cette fois sans code donné : un intercepteur de reprise, puis
+> un service générique qui encaisse un changement de contrat du back. L'important n'est pas le code,
 > c'est la **grille de décision** « quand RxJS, quand signals, où on fait le pont » que vous
 > remplissez au fil des scénarios et qu'on met en commun au débrief final (voir [GRILLE.md](GRILLE.md)). Le dossier `solution/` contient
 > le projet complet, les six scénarios des deux côtés : à ne regarder qu'en cas de blocage, ou
@@ -40,27 +43,36 @@ support de la matinée).
   `error()` / `reload()`, garde `pending`), et reconnaître quand ça ne l'est pas.
 - Placer le **pont** au bon endroit : `toSignal`, `toObservable`, `rxResource`.
 - Repartir avec une **grille de décision** applicable lundi sur votre projet.
+- Écrire un **intercepteur de reprise** qui ne rejoue que ce qui est idempotent, au bon endroit de
+  la chaîne d'intercepteurs.
+- Factoriser l'accès HTTP dans une classe générique `ResourceService<I, T>`, et absorber un
+  changement de contrat de l'API (`{ data, meta }`) dans un seul fichier.
 
 ---
 
 ## 📁 Point de départ
 
-Vous partez de l'application Housing **terminée**, telle que le lab Init la laisse à l'étape 14.
-Voici ce qu'elle contient, et qui va changer :
+Vous partez de l'application Housing **terminée**, telle que le lab Init la laisse à l'étape 17.
+Si vous n'avez pas fait cette dernière étape (elle est facultative), partez de
+`02-housing-init/solution/`. Voici ce que contient ce projet, et ce qui va changer :
 
 ```
 homes/                                 <- votre projet (ou une copie de 02-housing-init/solution/)
 ├── api/db.json                        <- 10 logements, une seule ressource : /locations
 ├── package.json                       <- json-server 0.17.4 déjà en devDependencies, script "api"
-└── src/app/
-    ├── app.ts, app.css                <- en-tête + <router-outlet>
-    ├── app.config.ts                  <- provideRouter(routes), pas encore de HttpClient
-    ├── app.routes.ts                  <- deux routes : '' et 'details/:id'
-    ├── housinglocation.ts             <- HousingLocationInfo (8 champs)
-    ├── housing.service.ts             <- fetch + async/await vers http://localhost:3000/locations
-    ├── home/home.ts                   <- la liste, avec then() + markForCheck()
-    ├── details/details.ts             <- la fiche + le formulaire, avec then() + markForCheck()
-    └── housing-location/…             <- la carte (ne change pas)
+├── angular.json                       <- fileReplacements des environnements, pas encore de proxy
+└── src/
+    ├── environments/                  <- environment.ts et environment.development.ts : apiUrl = 'http://localhost:3000'
+    └── app/
+        ├── app.ts, app.css            <- en-tête + bandeau « Loading… » + <router-outlet>
+        ├── app.config.ts              <- provideHttpClient(withInterceptors([loggingInterceptor, loadingInterceptor]))
+        ├── logging-interceptor.ts, loading-interceptor.ts, loading.service.ts
+        ├── app.routes.ts              <- deux routes : '' et 'details/:id'
+        ├── housinglocation.ts         <- HousingLocationInfo (8 champs)
+        ├── housing.service.ts         <- HttpClient : la liste et un logement, URL tirée de environment.apiUrl
+        ├── home/home.ts               <- la liste, avec toSignal + signal/computed pour le filtre
+        ├── details/details.ts         <- la fiche + le formulaire, avec toSignal
+        └── housing-location/…         <- la carte (ne change pas)
 ```
 
 Ce que vous n'avez pas à réécrire vous-même, le dossier `assets/` vous le donne. Il se trouve à
@@ -73,12 +85,15 @@ utilise chaque fichier :
 assets/
 ├── api/
 │   ├── db.json                        <- la base enrichie : locations (+ price, type, agentId), reviews, agents, availability, bookings
-│   └── db.seed.json                   <- la même, copie de référence pour `npm run api:reset`   (étape 0)
+│   ├── db.seed.json                   <- la même, copie de référence pour `npm run api:reset`   (étape 0)
+│   └── server.js                      <- l'API v2 : json-server en module, réponses { data, meta } (étape 08, partie B)
 ├── proxy.conf.json                    <- /api vers http://localhost:3000                       (étape 0)
 ├── chaos/
 │   ├── chaos.config.ts                <- latence et taux d'erreur par route : c'est ici que vous réglez (étape 0)
 │   └── chaos.interceptor.ts           <- l'intercepteur HttpClient                              (étape 0)
-└── scenarios.css                      <- la mise en page des pages de scénario                  (section « Comment une expérience est construite » de l'[étape S1](ETAPES/01-RECHERCHE.md))
+├── services/                          <- les cinq sous-classes de ResourceService : locations, reviews, agents,
+│                                         availability, bookings                                   (étape 08, partie A)
+└── scenarios.css                      <- la mise en page des pages de scénario                  (section « Comment une expérience est construite » de l'[étape 01](ETAPES/01-RECHERCHE.md))
 ```
 
 Pour vous repérer, voici l'arborescence que vous aurez à la fin du lab. C'est une vision finale,
@@ -86,19 +101,22 @@ pas un point de départ : chaque dossier d'expérience est créé par l'étape q
 
 ```
 homes/
-├── api/db.json, db.seed.json
+├── api/db.json, db.seed.json, server.js
+├── package.json                       <- + scripts "api:reset" et "api:v2"
 ├── proxy.conf.json
 ├── angular.json                       <- proxyConfig + scenarios.css
 └── src/
+    ├── environments/                  <- apiUrl = '/api' dans les deux fichiers
     ├── scenarios.css
     └── app/
         ├── app.ts, app.css            <- + la barre de navigation S1 à S6
-        ├── app.config.ts              <- + provideHttpClient(withInterceptors([chaosInterceptor]))
+        ├── app.config.ts              <- withInterceptors([logging, loading, retry, chaos])
+        ├── retry-interceptor.ts       <- la reprise des GET en 503 (étape 07)
         ├── app.routes.ts              <- + une route par scénario
         ├── housinglocation.ts         <- + Review, Agent, Availability, Booking
-        ├── housing.service.ts         <- HttpClient, un Observable par endpoint
+        ├── api/                       <- ResourceService<I, T> + cinq services (étape 08 ; remplace housing.service.ts)
         ├── chaos/                     <- chaos.config.ts, chaos.interceptor.ts
-        ├── home/, details/            <- migrés sur HttpClient + toSignal
+        ├── home/, details/            <- + le loyer sur la fiche ; l'accueil paginé (bonus de l'étape 08)
         └── scenarios/
             ├── mode-toggle.ts         <- la bascule RxJS / Signals
             ├── s1-search/             <- s1-page.ts, s1-rxjs.ts (donné), s1-signals.ts (à vous)
@@ -130,7 +148,8 @@ node -v               # -> v24.x
 # placez-vous à la racine du cours, le dossier qui contient 02-housing-init/ et 02-housing-async/.
 # Si vous partez de la solution du lab Init plutôt que de votre projet :
 cp -r 02-housing-init/solution homes && cd homes
-# Si vous partez de votre propre projet : copiez-le (ou déplacez-le) à cet endroit, puis cd homes.
+# Si vous partez de votre propre projet (terminé à l'étape 17 du lab Init) : copiez-le (ou
+# déplacez-le) à cet endroit, puis cd homes.
 npm install           # json-server 0.17.4 est déjà dans les devDependencies (étape 14 du lab Init)
 
 # terminal 1 : l'API
@@ -141,9 +160,10 @@ npm start
 
 > 💡 **Tester :** `npm run api` n'affiche pour l'instant qu'une ressource,
 > `http://localhost:3000/locations`, et `npm start` termine par `➜  Local:   http://localhost:4200/`.
-> Ouvrez-le : les dix cartes s'affichent, comme à la fin du lab Init. Gardez la **console du
-> navigateur ouverte** (F12) pendant tout le lab, avec le filtre `chaos` : c'est là que se lisent
-> les preuves.
+> Ouvrez-le : les dix cartes s'affichent, comme à la fin du lab Init, et la console affiche la
+> ligne du journal, `GET http://localhost:3000/locations => 200 (…)`. Gardez la **console du
+> navigateur ouverte** (F12) pendant tout le lab, avec le filtre `chaos` (ou `/api/` à partir de
+> l'étape 0) : c'est là que se lisent les preuves.
 
 ---
 
@@ -164,14 +184,17 @@ Chaque expérience suit le même déroulé, en trois temps :
    capable de le justifier à l'oral. Le bloc « Ce qu'on retient » de chaque étape est replié :
    ouvrez-le après avoir rempli la grille, pas avant.
 
+Les étapes 07 et 08 sortent de ce format : elles n'ont pas de volets à comparer, mais un seul
+code à écrire, à partir de contraintes, d'un squelette et de liens de doc.
+
 Quatre API reviennent dans presque toutes les étapes sans avoir été vues dans la matinée. Le
 tableau suivant résume ce qu'il faut en savoir avant de commencer :
 
 | API | Ce qu'il faut savoir | Doc |
 |---|---|---|
-| `httpResource(() => url \| requête \| undefined)` | le `resource` de `HttpClient` : sa **fonction de requête** (l'équivalent des `params` de `resource`) renvoie une URL, un objet `{ url, params, method, body }`, ou `undefined` pour rester `idle` ; elle relance et annule quand ses signals changent ; expose `value()`, `isLoading()`, `error()`, `hasValue()`, `status()`, `reload()` ; attention, `value()` **lève** si la resource est en erreur, testez `hasValue()` avant. Elle prend une URL, pas un Observable : dupliquez l'URL depuis `housing.service.ts`. | [httpResource](https://angular.dev/guide/http/http-resource) |
+| `httpResource(() => url \| requête \| undefined)` | le `resource` de `HttpClient` : sa **fonction de requête** (l'équivalent des `params` de `resource`) renvoie une URL, un objet `{ url, params, method, body }`, ou `undefined` pour rester `idle` ; elle relance et annule quand ses signals changent ; expose `value()`, `isLoading()`, `error()`, `hasValue()`, `status()`, `reload()` ; attention, `value()` **lève** si la resource est en erreur, testez `hasValue()` avant. Elle prend une URL, pas un Observable : construisez l'URL avec `environment.apiUrl`, comme le service (l'étape 08 range ces URL dans le service). | [httpResource](https://angular.dev/guide/http/http-resource) |
 | `rxResource({ params, stream })` | le même `resource`, mais nourri par un Observable : c'est la forme à prendre pour réutiliser les méthodes de `HousingService`, ou pour un `stream` qui émet plusieurs fois (le suivi de disponibilité) | [rxResource](https://angular.dev/api/core/rxjs-interop/rxResource) |
-| `locationId = input.required<number>()` | les composants de la fiche détail, de la réservation et du suivi de disponibilité reçoivent l'id ainsi. Piège : `toSignal` s'abonne **à la construction**, et un `startWith` ou un `of` émet **tout de suite** ; lire `this.locationId()` à ce moment-là lève `NG0950`. Partez de `toObservable(this.locationId)`, qui n'émet qu'une fois l'input disponible (détail dans l'étape bonus, piège 3). | [NG0950](https://angular.dev/errors/NG0950) |
+| `locationId = input.required<number>()` | les composants de la fiche détail, de la réservation et du suivi de disponibilité reçoivent l'id ainsi. Piège : `toSignal` s'abonne **à la construction**, et un `startWith` ou un `of` émet **tout de suite** ; lire `this.locationId()` à ce moment-là lève `NG0950`. Partez de `toObservable(this.locationId)`, qui n'émet qu'une fois l'input disponible (détail dans l'étape bonus 09, piège 3). | [NG0950](https://angular.dev/errors/NG0950) |
 | `toSignal` / `toObservable` | le pont. `toObservable` émet de façon asynchrone ; `toSignal(obs$, { initialValue })` évite un `undefined` de départ | [rxjs-interop](https://angular.dev/ecosystem/rxjs-interop) |
 
 > 📖 [`resource`, le guide](https://angular.dev/guide/signals/resource)
@@ -181,19 +204,23 @@ tableau suivant résume ce qu'il faut en savoir avant de commencer :
 ## 🗂️ Les étapes
 
 Chaque expérience a sa page, à faire dans l'ordre. L'étape 0 prépare le projet, l'étape 01 montre
-comment une expérience se construit, et les étapes 02 à 06 réutilisent le même geste. Le tableau
-suivant résume, pour chaque étape, ce que vous faites et ce qu'on attend côté signals :
+comment une expérience se construit, et les étapes 02 à 06 réutilisent le même geste. Les étapes
+07 et 08 ne sont plus des expériences à deux volets : elles reviennent sur la couche HTTP que
+toutes les expériences partagent, avec moins de guidage. Le tableau suivant résume, pour chaque
+étape, ce que vous faites et ce qu'on attend côté signals :
 
 | Étape | Ce que vous faites | Côté signals |
 |---|---|---|
-| [00 — Mise sous pression](ETAPES/00-MISE-SOUS-PRESSION.md) | API enrichie, proxy, `fetch` => `HttpClient`, intercepteur chaos (code donné) | `toSignal` |
+| [00 — Mise sous pression](ETAPES/00-MISE-SOUS-PRESSION.md) | API enrichie, proxy et `apiUrl: '/api'`, service complet, intercepteur chaos et sa place dans la chaîne (code donné) | `toSignal` (déjà en place) |
 | [01 — Recherche : anti-rebond et annulation](ETAPES/01-RECHERCHE.md) | construire une expérience (route, page, bascule), puis `debounceTime` + `switchMap` | `httpResource` + le pont pour le debounce |
 | [02 — Détail : trois appels en parallèle](ETAPES/02-DETAIL-PARALLELE.md) | `forkJoin` | 3 resources + `computed` |
 | [03 — Détail : un appel sur trois échoue](ETAPES/03-DETAIL-ERREUR.md) | `catchError` par flux | `error()` + `reload()` |
 | [04 — Réserver : clics rapides](ETAPES/04-RESERVER.md) | `switchMap` / `concatMap` / `exhaustMap` | `rxResource` (version A) et une garde `pending` (version B) |
 | [05 — Disponibilité : polling](ETAPES/05-DISPONIBILITE.md) | `timer` + `switchMap` + `takeUntilDestroyed` | essayez, constatez, puis lisez la solution |
 | [06 — Filtres : dérivation synchrone](ETAPES/06-FILTRES.md) | `combineLatest` | `computed`, sans requête |
-| [07 — Bonus : trois pièges RxJS](ETAPES/07-BONUS.md) (facultatif) | subscribe imbriqué, input muté, `input.required` lu trop tôt | — |
+| [07 — Écrire un intercepteur de reprise](ETAPES/07-REPRISE.md) | `retry({ count, delay })` + `timer` sur les `GET` en 503, `defer`, position avant le chaos | — (comparé au `reload()` des resources) |
+| [08 — Factoriser : `ResourceService<I, T>`, puis le contrat v2](ETAPES/08-FACTORISER.md) | classe abstraite générique, `InjectionToken`, puis `{ data, meta }` absorbé par `map` | `getResource()` / `listResource()`, option `parse` de `httpResource` |
+| [09 — Bonus : trois pièges RxJS](ETAPES/09-BONUS.md) (facultatif) | subscribe imbriqué, input muté, `input.required` lu trop tôt | — |
 
 ## 🗣️ Débrief final : la grille de décision
 
@@ -208,6 +235,11 @@ Au débrief, chacun présente une ligne de la grille, puis on la confronte à un
 projet** (apportez-en un) : RxJS, signals, ou pont, et où, en trente secondes.
 
 Une version attendue est dans `solution/GRILLE-corrigee.md`, à ouvrir après avoir rempli la vôtre.
+
+> ℹ️ Le dossier `solution/` est l'état **final** du lab, après l'étape 08 : les composants y
+> injectent `LocationsService`, `ReviewsService`… au lieu de `HousingService`, et l'API se lance
+> avec `npm run api:v2`. Quand vous y lisez une expérience avant l'étape 08, transposez :
+> `availabilityService.get(id)` y correspond à `housingService.getAvailability(id)`, par exemple.
 
 ---
 
@@ -225,5 +257,10 @@ Une version attendue est dans `solution/GRILLE-corrigee.md`, à ouvrir après av
   injecter un signal dans un pipe, `rxResource` quand un flux doit nourrir une resource.
 - **Le chaos est votre ami** : sans latence ni erreur, aucun de ces bugs n'est visible en dev ;
   ils arrivent en prod. Gardez un intercepteur de ce genre à portée de main sur votre projet.
+- **L'ordre des intercepteurs est un choix** : le journal et l'indicateur au-dessus, la reprise
+  juste avant ce qu'elle doit rejouer, et `defer(() => next(req))` pour rejouer vraiment. On ne
+  reprend que ce qui est idempotent : un `POST` rejoué, c'est une réservation en double.
+- **Un seul point d'accès HTTP** : un `ResourceService<I, T>` générique qui renvoie des Observables
+  et fabrique les `httpResource` ; le jour où le back change de contrat, un fichier change.
 - **Sur votre projet v20** : `toSignal` est stable, `resource` ne l'est pas encore ; la grille
   reste valable, seule la colonne « Signals » attend la v22 pour les lignes « requête ».

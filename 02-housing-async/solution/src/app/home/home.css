@@ -38,3 +38,14 @@ button {
       grid-template-columns: 1fr;
   }    
 }
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.pager button:disabled {
+  opacity: 0.4;
+}

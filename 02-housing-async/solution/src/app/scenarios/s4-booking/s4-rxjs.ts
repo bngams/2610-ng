@@ -14,7 +14,7 @@ import {
   switchMap,
 } from 'rxjs';
 import { Booking } from '../../housinglocation';
-import { HousingService } from '../../housing.service';
+import { BookingsService } from '../../api/bookings.service';
 
 type Strategy = 'switchMap' | 'concatMap' | 'exhaustMap';
 
@@ -47,7 +47,7 @@ type Strategy = 'switchMap' | 'concatMap' | 'exhaustMap';
 })
 export class S4Rxjs {
   readonly locationId = input.required<number>();
-  private readonly housingService = inject(HousingService);
+  private readonly bookingsService = inject(BookingsService);
 
   readonly strategies: Strategy[] = ['switchMap', 'concatMap', 'exhaustMap'];
   readonly clicks: Record<Strategy, Subject<void>> = {
@@ -67,7 +67,7 @@ export class S4Rxjs {
   // toObservable(this.locationId), qui n'émet qu'une fois l'input disponible.
   readonly bookingsCount = toSignal(
     combineLatest([toObservable(this.locationId), this.refresh$.pipe(startWith(undefined))]).pipe(
-      switchMap(([id]) => this.housingService.getBookings(id)),
+      switchMap(([id]) => this.bookingsService.list({ locationId: id })),
       map((list): number | null => list.length),
     ),
     { initialValue: null },
@@ -80,7 +80,7 @@ export class S4Rxjs {
   }
 
   private book(): Observable<Booking | null> {
-    return this.housingService.book(this.locationId()).pipe(catchError(() => of(null)));
+    return this.bookingsService.book(this.locationId()).pipe(catchError(() => of(null)));
   }
 
   private wire(strategy: Strategy, flatten: OperatorFunction<void, Booking | null>) {

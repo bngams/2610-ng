@@ -25,8 +25,8 @@ export const CHAOS_DEFAULT: Omit<ChaosRule, 'match'> = {
 };
 
 export const CHAOS_RULES: ChaosRule[] = [
-  // S3 : passez errorRate à 0.5 pour que les avis tombent une fois sur deux.
+  // Les avis : passez errorRate à 0.5 pour qu'ils échouent une fois sur deux.
   { match: /\/api\/reviews/, minDelayMs: 300, maxDelayMs: 1500, errorRate: 0 },
-  // S4 : décommentez pour que « trois clics rapides » soit atteignable à la souris.
+  // Les réservations : décommentez pour que trois clics rapides soient faisables à la souris.
   // { match: /\/api\/bookings/, minDelayMs: 1000, maxDelayMs: 2000, errorRate: 0 },
 ];

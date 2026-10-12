@@ -8,8 +8,16 @@ import { S5Page } from './scenarios/s5-polling/s5-page';
 import { S6Page } from './scenarios/s6-filters/s6-page';
 
 export const routes: Routes = [
-  { path: '', component: Home, title: 'Home page' },
-  { path: 'details/:id', component: Details, title: 'Home details' },
+  {
+    path: '',
+    component: Home,
+    title: 'Home page',
+  },
+  {
+    path: 'details/:id',
+    component: Details,
+    title: 'Home details',
+  },
   { path: 's1', component: S1Page, title: 'S1 — Recherche : anti-rebond et annulation' },
   { path: 's2/:id', component: S2Page, title: 'S2-S3 — Détail : trois appels en parallèle, un sur trois échoue' },
   { path: 's4/:id', component: S4Page, title: 'S4 — Réserver : clics rapides' },
