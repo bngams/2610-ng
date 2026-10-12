@@ -532,9 +532,8 @@ pendant la saisie. Le volet signals tient en quatre lignes de logique.
 ## 📋 Livrable : la grille de décision
 
 Ouvrez [GRILLE.md](GRILLE.md). Sept lignes (une situation par ligne), trois colonnes à remplir
-(RxJS, Signals, Pont) plus une colonne « Vu dans » déjà renseignée, puis deux questions : la
-« règle de sortie », en une phrase, que vous appliquerez sur votre projet, et ce qui change sur un
-projet Angular 20. Chaque case : quelques mots, de quoi tenir trente secondes à l'oral. La ligne
+(RxJS, Signals, Pont) plus une colonne « Vu dans » déjà renseignée. Chaque case : quelques mots,
+de quoi tenir trente secondes à l'oral. La ligne
 « formulaire => état » n'est couverte que côté RxJS par S1 et S6 (`valueChanges`) : remplissez la
 colonne Signals avec ce que vous savez, on la reprend demain (J2) avec les Signal Forms.
 

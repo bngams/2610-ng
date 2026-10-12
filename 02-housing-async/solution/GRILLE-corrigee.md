@@ -12,17 +12,3 @@
 | **File ou anti-rebond d'action** | recherche : `switchMap` ; paiement / double soumission : **`exhaustMap`** ; sauvegarde automatique / journal : **`concatMap`** | `resource` ≈ `switchMap` (faux pour une mutation : « intended for read operations ») ; `exhaustMap` ≈ garde `pending` / `isLoading()` qui désactive le bouton ; **`concatMap` : pas d'équivalent** (il faudrait écrire la file) | `rxResource` ne change rien au problème : une mutation n'est pas une dérivation | S4 |
 | **Flux dans le temps** | `timer(0, 3000)` => `switchMap(http)` => `takeUntilDestroyed()` ; `retry({ delay })`, `webSocket`… tout se compose | « signals seuls » = `effect` + `setInterval` + `onCleanup` : marche, mais l'effect ne lit aucun signal, rien ne se compose (pause, backoff, dernier-gagne), nettoyage manuel | **`rxResource({ stream: () => timer(0, 3000).pipe(switchMap(http)) })`** : le temps reste RxJS, la resource consomme et nettoie | S5, S1 |
 | **Formulaire => état** | `FormControl.valueChanges` (+ `startWith(control.value)`) => `toSignal` | v22 : Signal Forms (`form()`, `field.value()`), ou `(input)` => `signal.set()` ; v20 : Reactive Forms + `toSignal(valueChanges)` | `toSignal(valueChanges, { initialValue })` est le pont standard | S1, S6, J2 |
-
-## Règle de sortie
-
-**Signals pour l'état et la dérivation, RxJS pour le temps et l'orchestration, le pont dans le
-composant** (`toSignal` en sortie, `toObservable` pour injecter un signal dans un pipe, `rxResource`
-quand un flux doit nourrir une resource). Un `resource` est une lecture ; une mutation est un
-événement, elle se traite en RxJS (`exhaustMap`, `concatMap`) ou avec une garde explicite.
-
-## Et sur un projet Angular 20 ?
-
-`toSignal` / `toObservable` sont stables depuis la v20 : toute la colonne « Pont » s'applique.
-`resource`, `rxResource`, `httpResource` sont **expérimentaux** en v20 (signature susceptible de
-changer) : la colonne « Signals » des lignes « requête » se lit « `switchMap(http)` + `toSignal` en
-attendant la v22 ». Les lignes « dérivation » (`computed`) et « temps » (RxJS) ne changent pas.
