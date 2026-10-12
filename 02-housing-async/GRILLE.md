@@ -16,14 +16,3 @@
 | **Flux dans le temps** (polling, debounce ; par extension websocket, retry avec repli) | _les briques vues en S5 et S1_ | _ce que ça coûte en « signals seuls »_ | _la forme du pont qui garde le temps côté RxJS_ | S5, S1 |
 | **Formulaire => état** (une saisie qui pilote le reste) | _Reactive Forms : quel observable, quelle sortie ?_ | _v22 : Signal Forms (demain, J2) ; v20 : ?_ | _la ligne qui relie les deux_ | S1, S6 (RxJS), J2 (signals) |
 
-## Règle de sortie
-
-> En une phrase, la règle que vous appliquerez sur votre projet à partir de lundi :
-
-_…_
-
-## Et sur un projet Angular 20 ?
-
-> Qu'est-ce qui change dans la colonne « Signals » quand `resource` est encore expérimental ?
-
-_…_
