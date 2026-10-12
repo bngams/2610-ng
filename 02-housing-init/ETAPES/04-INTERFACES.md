@@ -15,11 +15,13 @@
 
 ## 🧱 1 — Générer l'interface
 
-Dans le second terminal, à la racine du projet :
+Dans le second terminal, à la racine du projet, générez le fichier de l'interface :
 
 ```bash
 ng generate interface housinglocation
 ```
+
+La CLI crée un seul fichier, directement dans `src/app/` : une interface n'a pas de dossier à elle.
 
 ```
 CREATE src/app/housinglocation.ts (37 bytes)
@@ -57,13 +59,15 @@ export interface HousingLocationInfo {
 
 ## 🏠 3 — Un logement de test dans Home
 
-Vous avez un type, utilisez-le. Dans `src/app/home/home.ts`, ajoutez l'import sous celui de
-`HousingLocation`, puis remplacez la classe vide `export class Home {}` par une classe qui contient
-un logement :
+Vous avez un type, utilisez-le. Dans `src/app/home/home.ts`, commencez par l'import, en haut du
+fichier, sous celui de `HousingLocation` :
 
 ```ts
 import { HousingLocationInfo } from '../housinglocation';
 ```
+
+Remplacez ensuite la classe vide `export class Home {}`, en bas du fichier, par cette classe qui
+contient un logement de test, typé avec l'interface que vous venez d'importer :
 
 ```ts
 export class Home {

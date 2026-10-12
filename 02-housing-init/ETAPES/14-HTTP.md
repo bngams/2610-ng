@@ -51,6 +51,9 @@ Lancez l'API dans un **troisième terminal** (elle doit tourner en même temps q
 npm run api
 ```
 
+json-server affiche sa bannière ; elle liste les ressources qu'il a trouvées dans `db.json`, ici
+une seule :
+
 ```
   \{^_^}/ hi!
 
@@ -69,7 +72,7 @@ npm run api
 
 Dans `src/app/housing.service.ts`, **supprimez** `readonly baseUrl = …` et tout le tableau
 `housingLocationList` (de `protected` à `];`). Remplacez les deux méthodes de lecture par leur
-version asynchrone ; gardez `submitApplication`. Le service complet :
+version asynchrone ; gardez `submitApplication`. Le service complet doit ressembler à ceci :
 
 ```ts
 import { Injectable } from '@angular/core';
@@ -113,16 +116,23 @@ export class HousingService {
 
 ## ⏳ 3 — Les composants attendent la réponse
 
-Dans `src/app/home/home.ts`, complétez l'import de `@angular/core`, injectez `ChangeDetectorRef` (une ligne de classe, à placer sous `housingService`)
-et remplacez le constructeur :
+Dans `src/app/home/home.ts`, la modification se fait en trois temps. Commencez par la ligne
+d'import de `@angular/core`, en haut du fichier : remplacez-la par celle-ci, qui ajoute
+`ChangeDetectorRef` :
 
 ```ts
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 ```
 
+Ajoutez ensuite cette ligne dans la classe `Home`, juste sous `housingService`. Elle demande à
+Angular l'outil qui permet de le prévenir d'un changement (le tableau plus bas explique pourquoi).
+
 ```ts
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
 ```
+
+Enfin, remplacez tout le constructeur par celui-ci : au lieu de recevoir la liste directement, il
+attend la réponse de l'API, puis remplit les deux listes.
 
 ```ts
   constructor() {
@@ -136,9 +146,10 @@ import { ChangeDetectorRef, Component, inject } from '@angular/core';
   }
 ```
 
-Même chose dans `src/app/details/details.ts` : l'import de `ChangeDetectorRef` dans la ligne `@angular/core`, la même
-ligne `private readonly changeDetectorRef = inject(ChangeDetectorRef);` sous `housingService`, et le
-constructeur :
+Faites les mêmes gestes dans `src/app/details/details.ts` : ajoutez `ChangeDetectorRef` dans la
+ligne d'import de `@angular/core`, ajoutez la même ligne
+`private readonly changeDetectorRef = inject(ChangeDetectorRef);` sous `housingService`, puis
+remplacez le constructeur par celui-ci :
 
 ```ts
   constructor() {
@@ -161,6 +172,9 @@ constructeur :
 > `Home`, rechargez : plus aucune carte, sans erreur ; remettez-le.
 
 ## 📊 `fetch` ou `HttpClient` ?
+
+`fetch` n'est pas la seule façon d'appeler une API dans une application Angular. Ce tableau le
+compare à `HttpClient`, l'outil fourni par Angular lui-même :
 
 | | `fetch` (ce lab) | `HttpClient` d'Angular |
 |---|---|---|

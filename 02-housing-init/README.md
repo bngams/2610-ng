@@ -28,7 +28,8 @@
 ## 🚀 Prérequis
 
 Angular 22 demande **Node.js 22.22 ou 24.15 minimum** et une connexion internet (les photos des
-logements sont chargées depuis `angular.dev`, et `npm` télécharge les paquets).
+logements sont chargées depuis `angular.dev`, et `npm` télécharge les paquets). Vérifiez d'abord
+votre version de Node, puis installez la CLI Angular, une seule fois sur votre machine :
 
 ```bash
 node -v                              # si < 22.22 : nvm install 24 && nvm use 24
@@ -72,7 +73,8 @@ homes/
 └── package.json                       <- scripts start, build, api
 ```
 
-Et l'écran final :
+À la fin, l'écran ressemblera à ceci ; à droite, chaque zone est annotée avec le composant qui
+l'affiche et l'étape qui la construit :
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -117,7 +119,8 @@ l'aise, sautez les blocs de code et travaillez à partir des liens de doc.
 
 ### 🗣️ Débriefs collectifs, ou points à noter
 
-Trois moments pour comparer et poser des questions :
+Trois fois dans le lab, arrêtez-vous pour comparer votre travail avec vos voisins et poser vos
+questions :
 
 | Après | On compare | Question à se poser |
 |---|---|---|
@@ -130,7 +133,7 @@ Trois moments pour comparer et poser des questions :
 L'éditeur en ligne d'angular.dev pré-remplit certains fichiers (les CSS, les deux SVG, la base de
 données). En local, c'est vous qui les copiez : ils sont dans `assets/` (le dossier à côté de ce README, **pas** dans votre projet ; dans les
 étapes, `assets/…` désigne toujours ce dossier), rangés par **l'étape où
-vous en avez besoin**. Chaque étape vous dit quoi copier, et où.
+vous en avez besoin**. Chaque étape vous dit quoi copier, et où. Voici ce que contient ce dossier :
 
 ```
 assets/
@@ -162,6 +165,8 @@ signalées dans les étapes concernées :
 
 ## 🎉 Challenge final
 
+Votre application est terminée quand vous pouvez cocher chacune de ces cases :
+
 - [ ] `ng build` est vert, sans avertissement.
 - [ ] Avec `npm run api` et `ng serve` lancés, la page affiche 10 cartes avec leur photo.
 - [ ] « oak » puis **Search** => 4 cartes ; champ vide puis **Search** => 10 cartes.
@@ -170,6 +175,8 @@ signalées dans les étapes concernées :
 - [ ] Le logo en haut ramène à la liste sans recharger la page.
 
 ## ✅ Pour aller plus loin
+
+Si vous avez fini en avance, voici trois prolongements, du plus simple au plus ambitieux :
 
 - Affichez « Units available » sur la carte, et grisez le lien quand `availableUnits` vaut 0 (`@if`).
 - Faites chercher sur le nom **ou** la ville.

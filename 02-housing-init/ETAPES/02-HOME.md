@@ -20,6 +20,9 @@ Dans le second terminal, à la racine du projet (`homes/`), simulez d'abord la c
 ng generate component home --dry-run
 ```
 
+La CLI répond par la liste des fichiers qu'elle **créerait**, sans rien écrire sur le disque (c'est
+ce que rappelle la dernière ligne) :
+
 ```
 CREATE src/app/home/home.css (0 bytes)
 CREATE src/app/home/home.ts (201 bytes)
@@ -73,7 +76,7 @@ export class App {
 > ℹ️ Le tutoriel officiel écrit `src="/public/logo.svg"` : c'est le chemin de son éditeur en ligne.
 > Dans un projet CLI, `public/` est servi à la racine, donc `/logo.svg`.
 
-Puis les styles de l'en-tête : **remplacez le contenu** (vide) de `src/app/app.css` par celui de
+Il reste à styler l'en-tête : **remplacez le contenu** (vide) de `src/app/app.css` par celui de
 [`assets/02/app.css`](../assets/02/app.css), c'est-à-dire :
 
 ```css

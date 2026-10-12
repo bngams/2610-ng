@@ -19,11 +19,13 @@
 
 ## 🧱 1 — Générer le service
 
-Dans le second terminal, à la racine du projet :
+Dans le second terminal, à la racine du projet, générez le service :
 
 ```bash
 ng generate service housing --type=service
 ```
+
+La CLI crée un seul fichier, à la racine de `app/`, avec le suffixe `.service` dans son nom :
 
 ```
 CREATE src/app/housing.service.ts (85 bytes)
@@ -80,8 +82,9 @@ export class HousingService {
 
 ## 🔌 3 — Injecter le service dans Home
 
-Dans `src/app/home/home.ts`, la classe `Home` est maintenant vide. Complétez les imports en haut du
-fichier, puis la classe :
+Dans `src/app/home/home.ts`, la classe `Home` est maintenant vide. Commencez par les imports, en
+haut du fichier : remplacez les lignes `import` existantes par celles-ci, qui ajoutent `inject` et
+`HousingService` :
 
 ```ts
 import { Component, inject } from '@angular/core';
@@ -89,6 +92,9 @@ import { HousingLocation } from '../housing-location/housing-location';
 import { HousingLocationInfo } from '../housinglocation';
 import { HousingService } from '../housing.service';
 ```
+
+Remplacez ensuite la classe `Home`, vide, par celle-ci : elle demande le service à Angular et
+remplit la liste dès la création du composant.
 
 ```ts
 export class Home {

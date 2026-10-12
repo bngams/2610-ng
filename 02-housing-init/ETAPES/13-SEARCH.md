@@ -18,7 +18,8 @@
 
 Dans `src/app/home/home.ts`, ajoutez la propriété `filteredLocationList` sous `housingService`, puis, dans le
 constructeur **existant**, ajoutez la ligne `this.filteredLocationList = this.housingLocationList;`
-(ne créez pas un second constructeur). Au chargement, elle contient tout. Résultat :
+(ne créez pas un second constructeur). Au chargement, elle contient donc tout. Cette partie de la
+classe doit ressembler à ceci :
 
 ```ts
   filteredLocationList: HousingLocationInfo[] = [];
@@ -36,8 +37,9 @@ constructeur **existant**, ajoutez la ligne `this.filteredLocationList = this.ho
 
 ## 🧩 2 — Le template
 
-Trois modifications dans le `template` de `Home` : nommer le champ, écouter le clic, et afficher la
-liste filtrée.
+Le `template` de `Home` demande trois modifications : nommer le champ, écouter le clic, et afficher
+la liste filtrée. Les deux premières concernent le `<form>` : remplacez-le par celui-ci, qui ajoute
+`#filter` sur le champ et `(click)` sur le bouton :
 
 ```ts
       <form>
@@ -45,6 +47,9 @@ liste filtrée.
         <button class="primary" type="button" (click)="filterResults(filter.value)">Search</button>
       </form>
 ```
+
+La troisième concerne la boucle : dans la `<section class="results">`, remplacez la ligne `@for`
+par celle-ci, pour qu'elle parcoure `filteredLocationList` au lieu de `housingLocationList` :
 
 ```ts
       @for (housingLocation of filteredLocationList; track $index) {

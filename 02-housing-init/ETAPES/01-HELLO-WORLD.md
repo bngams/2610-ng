@@ -28,7 +28,8 @@ ng new homes --defaults --inline-template --skip-tests
 | `--skip-tests` | pas de fichiers de test `.spec.ts` : ils ne sont pas le sujet aujourd'hui |
 
 La commande liste ce qu'elle crée (`CREATE homes/angular.json`, `CREATE homes/src/app/app.ts`…) puis
-installe les dépendances : comptez une à deux minutes. Ensuite :
+installe les dépendances : comptez une à deux minutes. Quand l'invite du terminal revient, entrez
+dans le dossier du projet et lancez le serveur de développement :
 
 ```bash
 cd homes
@@ -73,8 +74,9 @@ Ouvrez `src/app/app.ts` : vous retrouvez le `@Component` de la synthèse, avec `
 
 ## ✏️ 3 — Hello world
 
-Trois fichiers à modifier et deux images à copier. Dans `src/index.html`, le titre vaut déjà `<title>Homes</title>` (la CLI
-l'a déduit du nom du projet) ; ajoutez la police utilisée par le tutoriel, juste avant `</head>` :
+Pour ce premier écran, vous allez modifier trois fichiers et copier deux images. Commencez par
+`src/index.html` : le titre vaut déjà `<title>Homes</title>` (la CLI l'a déduit du nom du projet) ;
+ajoutez la police utilisée par le tutoriel, juste avant `</head>` :
 
 ```html
   <link
@@ -83,7 +85,8 @@ l'a déduit du nom du projet) ; ajoutez la police utilisée par le tutoriel, jus
   />
 ```
 
-Puis **remplacez tout le contenu** de `src/app/app.ts` par :
+Passez ensuite au composant racine : **remplacez tout le contenu** de `src/app/app.ts` par cette
+version, qui n'affiche plus qu'un titre :
 
 ```ts
 import { Component } from '@angular/core';
@@ -102,8 +105,8 @@ export class App {
 Par rapport au fichier généré, vous avez enlevé `signal` et `RouterOutlet` (vous les retrouverez :
 le routeur est le sujet de l'étape 10) et remplacé le template.
 
-Enfin les styles globaux et les deux images : l'éditeur en ligne du tutoriel les pré-remplit, en
-local c'est vous qui les copiez. **Remplacez tout le contenu** de `src/styles.css` par celui de
+Il vous reste à mettre en place les styles globaux et les deux images : l'éditeur en ligne du
+tutoriel les pré-remplit, en local c'est vous qui les copiez. **Remplacez tout le contenu** de `src/styles.css` par celui de
 [`assets/01/styles.css`](../assets/01/styles.css), c'est-à-dire :
 
 ```css

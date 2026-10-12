@@ -30,20 +30,23 @@ après `getHousingLocationById` :
 
 ## 🧠 2 — Le formulaire côté classe
 
-Dans `src/app/details/details.ts`, ajoutez l'import des formulaires sous les autres imports, et
-**ajoutez la ligne** `imports: [ReactiveFormsModule],` dans le `@Component`, sous `selector` (ce
-`@Component` n'avait pas encore de ligne `imports`) :
+Dans `src/app/details/details.ts`, commencez par l'import des formulaires, en haut du fichier, sous
+les autres imports :
 
 ```ts
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 ```
 
+Puis **ajoutez la ligne** suivante dans le `@Component`, juste sous `selector` : ce `@Component`
+n'avait pas encore de ligne `imports`, et c'est elle qui rendra le formulaire utilisable dans le
+template.
+
 ```ts
   imports: [ReactiveFormsModule],
 ```
 
-Puis, dans la classe `Details`, ajoutez la propriété `applyForm` **avant** le constructeur, et la
-méthode `submitApplication` **après** :
+Passez à la classe `Details`. Ajoutez d'abord la propriété `applyForm`, **avant** le constructeur :
+c'est le formulaire lui-même, avec ses trois champs vides.
 
 ```ts
   applyForm = new FormGroup({
@@ -52,6 +55,9 @@ méthode `submitApplication` **après** :
     email: new FormControl(''),
   });
 ```
+
+Ajoutez ensuite la méthode `submitApplication`, **après** le constructeur : elle lit les trois
+valeurs saisies et les transmet au service.
 
 ```ts
   submitApplication() {
@@ -104,6 +110,9 @@ après `</section>` de `listing-features` :
 > `Homes application received: firstName: Camille, lastName: …, email: ….` La page ne se recharge pas.
 
 ## 📊 Deux époques, et une troisième qui arrive
+
+Angular propose plusieurs façons d'écrire un formulaire. Ce tableau situe celle que vous venez
+d'utiliser par rapport aux deux autres :
 
 | | Formulaires par template (`ngModel`) | Formulaires réactifs (ce lab) | Signal Forms |
 |---|---|---|---|

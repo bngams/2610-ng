@@ -13,12 +13,15 @@
 
 ## 🧱 1 — Générer le composant
 
-Dans le second terminal, à la racine du projet :
+Dans le second terminal, à la racine du projet, lancez la commande une première fois à blanc avec
+`--dry-run`, comme à l'étape 2, puis pour de bon :
 
 ```bash
 ng generate component housingLocation --dry-run
 ng generate component housingLocation
 ```
+
+La seconde commande crée réellement les deux fichiers du composant, et la CLI les liste :
 
 ```
 CREATE src/app/housing-location/housing-location.css (0 bytes)

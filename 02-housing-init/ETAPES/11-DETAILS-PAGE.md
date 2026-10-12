@@ -16,16 +16,22 @@
 
 ## 🔗 1 — Le lien sur la carte
 
-Dans `src/app/housing-location/housing-location.ts` : importez `RouterLink`, ajoutez-le à `imports`,
-et ajoutez le lien à la fin de la `<section class="listing">`, après le `<p class="listing-location">` :
+Le lien se pose dans `src/app/housing-location/housing-location.ts`, en trois ajouts. Commencez
+par importer `RouterLink`, en haut du fichier, sous les imports existants :
 
 ```ts
 import { RouterLink } from '@angular/router';
 ```
 
+Déclarez-le ensuite dans le `@Component` : la ligne `imports: [],` générée par la CLI devient
+celle-ci, sans quoi `routerLink` serait inconnu dans le template.
+
 ```ts
   imports: [RouterLink],
 ```
+
+Enfin, dans le `template`, ajoutez le lien à la fin de la `<section class="listing">`, juste après
+la ligne `<p class="listing-location">` :
 
 ```html
       <a [routerLink]="['/details', housingLocation().id]">Learn More</a>
@@ -73,13 +79,17 @@ export class Details {
 
 ## 🏠 3 — Afficher le logement
 
-Maintenant le service. Dans `details.ts` : **ajoutez** deux imports sous les autres, **remplacez** tout
-le `template`, et **remplacez** toute la classe `Details` (elle n'a plus `housingLocationId`) :
+`Details` connaît l'`id` ; il lui reste à demander le logement au service et à l'afficher. Dans
+`details.ts`, la modification se fait en trois temps. Commencez par **ajouter** ces deux imports, en
+haut du fichier, sous ceux qui existent déjà :
 
 ```ts
 import { HousingService } from '../housing.service';
 import { HousingLocationInfo } from '../housinglocation';
 ```
+
+**Remplacez** ensuite tout le `template` du `@Component` par celui-ci, qui affiche la photo, le nom,
+la ville et les trois caractéristiques du logement :
 
 ```ts
   template: `
@@ -105,6 +115,9 @@ import { HousingLocationInfo } from '../housinglocation';
     </article>
   `,
 ```
+
+Enfin, **remplacez** toute la classe `Details` par celle-ci. Elle n'a plus besoin de
+`housingLocationId` : elle garde le logement entier, demandé au service avec l'`id` de l'URL.
 
 ```ts
 export class Details {

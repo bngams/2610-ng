@@ -18,11 +18,13 @@
 
 ## 🧱 1 — Générer le composant Details
 
-Dans le second terminal, à la racine du projet :
+Dans le second terminal, à la racine du projet, générez le composant de la page de détail :
 
 ```bash
 ng generate component details
 ```
+
+La CLI crée le dossier `details/` avec ses deux fichiers, comme pour `Home` à l'étape 2 :
 
 ```
 CREATE src/app/details/details.css (0 bytes)

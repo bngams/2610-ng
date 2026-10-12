@@ -19,8 +19,9 @@
 
 ## 🧱 1 — Déclarer l'input dans HousingLocation
 
-🚧 **À compléter** dans `src/app/housing-location/housing-location.ts` : l'import de `input`, l'import
-du type, et la propriété.
+🚧 **À compléter** dans `src/app/housing-location/housing-location.ts`. Le bloc ci-dessous montre
+le fichier avec trois `TODO` à traiter dans le vôtre : l'import de `input`, l'import du type, et la
+propriété.
 
 ```ts
 import { Component /* TODO : importer aussi input */ } from '@angular/core';
@@ -50,7 +51,8 @@ export class HousingLocation {
 ## 🧩 2 — Fournir l'input depuis Home
 
 Dans `src/app/home/home.ts`, la balise `<app-housing-location />` doit maintenant passer le logement
-de test. Le principe, **à titre d'exemple, ne le reproduisez pas tel quel** :
+de test. Voici le principe sur un composant imaginaire ; c'est **un exemple, ne le reproduisez pas
+tel quel** :
 
 ```html
 <!-- ceci est un exemple, pas le code attendu -->
