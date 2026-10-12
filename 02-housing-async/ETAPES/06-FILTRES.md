@@ -143,4 +143,5 @@ de logique.
 
 ---
 
-🎉 Les six expériences sont faites : remplissez la [grille de décision](../GRILLE.md), puis les [pièges bonus](../README.md).
+🎉 Les six expériences sont faites : finissez la [grille de décision](../GRILLE.md) pour le [débrief final](../README.md).
+S'il vous reste du temps : ➡️ [07 — Bonus : trois pièges RxJS](07-BONUS.md)
