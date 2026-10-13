@@ -230,8 +230,9 @@ est repris trois fois (`reprise 1/3` à `3/3`) avant d'échouer ; son `toSignal`
 `catchError`, une erreur rouge `ERROR` suit donc dans la console : c'est attendu. Remettez ensuite
 `errorRate: 0` sur les avis et la règle des réservations en commentaire. Le même essai sur le
 dossier (la règle `/\/api\/applications/` de l'étape 01, à `errorRate: 1`) donne une seule ligne
-`[chaos] POST /api/applications => 503`, sans `[retry]` : la version Signal Forms affiche son
-message d'échec, la version réactive n'affiche rien et laisse une erreur rouge `ERROR` en console.
+`[chaos] POST /api/applications => 503`, sans `[retry]` : les deux versions affichent leur
+message d'échec, `Sending failed (503 Service Unavailable (chaos)). Please try again.`, et le bouton
+redevient cliquable.
 
 ## ⚖️ 6 — Reprise automatique ou bouton « Réessayer » ?
 

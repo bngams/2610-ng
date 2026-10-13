@@ -762,12 +762,21 @@ un signal, et chaque état (`valid()`, `touched()`, `errors()`…) est déjà un
 
 Il reste le bouton d'envoi. Pendant l'envoi, il doit être désactivé (pour qu'un double clic ne
 crée pas deux dossiers), et à la réponse, le formulaire laisse la place à une confirmation avec le
-numéro du dossier. Deux nouveaux signals portent ces deux informations : ajoutez-les dans la
-classe, sous la ligne `readonly status = …` :
+numéro du dossier. Et si l'envoi échoue, l'utilisateur doit le voir et pouvoir réessayer. Trois
+nouveaux signals portent ces informations : ajoutez-les dans la classe, sous la ligne
+`readonly status = …` :
 
 ```ts
   readonly sending = signal(false);
   readonly createdId = signal<number | undefined>(undefined);
+  readonly sendError = signal('');
+```
+
+Le troisième contiendra la cause de l'échec, sous forme de texte. Il a besoin du type des erreurs
+HTTP : ajoutez cet import en haut du fichier, avec les autres :
+
+```ts
+import { HttpErrorResponse } from '@angular/common/http';
 ```
 
 Ajoutez ensuite la méthode d'envoi à la fin de la classe, après `removeGuarantor` :
@@ -778,10 +787,14 @@ Ajoutez ensuite la méthode d'envoi à la fin de la classe, après `removeGuaran
       return;
     }
     this.sending.set(true);
+    this.sendError.set('');
     this.housingService
       .submitApplication({ locationId: this.locationId(), ...this.form.getRawValue() })
       .pipe(finalize(() => this.sending.set(false)))
-      .subscribe((created) => this.createdId.set(created.id));
+      .subscribe({
+        next: (created) => this.createdId.set(created.id),
+        error: (error: HttpErrorResponse) => this.sendError.set(`${error.status} ${error.statusText}`),
+      });
   }
 ```
 
@@ -791,7 +804,10 @@ Ajoutez ensuite la méthode d'envoi à la fin de la classe, après `removeGuaran
 | `{ locationId: …, ...this.form.getRawValue() }` | le dossier à envoyer : le numéro du logement, puis toutes les valeurs du formulaire, recopiées par l'opérateur `...` (*spread*). L'objet obtenu a la forme d'`Application`, sans `?? ''` ni conversion |
 | `this.locationId()` | l'input est un signal : on le lit avec `()` |
 | `.pipe(finalize(…))` | l'opérateur de l'étape 16 : quoi qu'il arrive (succès ou erreur), le bouton se réactive à la fin de la requête |
-| `.subscribe((created) => …)` | **c'est l'abonnement qui envoie la requête** (un `Observable` est froid, étape 15) ; `created` est le dossier renvoyé par json-server, avec son `id` |
+| `this.sendError.set('')` | on efface l'erreur d'un essai précédent avant de renvoyer |
+| `.subscribe({ next, error })` | **c'est l'abonnement qui envoie la requête** (un `Observable` est froid, étape 15). On lui donne un objet à deux branches au lieu d'une seule fonction |
+| `next: (created) => …` | la réponse arrive : `created` est le dossier renvoyé par json-server, avec son `id` |
+| `error: (error: HttpErrorResponse) => …` | la requête échoue : on garde le code et le libellé, par exemple `503 Service Unavailable`. Sans cette branche, l'échec ne s'afficherait nulle part (voir le piège plus bas) |
 | `signal<number \| undefined>(undefined)` | pas encore de numéro : `undefined` ; le type est écrit entre `< >`, car TypeScript ne peut pas le deviner de `undefined` seul |
 
 Le template change à trois endroits. D'abord, le formulaire doit appeler `submit()` à l'envoi,
@@ -821,6 +837,15 @@ Ensuite, à l'écran 3, le bouton **Next** doit laisser la place au bouton d'env
 | `(submit)` | gardé de l'étape 12. Vous lirez aussi `(ngSubmit)`, l'événement fourni par `ReactiveFormsModule` : il part au même moment, et c'est la forme qu'on trouve le plus souvent dans la documentation |
 | `[disabled]="status() !== 'VALID' \|\| sending()"` | le bouton est grisé si le dossier n'est pas valide (lu par le pont de la partie 11) **ou** si un envoi est en cours |
 | `sending() ? 'Sending…' : '…'` | une condition dans l'interpolation : le texte du bouton change pendant l'envoi |
+
+Puis, juste au-dessus de ce bloc `<div class="actions">`, ajoutez le message d'échec. Il ne
+s'affiche que si `sendError` contient quelque chose :
+
+```html
+        @if (sendError()) {
+          <p class="error">Sending failed ({{ sendError() }}). Please try again.</p>
+        }
+```
 
 Enfin, une fois le dossier enregistré, on remplace le formulaire par une confirmation. Il faut pour
 cela **entourer** tout le contenu actuel du template (la ligne de progression et le `<form>`) d'un
@@ -858,6 +883,27 @@ réindenter : Shift+Alt+F, ou Shift+Option+F sur Mac) :
 > ```
 > POST http://localhost:3000/applications => 201 (18 ms)
 > ```
+>
+> Testez maintenant l'échec. Remplissez un nouveau dossier jusqu'à l'écran 3 (rechargez la page
+> pour repartir d'un formulaire vide), puis, **avant d'envoyer**, arrêtez l'API : `Ctrl-C` dans
+> son terminal. Cliquez **Send my application** : le message
+> `Sending failed (0 Unknown Error). Please try again.` apparaît au-dessus des boutons, et le bouton
+> redevient cliquable. Le code `0` veut dire qu'aucune réponse n'est arrivée : le serveur ne
+> répondait plus. Votre intercepteur l'a noté dans la console :
+>
+> ```
+> POST http://localhost:3000/applications => 0 (52 ms)
+> ```
+>
+> Relancez l'API (`npm run api`) et cliquez à nouveau : cette fois, la confirmation s'affiche.
+
+> ⚠️ **Piège : un envoi qui échoue en silence.**
+> Symptôme : rien ne se passe à l'écran quand l'API est arrêtée, et une ligne rouge `ERROR`
+> apparaît dans la console du navigateur.
+> Cause : l'abonnement n'a qu'une fonction pour la réponse (`.subscribe((created) => …)`), sans
+> branche `error`. L'erreur remonte alors jusqu'au gestionnaire global d'Angular, qui l'écrit en
+> console, et l'utilisateur ne sait pas que son dossier n'est pas parti.
+> Correctif : passez un objet `{ next, error }` à `subscribe`, et affichez l'erreur.
 >
 > Le code `201` signifie *Created* : json-server a créé le dossier. Ouvrez `api/db.json` : la
 > collection `applications` contient votre dossier, avec `"locationId": 5`, vos deux groupes

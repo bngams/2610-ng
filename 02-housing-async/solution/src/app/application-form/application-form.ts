@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -136,6 +137,10 @@ function futureDate(control: AbstractControl<string>): ValidationErrors | null {
           </section>
         }
 
+        @if (sendError()) {
+          <p class="error">Sending failed ({{ sendError() }}). Please try again.</p>
+        }
+
         <div class="actions">
           @if (step() > 1) {
             <button type="button" class="secondary" (click)="prev()">Previous</button>
@@ -179,6 +184,7 @@ export class ApplicationForm {
   readonly status = toSignal(this.form.statusChanges, { initialValue: this.form.status });
   readonly sending = signal(false);
   readonly createdId = signal<number | undefined>(undefined);
+  readonly sendError = signal('');
 
   showErrors(control: AbstractControl): boolean {
     return control.touched && control.invalid;
@@ -215,9 +221,13 @@ export class ApplicationForm {
       return;
     }
     this.sending.set(true);
+    this.sendError.set('');
     this.applicationsService
       .create({ locationId: this.locationId(), ...this.form.getRawValue() })
       .pipe(finalize(() => this.sending.set(false)))
-      .subscribe((created) => this.createdId.set(created.id));
+      .subscribe({
+        next: (created) => this.createdId.set(created.id),
+        error: (error: HttpErrorResponse) => this.sendError.set(`${error.status} ${error.statusText}`),
+      });
   }
 }
