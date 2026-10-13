@@ -26,10 +26,10 @@ interface Vm {
 }
 
 /**
- * S2 côté RxJS : forkJoin attend que TOUS les flux soient terminés, puis émet une seule fois.
+ * La fiche détail côté RxJS : forkJoin attend que TOUS les flux soient terminés, puis émet une seule fois.
  * UX : un squelette, puis tout d'un coup.
  *
- * S3 : forkJoin a une règle brutale : si UN flux erre, tout erre. D'où le catchError PAR FLUX,
+ * L'erreur partielle : forkJoin a une règle brutale : si UN flux erre, tout erre. D'où le catchError PAR FLUX,
  * placé sur les avis AVANT d'entrer dans forkJoin : l'erreur devient une valeur (reviews: null)
  * et les autres blocs s'affichent. Décochez la case pour voir ce qui se passe sans.
  *

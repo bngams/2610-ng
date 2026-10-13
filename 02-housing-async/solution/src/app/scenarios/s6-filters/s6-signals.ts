@@ -4,7 +4,7 @@ import { LocationsService } from '../../api/locations.service';
 import { SortKey, applyFilters } from './filters';
 
 /**
- * S6 côté signals : trois signals, un computed. Pas de startWith, pas de combineLatest, pas de
+ * Les filtres côté signals : trois signals, un computed. Pas de startWith, pas de combineLatest, pas de
  * subscribe : la dérivation synchrone est le terrain naturel des signals.
  * (Le chargement initial reste asynchrone : toSignal fait le pont une fois pour toutes.)
  */

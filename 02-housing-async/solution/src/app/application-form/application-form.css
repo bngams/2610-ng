@@ -1,0 +1,83 @@
+/* Les champs : les mêmes règles que celles de details.css (étape 11) */
+label,
+input {
+  display: block;
+}
+label {
+  color: var(--secondary-color);
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 12pt;
+}
+input {
+  font-size: 16pt;
+  margin-bottom: 15px;
+  padding: 10px;
+  width: 400px;
+  border-top: none;
+  border-right: none;
+  border-left: none;
+  border-bottom: solid 0.3px;
+}
+
+/* Un champ invalide ET touché : Angular pose lui-même ces deux classes */
+input.ng-invalid.ng-touched {
+  border-bottom: solid 2px #c62828;
+}
+.error {
+  color: #c62828;
+  font-size: 11pt;
+  margin: -10px 0 15px;
+}
+
+/* Les étapes */
+.progress {
+  color: var(--secondary-color);
+  margin-bottom: 15px;
+}
+fieldset {
+  border: none;
+}
+legend {
+  font-size: 14pt;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+.guarantor {
+  border-left: solid 3px var(--accent-color);
+  padding-left: 15px;
+  margin-bottom: 15px;
+}
+
+/* Les boutons */
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+button.secondary {
+  padding: 10px;
+  border: solid 1px var(--primary-color);
+  background: white;
+  color: var(--primary-color);
+  border-radius: 8px;
+}
+button:disabled {
+  opacity: 0.5;
+}
+
+/* Le récapitulatif et la confirmation */
+.summary p,
+.summary ul {
+  margin-bottom: 10px;
+}
+.summary ul {
+  list-style: none;
+}
+.confirmation {
+  padding: 15px;
+  background: var(--accent-color);
+  color: var(--primary-color);
+  border-radius: 8px;
+  font-weight: bold;
+}

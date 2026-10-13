@@ -1,6 +1,6 @@
-# 🔁 07 — Écrire un intercepteur de reprise
+# 🔁 08 — Écrire un intercepteur de reprise
 
-> **Scénario à réaliser en autonomie.** Dans l'erreur partielle (étape 03), un avis sur deux
+> **Scénario à réaliser en autonomie.** Dans l'erreur partielle (étape 04), un avis sur deux
 > tombait en 503, et c'était à l'utilisateur de cliquer sur « Réessayer ». Or beaucoup de 503 sont
 > **passagers** : un serveur qui redémarre, une passerelle surchargée une demi-seconde. Une
 > nouvelle tentative, un instant plus tard, suffit souvent. Vous allez écrire un intercepteur qui
@@ -27,15 +27,17 @@ les méthodes que l'application utilise :
 | Méthode | Idempotente ? | Dans cette application | Reprise automatique |
 |---|---|---|---|
 | `GET` | oui, et sans effet de bord (« sûre ») | liste, fiche, avis, agent, disponibilité, compteur de réservations | **oui** |
-| `POST` | non : chaque appel crée une ressource | `POST /bookings` | **jamais** : une reprise peut créer une deuxième réservation |
+| `POST` | non : chaque appel crée une ressource | `POST /bookings`, `POST /applications` | **jamais** : une reprise peut créer une deuxième réservation, ou un deuxième dossier |
 | `PATCH` | pas garanti par la norme ; dépend du corps envoyé | `PATCH /availability/3` (lancé par `curl`) | non : on ne rejoue pas ce qu'on ne peut pas garantir |
 
-Le risque du `POST` n'est pas théorique. Dans la réservation (étape 04), vous avez vu un
+Le risque du `POST` n'est pas théorique. Dans la réservation (étape 05), vous avez vu un
 `switchMap` abandonner des `POST` côté client, alors qu'en production le serveur peut très bien
 les avoir déjà enregistrés. Une reprise automatique ferait pire encore : elle **renverrait** la
 réservation. Le chaos de ce lab répond 503 **avant** d'envoyer la requête, donc un `POST` rejoué
 serait ici sans conséquence ; mais un vrai 503 (ou un délai dépassé) peut arriver **après** que le
-serveur a écrit, et l'intercepteur n'a aucun moyen de le savoir.
+serveur a écrit, et l'intercepteur n'a aucun moyen de le savoir. La même règle protège l'envoi
+du [dossier de candidature](01-DOSSIER-SIGNAL-FORMS.md), dans ses deux versions : ce `POST` ne doit
+jamais être rejoué, et c'est l'utilisateur qui renvoie après le message d'erreur.
 
 Le statut compte autant que la méthode. Un `503 Service Unavailable` dit « indisponible pour
 l'instant, réessayez » ; un `404` ou un `400` ne guérira pas en attendant, le rejouer ne fait que
@@ -79,6 +81,8 @@ source$.pipe(
 );
 ```
 
+Voici le rôle de chaque morceau :
+
 | Morceau | Rôle |
 |---|---|
 | `retry({ count })` | quand `source$` échoue, `retry` s'y **réabonne**, au plus `count` fois |
@@ -117,7 +121,8 @@ export const retryInterceptor: HttpInterceptorFn = (req, next) => {
 };
 ```
 
-Quelques indices pour les trois `TODO` :
+Le build reste rouge tant que le `TODO 2` et le `TODO 3` ne sont pas écrits : la fonction `delay`
+doit renvoyer un Observable. Quelques indices pour les trois `TODO` :
 
 - `req.method` vaut `'GET'`, `'POST'`… en majuscules.
 - `error instanceof HttpErrorResponse` vous donne accès à `error.status` ; c'est ce que fait déjà
@@ -140,8 +145,8 @@ les trois positions possibles :
 
 | Tableau `withInterceptors` | Ce qui se passe sur un 503 du chaos |
 |---|---|
-| `[logging, loading, retry, chaos]` (retenu) | `retry` voit l'erreur du chaos, attend, rappelle le chaos : nouveau tirage (une fois `defer` ajouté, voir la partie 5). `logging` écrit **une** ligne pour l'ensemble, avec la durée totale, et « Loading… » reste affiché pendant les reprises |
-| `[logging, loading, chaos, retry]` | `retry` n'est jamais atteint : le chaos lève son 503 **sans appeler** `next`, comme vous l'avez vu avec le journal à l'étape 0. Il ne reprendrait que les erreurs du vrai réseau |
+| `[logging, loading, retry, chaos]` (retenu) | `retry` voit l'erreur du chaos, attend, rappelle le chaos : nouveau tirage (une fois `defer` ajouté, voir le piège du même tirage, plus bas). `logging` écrit **une** ligne pour l'ensemble, avec la durée totale, et « Loading… » reste affiché pendant les reprises |
+| `[logging, loading, chaos, retry]` | `retry` n'est jamais atteint : le chaos lève son 503 **sans appeler** `next`, comme vous l'avez vu avec le journal à l'étape 00. Il ne reprendrait que les erreurs du vrai réseau |
 | `[retry, logging, loading, chaos]` | les reprises fonctionnent (avec `defer`), mais le journal écrit une ligne par tentative et le bandeau clignote entre deux tentatives : on observe la mécanique au lieu de ce que vit l'utilisateur |
 
 Ajoutez donc l'import sous celui du chaos, et `retryInterceptor` juste avant `chaosInterceptor` :
@@ -222,8 +227,11 @@ et passez-la provisoirement à `errorRate: 1`, ouvrez `/s4/3` et cliquez une foi
 « Réserver (exhaustMap) » : le `POST` donne une seule ligne `[chaos] POST /api/bookings => 503`,
 sans aucune ligne `[retry]`. Le compteur de la même page, lui, est un `GET /api/bookings` : il
 est repris trois fois (`reprise 1/3` à `3/3`) avant d'échouer ; son `toSignal` n'a pas de
-`catchError`, une erreur rouge `ERROR` suit donc dans la console : c'est attendu. Remettez ensuite `errorRate: 0`
-sur les avis et la règle des réservations en commentaire.
+`catchError`, une erreur rouge `ERROR` suit donc dans la console : c'est attendu. Remettez ensuite
+`errorRate: 0` sur les avis et la règle des réservations en commentaire. Le même essai sur le
+dossier (la règle `/\/api\/applications/` de l'étape 01, à `errorRate: 1`) donne une seule ligne
+`[chaos] POST /api/applications => 503`, sans `[retry]` : la version Signal Forms affiche son
+message d'échec, la version réactive n'affiche rien et laisse une erreur rouge `ERROR` en console.
 
 ## ⚖️ 6 — Reprise automatique ou bouton « Réessayer » ?
 
@@ -239,10 +247,10 @@ côté RxJS). L'intercepteur ne le remplace pas : les deux se complètent, et ch
 
 La reprise traite donc les erreurs passagères, et le bouton reste là pour celles qui survivent aux
 trois reprises. Notez aussi que l'intercepteur rend l'erreur partielle **plus difficile à
-observer** : pour rejouer l'étape 03 telle quelle, retirez `retryInterceptor` du tableau le temps
+observer** : pour rejouer l'étape 04 telle quelle, retirez `retryInterceptor` du tableau le temps
 de l'expérience.
 
-Une dernière limite : le suivi de disponibilité (étape 05) interroge le serveur toutes les
+Une dernière limite : le suivi de disponibilité (étape 06) interroge le serveur toutes les
 3 secondes. Reprendre un tick en échec n'y sert à rien, puisque le tick suivant arrive de toute
 façon, et les reprises peuvent même chevaucher ce tick. C'est l'objet de la partie facultative
 qui suit.
@@ -265,7 +273,7 @@ disponibilité logue alors un `=> 503` toutes les 3 secondes, sans aucune ligne 
 polling continue (le `catchError` de chaque tick absorbe l'erreur).
 
 La solution définit le jeton et le lit dans l'intercepteur, mais ne l'utilise dans aucun service :
-l'étape suivante remplace `housing.service.ts`. Pour garder cette option après l'étape 08, il
+l'étape suivante remplace `housing.service.ts`. Pour garder cette option après l'étape 09, il
 faudrait que les méthodes du service générique acceptent des options de requête.
 
 > 📖 [Les intercepteurs, partie métadonnées de requête](https://angular.dev/guide/http/interceptors) ·
@@ -284,4 +292,4 @@ faudrait que les méthodes du service générique acceptent des options de requ�
 
 ---
 
-➡️ [08 — Factoriser : `ResourceService<I, T>`, puis le contrat v2](08-FACTORISER.md)
+➡️ [09 — Factoriser : `ResourceService<I, T>`, puis le contrat v2](09-FACTORISER.md)

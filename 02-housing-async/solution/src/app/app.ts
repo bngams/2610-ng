@@ -12,11 +12,11 @@ import { LoadingService } from './loading.service';
           <img class="brand-logo" src="/logo.svg" alt="logo" aria-hidden="true" />
         </a>
         <nav class="scenarios">
-          <a routerLink="/s1" routerLinkActive="active">S1 Recherche</a>
-          <a routerLink="/s2/3" routerLinkActive="active">S2-S3 Détail</a>
-          <a routerLink="/s4/3" routerLinkActive="active">S4 Réserver</a>
-          <a routerLink="/s5/3" routerLinkActive="active">S5 Disponibilité</a>
-          <a routerLink="/s6" routerLinkActive="active">S6 Filtres</a>
+          <a routerLink="/s1" routerLinkActive="active">Recherche</a>
+          <a routerLink="/s2/3" routerLinkActive="active">Détail</a>
+          <a routerLink="/s4/3" routerLinkActive="active">Réserver</a>
+          <a routerLink="/s5/3" routerLinkActive="active">Disponibilité</a>
+          <a routerLink="/s6" routerLinkActive="active">Filtres</a>
         </nav>
       </header>
       @if (loadingService.pending() > 0) {

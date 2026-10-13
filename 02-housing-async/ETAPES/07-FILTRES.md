@@ -1,4 +1,4 @@
-# 🧮 S6 — Filtres : dérivation synchrone, sans requête
+# 🧮 07 — Filtres : dérivation synchrone, sans requête
 
 **Contexte.** La liste est chargée une fois. Trois critères, la ville (texte, insensible à la
 casse), le prix max (nombre) et le tri (nom ou prix), se combinent ensuite **sans nouvel appel
@@ -12,16 +12,16 @@ Les deux besoins de cet écran s'expriment ainsi :
 | Combiner trois sources qui changent indépendamment | `combineLatest([...])` + `map` ; attention, chaque source doit avoir émis une fois (`startWith`) | un `computed` qui lit trois signals |
 | Le chargement initial | un flux de plus dans le `combineLatest` | `toSignal(http)` ou `httpResource`, une fois |
 
-Pour la page, la route et le lien, refaites **le même geste que pour la recherche** (étape 01) :
+Pour la page, la route et le lien, refaites **le même geste que pour la recherche** (étape 02) :
 comme elle, la page n'a pas d'`id` à transmettre. Les noms sont les suivants :
 
 | Quoi | Nom |
 |---|---|
 | Dossier | `src/app/scenarios/s6-filters/` |
-| Page | `s6-page.ts`, `S6Page`, `app-s6-page`, `<h1>S6 — Filtres : dérivation synchrone, sans requête</h1>` |
+| Page | `s6-page.ts`, `S6Page`, `app-s6-page`, `<h1>Filtres : dérivation synchrone, sans requête</h1>` |
 | Volets | `s6-rxjs.ts` (`S6Rxjs`, `app-s6-rxjs`) et `s6-signals.ts` (`S6Signals`, `app-s6-signals`) |
-| Route | `{ path: 's6', component: S6Page, title: 'S6 — Filtres : dérivation synchrone, sans requête' }` |
-| Lien | `<a routerLink="/s6" routerLinkActive="active">S6 Filtres</a>` |
+| Route | `{ path: 's6', component: S6Page, title: 'Filtres : dérivation synchrone, sans requête' }` |
+| Lien | `<a routerLink="/s6" routerLinkActive="active">Filtres</a>` |
 
 Avant d'écrire les volets, isolez ce qu'ils ont en commun. La logique de filtre et de tri est la
 même des deux côtés : seule la plomberie réactive change. Elle tient donc dans une fonction pure,
@@ -46,7 +46,7 @@ export function applyFilters(
 ```
 
 L'ordre des deux appels compte : `filter` renvoie un **nouveau** tableau, donc le `sort` en place
-qui suit ne mute pas la liste reçue (voir le piège 2 de l'[étape bonus 09](09-BONUS.md)).
+qui suit ne mute pas la liste reçue (voir le piège 2 de l'[étape bonus 10](10-BONUS.md)).
 
 ## Côté RxJS (donné)
 
@@ -99,6 +99,8 @@ export class S6Rxjs {
   );
 }
 ```
+
+Chaque morceau du fichier a sa raison d'être, détaillée dans ce tableau :
 
 | Morceau | Pourquoi il est là |
 |---|---|
@@ -156,8 +158,8 @@ volet signals tient en cinq lignes de logique.
 ---
 
 🎉 Les six expériences sont faites : complétez la [grille de décision](../GRILLE.md) pour le
-[débrief final](../README.md). La ligne « Flux dans le temps » se termine à l'étape 07, avec la
+[débrief final](../README.md). La ligne « Flux dans le temps » se termine à l'étape 08, avec la
 reprise.
 
 La suite revient sur l'infrastructure HTTP de l'application, maintenant que vous l'avez vue sous
-pression : ➡️ [07 — Écrire un intercepteur de reprise](07-REPRISE.md)
+pression : ➡️ [08 — Écrire un intercepteur de reprise](08-REPRISE.md)

@@ -19,7 +19,7 @@ import { BookingsService } from '../../api/bookings.service';
 type Strategy = 'switchMap' | 'concatMap' | 'exhaustMap';
 
 /**
- * S4 côté RxJS : le MÊME bouton, trois opérateurs d'aplatissement, trois comportements.
+ * La réservation côté RxJS : le MÊME bouton, trois opérateurs d'aplatissement, trois comportements.
  *
  *  - switchMap  : chaque clic ANNULE la réservation précédente si elle n'est pas finie.
  *                 Avec le chaos (délai avant envoi), les clics 1 et 2 n'atteignent jamais le

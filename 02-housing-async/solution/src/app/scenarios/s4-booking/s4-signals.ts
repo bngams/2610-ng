@@ -4,7 +4,7 @@ import { finalize } from 'rxjs';
 import { BookingsService } from '../../api/bookings.service';
 
 /**
- * S4 côté signals.
+ * La réservation côté signals.
  *
  * Version A : un resource dont les params changent à chaque clic. Quand les params changent,
  * le resource ANNULE la requête en cours et relance : c'est switchMap, avec les mêmes dégâts.

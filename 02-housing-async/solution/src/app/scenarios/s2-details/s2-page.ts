@@ -9,9 +9,9 @@ import { S2Signals } from './s2-signals';
   imports: [ModeToggle, S2Rxjs, S2Signals],
   template: `
     <div class="scenario">
-      <h1>S2-S3 — Détail : trois appels en parallèle, un sur trois échoue</h1>
+      <h1>Détail : trois appels en parallèle, un sur trois échoue</h1>
       <p class="hint">
-        S2 : le logement, ses avis et son agent (qui dépend du logement), lancés au plus tôt. S3 — Détail : un appel sur trois échoue : même page, avec <code>errorRate: 0.5</code> sur <code>/api/reviews</code> dans <code>chaos.config.ts</code> ; le reste doit rester affiché, avec un bouton « réessayer » sur les avis.
+        Le logement, ses avis et son agent (qui dépend du logement), lancés au plus tôt. Pour l'erreur partielle, même page, avec <code>errorRate: 0.5</code> sur <code>/api/reviews</code> dans <code>chaos.config.ts</code> ; le reste doit rester affiché, avec un bouton « réessayer » sur les avis.
       </p>
       <app-mode-toggle [(mode)]="mode" />
       @if (mode() === 'rxjs') {

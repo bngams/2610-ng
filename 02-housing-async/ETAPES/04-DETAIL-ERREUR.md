@@ -1,6 +1,6 @@
-# 💥 S3 — Détail : un appel sur trois échoue
+# 💥 04 — Détail : un appel sur trois échoue
 
-**Contexte.** Cette étape se joue dans les deux composants de la fiche détail (étape 02), sur la
+**Contexte.** Cette étape se joue dans les deux composants de la fiche détail (étape 03), sur la
 même page `/s2/:id` : elle n'a pas de page à elle. En production, un service d'avis en panne ne
 doit pas vider la fiche logement. Le logement et l'agent s'affichent, et seuls les avis montrent
 une erreur et un bouton « réessayer ».
@@ -90,4 +90,4 @@ tomber dessus.
 
 ---
 
-➡️ [S4 — Réserver](04-RESERVER.md)
+➡️ [05 — Réserver : clics rapides](05-RESERVER.md)

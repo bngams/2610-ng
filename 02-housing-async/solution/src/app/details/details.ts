@@ -1,12 +1,13 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { LocationsService } from '../api/locations.service';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { ApplicationForm } from '../application-form/application-form';
+import { ApplicationFormSignals } from '../application-form/application-form-signals';
 
 @Component({
   selector: 'app-details',
-  imports: [ReactiveFormsModule],
+  imports: [ApplicationForm, ApplicationFormSignals],
   template: `
     <article>
       <img
@@ -30,17 +31,19 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
       </section>
       <section class="listing-apply">
         <h2 class="section-heading">Apply now to live here</h2>
-        <form [formGroup]="applyForm" (submit)="submitApplication()">
-          <label for="first-name">First Name</label>
-          <input id="first-name" type="text" formControlName="firstName" />
-
-          <label for="last-name">Last Name</label>
-          <input id="last-name" type="text" formControlName="lastName" />
-
-          <label for="email">Email</label>
-          <input id="email" type="email" formControlName="email" />
-          <button type="submit" class="primary">Apply now</button>
-        </form>
+        <div class="form-switch">
+          <button type="button" [class.on]="formVersion() === 'reactive'" (click)="formVersion.set('reactive')">
+            Reactive Forms
+          </button>
+          <button type="button" [class.on]="formVersion() === 'signals'" (click)="formVersion.set('signals')">
+            Signal Forms
+          </button>
+        </div>
+        @if (formVersion() === 'reactive') {
+          <app-application-form [locationId]="housingLocationId" />
+        } @else {
+          <app-application-form-signals [locationId]="housingLocationId" />
+        }
       </section>
     </article>
   `,
@@ -51,18 +54,5 @@ export class Details {
   locationsService = inject(LocationsService);
   housingLocationId = Number(this.route.snapshot.params['id']);
   housingLocation = toSignal(this.locationsService.get(this.housingLocationId));
-
-  applyForm = new FormGroup({
-    firstName: new FormControl(''),
-    lastName: new FormControl(''),
-    email: new FormControl(''),
-  });
-
-  submitApplication() {
-    this.locationsService.submitApplication(
-      this.applyForm.value.firstName ?? '',
-      this.applyForm.value.lastName ?? '',
-      this.applyForm.value.email ?? '',
-    );
-  }
+  formVersion = signal<'reactive' | 'signals'>('signals');
 }

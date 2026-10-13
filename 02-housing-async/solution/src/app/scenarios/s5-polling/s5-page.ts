@@ -9,7 +9,7 @@ import { S5Signals } from './s5-signals';
   imports: [ModeToggle, S5Rxjs, S5Signals],
   template: `
     <div class="scenario">
-      <h1>S5 — Disponibilité : polling, arrêt en quittant la page</h1>
+      <h1>Disponibilité : polling, arrêt en quittant la page</h1>
       <p class="hint">
         Changez <code>available</code> côté serveur (PATCH, voir l'énoncé) : l'affichage doit suivre au tick suivant. Quittez la page : les appels doivent cesser.
       </p>

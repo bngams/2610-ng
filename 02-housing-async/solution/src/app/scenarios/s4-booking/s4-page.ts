@@ -9,7 +9,7 @@ import { S4Signals } from './s4-signals';
   imports: [ModeToggle, S4Rxjs, S4Signals],
   template: `
     <div class="scenario">
-      <h1>S4 — Réserver : clics rapides</h1>
+      <h1>Réserver : clics rapides</h1>
       <p class="hint">
         Cliquez trois fois très vite sur chaque bouton, puis comptez ce que le serveur a reçu (bouton « Compter ») et lisez le log chaos.
       </p>

@@ -7,7 +7,7 @@ import { LocationsService } from '../../api/locations.service';
 import { SortKey, applyFilters } from './filters';
 
 /**
- * S6 côté RxJS : combineLatest attend que CHAQUE source ait émis une fois, d'où les startWith
+ * Les filtres côté RxJS : combineLatest attend que CHAQUE source ait émis une fois, d'où les startWith
  * (un valueChanges n'émet pas la valeur initiale). Puis map. Ça marche, mais tout ce qui est
  * synchrone ici (filtrer, trier) n'a pas besoin d'un flux : comparez avec le volet signals.
  */

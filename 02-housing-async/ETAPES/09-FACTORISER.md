@@ -1,8 +1,8 @@
-# 🧱 08 — Factoriser : `ResourceService<I, T>`, puis le contrat v2
+# 🧱 09 — Factoriser : `ResourceService<I, T>`, puis le contrat v2
 
 > **Scénario à réaliser en autonomie, en deux parties.** Dans la partie A, vous remplacez
-> `HousingService` et ses huit méthodes presque identiques par une classe générique,
-> `ResourceService<I, T>`, que vous écrivez à partir d'un squelette ; les cinq petites classes qui
+> `HousingService` et ses neuf méthodes presque identiques par une classe générique,
+> `ResourceService<I, T>`, que vous écrivez à partir d'un squelette ; les six petites classes qui
 > en héritent sont fournies. Dans la partie B, le back change de contrat : chaque réponse arrive
 > enveloppée dans `{ data, meta }`. Si la partie A est réussie, un seul fichier change. Le code
 > complet est dans `solution/src/app/api/`, à n'ouvrir qu'en cas de blocage.
@@ -21,7 +21,7 @@
 
 ### 🔍 A.1 — Ce qui se répète
 
-Ouvrez `src/app/housing.service.ts` : huit méthodes, et presque toutes ont la même forme,
+Ouvrez `src/app/housing.service.ts` : neuf méthodes, et presque toutes ont la même forme,
 `` this.http.get<T>(`${base}/ressource/…`) ``. Les volets signals de la recherche et de la fiche
 détail répètent les mêmes adresses, avec `environment.apiUrl`, parce qu'un `httpResource` prend une
 URL et pas une méthode du service. Et chaque nouvelle ressource ajouterait ses méthodes au même
@@ -30,16 +30,17 @@ service.
 Une ressource json-server se manipule pourtant toujours de la même façon : lister (avec des
 filtres), lire un élément, en créer un, en modifier un. On écrit donc ce CRUD une fois, dans une
 classe abstraite, et chaque ressource n'en garde que ce qui lui est propre. À la fin de la partie
-A, le dossier `src/app/api/` contiendra six fichiers, et `housing.service.ts` aura disparu :
+A, le dossier `src/app/api/` contiendra sept fichiers, et `housing.service.ts` aura disparu :
 
 ```
 src/app/api/
 ├── resource.service.ts        <- à vous : API_URL, ListParams, ResourceService<I, T>
-├── locations.service.ts       <- fourni : + searchByCity(), submitApplication()
+├── locations.service.ts       <- fourni : + searchByCity()
 ├── reviews.service.ts         <- fourni
 ├── agents.service.ts          <- fourni
 ├── availability.service.ts    <- fourni
-└── bookings.service.ts        <- fourni : + book()
+├── bookings.service.ts        <- fourni : + book()
+└── applications.service.ts    <- fourni : rien de plus que le CRUD
 ```
 
 ### ⚖️ A.2 — Les choix de conception
@@ -83,7 +84,7 @@ Node affiche `champ : /api/undefined | getter : /api/reviews` : le champ a été
 ### 🚧 A.3 — Écrire `ResourceService`
 
 Créez le dossier `src/app/api/` et, dedans, le fichier `resource.service.ts`. Les signatures sont
-données, car les cinq classes fournies s'appuient dessus ; les corps sont à écrire.
+données, car les six classes fournies s'appuient dessus ; les corps sont à écrire.
 
 🚧 **À compléter :**
 
@@ -141,6 +142,7 @@ export abstract class ResourceService<I extends number | string, T extends { id?
 }
 ```
 
+Le build reste rouge tant que les corps sont vides : chaque méthode déclare un type de retour.
 Quelques indices pour les sept `TODO` :
 
 - `TODO 1` est un gabarit de chaîne avec `this.apiUrl` et `this.path`. Les `TODO 2` à `5` tiennent
@@ -161,18 +163,19 @@ Quelques indices pour les sept `TODO` :
 > [httpResource](https://angular.dev/api/common/http/httpResource) ·
 > [Contexte d'injection](https://angular.dev/guide/di/dependency-injection-context)
 
-### 📦 A.4 — Les cinq sous-classes (fournies)
+### 📦 A.4 — Les six sous-classes (fournies)
 
 Chaque ressource hérite de `ResourceService` et ne déclare que son `path`, plus ce qui lui est
-propre. Les cinq fichiers sont dans `assets/services/` :
+propre. Les six fichiers sont dans `assets/services/` :
 
 | Fichier | Ce qu'il contient |
 |---|---|
-| [`locations.service.ts`](../assets/services/locations.service.ts) | `LocationsService extends ResourceService<number, HousingLocationInfo>`, `path = 'locations'`, plus `searchByCity(query)` (un `list({ city_like: query })`) et `submitApplication()`, reprise telle quelle du tutoriel |
+| [`locations.service.ts`](../assets/services/locations.service.ts) | `LocationsService extends ResourceService<number, HousingLocationInfo>`, `path = 'locations'`, plus `searchByCity(query)` (un `list({ city_like: query })`) |
 | [`reviews.service.ts`](../assets/services/reviews.service.ts) | `ReviewsService`, `path = 'reviews'`, rien d'autre : les avis d'un logement sont un `list({ locationId })` |
 | [`agents.service.ts`](../assets/services/agents.service.ts) | `AgentsService`, `path = 'agents'`, rien d'autre |
 | [`availability.service.ts`](../assets/services/availability.service.ts) | `AvailabilityService`, `path = 'availability'` ; l'`id` d'une disponibilité vaut le `locationId`, donc `get(locationId)` suffit |
 | [`bookings.service.ts`](../assets/services/bookings.service.ts) | `BookingsService`, `path = 'bookings'`, plus `book(locationId)`, un `create({ locationId, at })` avec la date du moment |
+| [`applications.service.ts`](../assets/services/applications.service.ts) | `ApplicationsService extends ResourceService<number, Application>`, `path = 'applications'`, rien d'autre : le dossier part avec `create(dossier)` |
 
 Copiez-les à côté de votre `resource.service.ts`, depuis la racine du projet :
 
@@ -180,8 +183,15 @@ Copiez-les à côté de votre `resource.service.ts`, depuis la racine du projet 
 cp ../02-housing-async/assets/services/*.service.ts src/app/api/
 ```
 
+Les dossiers entrent dans le moule sans rien de spécifique, et c'est ce qui justifie de ne pas leur
+garder un service à part. `Application` déclare `id?: number`, donc elle respecte
+`T extends { id?: I }` avec `I = number`. Et `create(item: Omit<Application, 'id'>)` accepte
+exactement l'objet que les deux formulaires envoient, `{ locationId, ...dossier }`, qui n'a pas
+encore d'`id`. L'ancienne `submitApplication(application)` n'était qu'un `POST` sur la collection :
+c'est la définition de `create`.
+
 Chacun est un service `@Injectable({ providedIn: 'root' })` ordinaire : un composant l'obtient
-avec `inject(ReviewsService)`. Le plus court des cinq montre à quoi se réduit une ressource :
+avec `inject(ReviewsService)`. Le plus court des six montre à quoi se réduit une ressource :
 
 ```ts
 @Injectable({ providedIn: 'root' })
@@ -199,19 +209,22 @@ seuls l'injection et l'appel changent. Dans chaque fichier, remplacez l'import e
 | Fichier | Service injecté | Avant => après |
 |---|---|---|
 | `home/home.ts`, `s6-filters/s6-rxjs.ts`, `s6-filters/s6-signals.ts` | `LocationsService` | `getAllHousingLocations()` => `list()` |
-| `details/details.ts` | `LocationsService` | `getHousingLocationById(id)` => `get(id)` ; `submitApplication(…)` inchangé |
+| `details/details.ts` | `LocationsService` | `getHousingLocationById(id)` => `get(id)` |
+| `application-form/application-form.ts`, `application-form/application-form-signals.ts` | `ApplicationsService` | `submitApplication(dossier)` => `create(dossier)` |
 | `s1-search/s1-rxjs.ts` | `LocationsService` | `searchByCity(q)`, inchangé |
 | `s2-details/s2-rxjs.ts` | `LocationsService`, `ReviewsService`, `AgentsService` | `getHousingLocationById(id)` => `get(id)` ; `getReviews(id)` => `list({ locationId: id })` ; `getAgent(agentId)` => `get(agentId)` |
 | `s4-booking/s4-rxjs.ts`, `s4-booking/s4-signals.ts` | `BookingsService` | `book(id)`, inchangé ; `getBookings(id)` => `list({ locationId: id })` |
-| `s5-polling/s5-rxjs.ts`, `s5-polling/s5-signals.ts` (deux composants) | `AvailabilityService` | `getAvailability(id)` => `get(id)` |
+| `s5-polling/s5-rxjs.ts`, `s5-polling/s5-signals.ts` (ses deux versions, A et B, injectent chacune le service) | `AvailabilityService` | `getAvailability(id)` => `get(id)` |
 
 Les services sont dans `src/app/api/` : depuis un composant d'expérience, importez-les avec
-`'../../api/locations.service'`, depuis `home/` ou `details/` avec `'../api/locations.service'`.
+`'../../api/locations.service'`, depuis `home/`, `details/` ou `application-form/` avec
+`'../api/locations.service'` (ou `'../api/applications.service'`).
 Nommez les champs d'après le service (`locationsService`, `reviewsService`…) : dans `s2-rxjs.ts`,
-un champ `reviews` entrerait en collision de sens avec `Vm.reviews`. Dans `home.ts` et
-`details.ts`, le champ du lab Init porte aussi un type explicite
-(`housingService: HousingService = inject(HousingService)`) : remplacez la ligne entière par
-`locationsService = inject(LocationsService)`.
+un champ `reviews` entrerait en collision de sens avec `Vm.reviews`. Dans `home.ts`, le champ du
+lab Init porte aussi un type explicite (`housingService: HousingService = inject(HousingService)`) :
+remplacez la ligne entière par `locationsService = inject(LocationsService)`, comme dans
+`details.ts`. Dans les deux composants du dossier, le champ est privé : écrivez
+`private readonly applicationsService = inject(ApplicationsService);`.
 
 Les deux volets signals de la recherche et de la fiche changent davantage, puisqu'ils
 n'écrivent plus d'URL. Dans `s1-search/s1-signals.ts`, retirez les imports de `httpResource`, de
@@ -253,14 +266,15 @@ Quand plus aucun fichier n'importe `HousingService`, supprimez `src/app/housing.
 Les six expériences et l'application du tutoriel se comportent **exactement** comme avant, avec
 les mêmes URL dans le log du chaos : dix cartes à l'accueil, `Monthly rent: 1100 $` sur
 `/details/3`, « Juneau » seul après « Jun » puis « eau » sur les deux volets de la recherche, la
-fiche complète sur `/s2/3` avec `ready() = true`, `3 / 3 / 1` réservations confirmées et
-`5 réservation(s) en base` sur une base fraîche, la disponibilité qui suit le `PATCH`, et
-« Oakland 890 $, Oakland 1390 $ » dans les filtres.
+fiche complète sur `/s2/3` avec `ready() = true`, `1 / 3 / 1` réservations confirmées et
+`5 réservation(s) en base` sur une base fraîche, la disponibilité qui suit le `PATCH`,
+« Oakland 890 $, Oakland 1390 $ » dans les filtres, et le dossier, dans ses deux versions, qui
+logue `POST /api/applications => 201` puis affiche `Application #… received.`.
 
 Avant la partie B, enregistrez cet état pour pouvoir le comparer ensuite, avec git. Le projet créé
 par `ng new` est un dépôt git ; une copie de `02-housing-init/solution` ne l'est pas : si
 `git status` répond `not a git repository`, lancez d'abord `git init` à la racine de `homes/`.
-Faites ensuite un commit : `git add -A` puis `git commit -m "08 partie A"`.
+Faites ensuite un commit : `git add -A` puis `git commit -m "09 partie A"`.
 
 ## Partie B — Le back change de contrat
 
@@ -415,7 +429,9 @@ jour où le contrat change encore, il n'y a qu'une ligne à modifier.
 Avec `npm run api:v2` dans le terminal 1, les six expériences et l'application du tutoriel se
 comportent comme avec `npm run api` à la fin de la partie A : mêmes écrans, mêmes lignes dans le
 log du chaos, mêmes `annulée` dans la recherche, mêmes `5 réservation(s) en base`, même passage à
-`Disponible : non` après le `PATCH` (dont la réponse `curl` est maintenant enveloppée).
+`Disponible : non` après le `PATCH` (dont la réponse `curl` est maintenant enveloppée), et la
+même confirmation après l'envoi du dossier : sur une base remise à zéro, l'API v2 répond
+`{ "data": { …, "id": 1 }, "meta": null }`, et c'est `create()` qui en extrait le dossier, si bien que `created.id` vaut bien `1`.
 
 La preuve que le changement est contenu se lit dans git :
 
@@ -474,5 +490,5 @@ deux cartes en page 3, et le log montre
 
 ---
 
-➡️ S'il vous reste du temps : [09 — Bonus : trois pièges RxJS](09-BONUS.md), puis retour au
+➡️ S'il vous reste du temps : [10 — Bonus : trois pièges RxJS](10-BONUS.md), puis retour au
 [débrief final : la grille de décision](../README.md).

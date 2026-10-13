@@ -1,37 +1,45 @@
-# 🌪️ Étape 0 — Mise sous pression
+# 🌪️ 00 — Mise sous pression
 
-Vous repartez de l'application Housing telle que le lab Init la laisse à l'étape 17 : dix
-logements, une recherche, une fiche, un formulaire, des données servies par json-server et lues
+Vous repartez de l'application Housing telle que le lab Init la laisse à l'étape 18 : dix
+logements, une recherche, une fiche, un dossier de candidature en trois écrans (formulaires
+réactifs) qui part en `POST` vers `/applications`, des données servies par json-server et lues
 avec `HttpClient`, deux intercepteurs (le journal et « Loading… ») et l'adresse de l'API dans
-`environment.ts`. Elle marche, mais elle vit dans un monde idéal : une seule ressource, une API
-qui répond en quelques millisecondes et ne se trompe jamais. Dans ce monde-là, aucun problème
+`environment.ts`. Elle marche, mais elle vit dans un monde idéal : deux collections seulement, une
+API qui répond en quelques millisecondes et ne se trompe jamais. Dans ce monde-là, aucun problème
 asynchrone n'est visible.
 
-> ℹ️ **Vous n'avez pas fait le lab Init, ou pas son étape 17 (facultative) ?** Partez de
+> ℹ️ **Vous n'avez pas fait le lab Init, ou pas ses étapes 17 (facultative) et 18 ?** Partez de
 > `02-housing-init/solution` : c'est exactement le projet que cette étape suppose (voir la mise
 > en place du [README](../README.md)).
 
 Cette étape rend l'application plus réaliste en cinq gestes : plus de données, un proxy, des
 modèles, un service qui couvre toute l'API, et un intercepteur qui ralentit et fait échouer
-certaines requêtes. Une ligne ajoutée à la fiche détail termine l'étape. Rien de ce qui suit n'est un exercice : le code est **donné**, vous le copiez
-et le lisez avec les tableaux qui l'accompagnent. Les expériences commencent à l'étape suivante.
+certaines requêtes. Une ligne ajoutée à la fiche détail termine l'étape. Rien de ce qui suit
+n'est un exercice : le code est **donné**, vous le copiez et le lisez avec les tableaux qui
+l'accompagnent. Le dossier de candidature traverse l'étape sans changer : il continue d'être
+envoyé, cette fois par le proxy et à travers le chaos. L'étape suivante le réécrit en Signal
+Forms, et les expériences commencent à l'étape 02.
 
 ## 0.1 — L'API enrichie
 
-Aujourd'hui, `api/db.json` ne contient que `/locations`. Les expériences de ce lab ont besoin de
-plus : des avis et un agent à afficher sur la fiche, une disponibilité qui change, des
+Aujourd'hui, `api/db.json` ne contient que deux collections : `locations`, et `applications`,
+ajoutée à l'étape 18 du lab Init pour recevoir les dossiers. Les expériences de ce lab ont besoin
+de plus : des avis et un agent à afficher sur la fiche, une disponibilité qui change, des
 réservations à créer, et un prix sur chaque logement pour filtrer.
 
 Ces données sont prêtes dans [`assets/api/db.json`](../assets/api/db.json) : ouvrez-le pour voir
-les cinq ressources et leurs champs. Depuis la racine de votre projet `homes`, remplacez la base
-par cette version enrichie :
+les six collections et leurs champs. Les dix logements y gagnent trois champs, quatre collections
+arrivent (`reviews`, `agents`, `availability`, `bookings`), et la dernière, `applications`, est
+vide, comme dans votre base : le dossier de candidature continue donc de fonctionner. Les dossiers
+que vous avez envoyés pendant le lab Init, eux, disparaissent avec l'ancienne base. Depuis la
+racine de votre projet `homes`, remplacez la base par cette version enrichie :
 
 ```bash
 cp ../02-housing-async/assets/api/db.json api/db.json
 ```
 
 json-server **écrit dans ce fichier** à chaque création ou modification, par exemple quand vous
-réserverez un logement. Après quelques essais, la base ne sera donc plus dans son état de départ.
+réserverez un logement ou enverrez un dossier. Après quelques essais, la base ne sera donc plus dans son état de départ.
 Pour pouvoir y revenir, gardez à côté une copie de référence,
 [`assets/api/db.seed.json`](../assets/api/db.seed.json), identique à la base de départ :
 
@@ -54,6 +62,8 @@ fin du bloc `"scripts"`, sans oublier la virgule sur la ligne `"api"` qui le pr�
   },
 ```
 
+Voici le rôle de chacune des deux lignes :
+
 | Ligne | Rôle |
 |---|---|
 | `"api"` | inchangée depuis le lab Init : json-server sert `api/db.json` sur le port 3000 et relit le fichier s'il change (`--watch`) |
@@ -72,6 +82,7 @@ Voici ce que la base enrichie expose désormais, et à quoi chaque ressource ser
 | `PATCH /availability/:locationId` | bascule `available` sans éditer le fichier à la main | le suivi de disponibilité |
 | `POST /bookings` | crée une réservation `{ locationId, at }` | la réservation |
 | `GET /bookings?locationId=:id` | les réservations que le serveur a vraiment reçues | la réservation |
+| `POST /applications` | crée un dossier de candidature (le corps est l'`Application` du lab Init) et lui donne un `id` | le dossier, en formulaires réactifs puis en Signal Forms |
 
 > ℹ️ json-server reste **épinglé en 0.17.4**, comme dans le lab Init. C'est cette version qui
 > connaît le filtre `_like` utilisé par la recherche ; la branche 1.x a changé ses opérateurs.
@@ -79,7 +90,7 @@ Voici ce que la base enrichie expose désormais, et à quoi chaque ressource ser
 Pour que json-server charge la nouvelle base, relancez-le : `Ctrl-C` puis `npm run api` dans le
 terminal 1.
 
-> 💡 **Tester :** la bannière de json-server liste maintenant cinq ressources :
+> 💡 **Tester :** la bannière de json-server liste maintenant six ressources :
 >
 > ```
 >   Resources
@@ -88,6 +99,7 @@ terminal 1.
 >   http://localhost:3000/agents
 >   http://localhost:3000/availability
 >   http://localhost:3000/bookings
+>   http://localhost:3000/applications
 > ```
 >
 > Dans le terminal 3, `curl -s "http://localhost:3000/locations?city_like=chi" | grep '"city"'`
@@ -103,8 +115,9 @@ terminal 1.
 > }
 > ```
 
-Gardez ce geste en tête, il servira plusieurs fois : pour repartir d'une base propre, faites
-`Ctrl-C` sur le terminal de l'API, puis `npm run api:reset`, puis `npm run api`.
+Gardez ce geste en tête, il servira plusieurs fois : pour repartir d'une base propre (aucune
+réservation, aucun dossier, tous les logements disponibles), faites `Ctrl-C` sur le terminal de
+l'API, puis `npm run api:reset`, puis `npm run api`.
 
 ## 0.2 — Le proxy de développement, et `apiUrl: '/api'`
 
@@ -136,6 +149,8 @@ json-server, sans ce préfixe. La voici, détaillée clé par clé dans le table
   }
 }
 ```
+
+Chaque clé a un rôle précis :
 
 | Clé | Rôle |
 |---|---|
@@ -185,8 +200,8 @@ fichiers doivent garder les mêmes propriétés, et ici la même valeur.
 Les fichiers d'environnement sont du code source, pas de la configuration de `ng serve` : cette
 fois, pas besoin de redémarrer, l'application se recharge seule.
 
-> 💡 **Tester :** `curl -s http://localhost:4200/api/locations/3 | head -3` renvoie
-> `{ "id": 3, "name": "Homesteady Housing", …`. La requête est partie vers le port 4200, celui de
+> 💡 **Tester :** `curl -s http://localhost:4200/api/locations/3 | head -3` renvoie les trois
+> premières lignes du logement 3, `{`, `"id": 3,` et `"name": "Homesteady Housing",`. La requête est partie vers le port 4200, celui de
 > l'application, et c'est json-server qui a répondu. Dans la console du navigateur, l'intercepteur
 > de journal du lab Init écrit maintenant `GET /api/locations => 200 (13 ms)` : l'adresse est
 > relative, la réponse arrive par le proxy.
@@ -195,7 +210,9 @@ fois, pas besoin de redémarrer, l'application se recharge seule.
 
 Les nouvelles ressources ont besoin de types. Remplacez `src/app/housinglocation.ts` par la
 version complète : `HousingLocationInfo` gagne les trois champs de la base enrichie, et quatre
-interfaces arrivent pour les nouvelles ressources.
+interfaces arrivent pour les nouvelles ressources. L'autre fichier de modèles,
+`src/app/application.ts` (les interfaces `Application` et `Guarantor` du dossier, étape 18 du lab
+Init), ne change pas.
 
 ```ts
 export interface HousingLocationInfo {
@@ -248,17 +265,19 @@ export interface Booking {
 
 ## 0.4 — Le service couvre toute l'API
 
-Le `HousingService` du lab Init sait lire la liste et un logement. Les expériences ont besoin de
-six méthodes de plus : la recherche par ville, les avis, l'agent, la disponibilité, la création et
-la lecture des réservations. Remplacez `src/app/housing.service.ts` en entier : les deux méthodes
-du lab Init et `submitApplication` sont inchangées, `environment.apiUrl` reste la seule source de
-l'adresse.
+Le `HousingService` du lab Init sait lire la liste et un logement, et envoyer un dossier. Les
+expériences ont besoin de six méthodes de plus : la recherche par ville, les avis, l'agent, la
+disponibilité, la création et la lecture des réservations. Remplacez `src/app/housing.service.ts`
+en entier : les trois méthodes du lab Init (`getAllHousingLocations`, `getHousingLocationById` et
+`submitApplication(application)`) et l'adresse `applicationsUrl` sont inchangées, et
+`environment.apiUrl` reste la seule source de l'adresse.
 
 ```ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Agent, Availability, Booking, HousingLocationInfo, Review } from './housinglocation';
+import { Application } from './application';
 import { environment } from '../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -266,6 +285,7 @@ export class HousingService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = environment.apiUrl;
   readonly url = `${this.apiUrl}/locations`;
+  readonly applicationsUrl = `${this.apiUrl}/applications`;
 
   getAllHousingLocations(): Observable<HousingLocationInfo[]> {
     return this.http.get<HousingLocationInfo[]>(this.url);
@@ -302,29 +322,29 @@ export class HousingService {
     return this.http.get<Booking[]>(`${this.apiUrl}/bookings`, { params: { locationId } });
   }
 
-  submitApplication(firstName: string, lastName: string, email: string) {
-    console.log(
-      `Homes application received: firstName: ${firstName}, lastName: ${lastName}, email: ${email}.`,
-    );
+  /** Le dossier de candidature du lab Init (étape 18) : un POST qui crée une ligne dans /applications. */
+  submitApplication(application: Application): Observable<Application> {
+    return this.http.post<Application>(this.applicationsUrl, application);
   }
 }
 ```
 
+Voici le rôle de chaque morceau :
+
 | Morceau | Rôle |
 |---|---|
-| `apiUrl = environment.apiUrl` | `'/api'` depuis 0.2 ; privé, la base commune à toutes les ressources |
-| `url` | inchangé depuis le lab Init : l'adresse des logements, `/api/locations` |
+| `apiUrl = environment.apiUrl` | `'/api'` depuis le passage au proxy ; privé, la base commune à toutes les ressources |
+| `url`, `applicationsUrl` | inchangés depuis le lab Init, mais construits à partir d'`apiUrl` : `/api/locations` et `/api/applications` |
 | `{ params: { city_like: query } }` | `HttpClient` encode la query string ; les intercepteurs verront `/api/locations?city_like=Jun` |
-| `this.http.post<T>(url, body)` | une mutation : le serveur crée une ligne ; cliquée trois fois vite, elle en crée peut-être trois |
+| `this.http.post<T>(url, body)` | une mutation : le serveur crée une ligne ; cliquée trois fois vite, elle en crée peut-être trois. C'est le cas de la réservation et du dossier |
 | un `Observable` par méthode | **froid et annulable** : rien ne part avant l'abonnement, et se désabonner abandonne la requête. C'est le cœur de la recherche et de la réservation |
 
-> ⚖️ Ce service répète huit fois le même motif, `` this.http.get<T>(`${…}/ressource`) `` (ou
-> `post` pour la réservation), et chaque
-> nouvelle ressource ajoutera ses méthodes. On l'accepte pour les expériences ; l'étape 08 le
+> ⚖️ Ce service répète neuf fois le même motif, `` this.http.get<T>(`${…}/ressource`) `` (ou
+> `post` pour la réservation et le dossier), et chaque nouvelle ressource ajoutera ses méthodes. On l'accepte pour les expériences ; l'étape 09 le
 > factorise en une classe générique.
 
-L'application tourne toujours à l'identique : `Home` et `Details` appellent les deux méthodes qui
-n'ont pas changé.
+L'application tourne toujours à l'identique : `Home`, `Details` et `ApplicationForm` appellent les
+trois méthodes qui n'ont pas changé.
 
 ## 0.5 — L'intercepteur chaos
 
@@ -400,6 +420,8 @@ export const CHAOS_RULES: ChaosRule[] = [
 ];
 ```
 
+Chaque règle de `CHAOS_RULES` se lit avec ces quatre champs :
+
 | Champ d'une règle | Rôle |
 |---|---|
 | `match` | une RegExp testée sur l'URL complète (avec query string), ou un préfixe de chaîne ; la première règle qui correspond gagne, sinon `CHAOS_DEFAULT`. C'est ici que sert le préfixe `/api` du proxy |
@@ -444,12 +466,15 @@ juste après celle de `laundry`, dans la liste `<ul>` :
           <li>Monthly rent: {{ housingLocation()?.price }} $</li>
 ```
 
-Le `?.` reste nécessaire : sans `initialValue`, le signal vaut `undefined` le temps de la requête,
-donc maintenant aussi le temps du chaos (jusqu'à 1,5 s : vous le verrez).
+Rien d'autre ne change dans `Details` : la section `listing-apply` garde sa balise
+`<app-application-form [locationId]="housingLocationId" />`, et l'import d'`ApplicationForm`
+reste en place. Le `?.` de la nouvelle ligne reste nécessaire : sans `initialValue`, le signal
+vaut `undefined` le temps de la requête, donc maintenant aussi le temps du chaos (jusqu'à 1,5 s :
+vous le verrez).
 
-**Critère de réussite de l'étape 0.** L'app fait exactement ce qu'elle faisait à la fin du lab
-Init (dix cartes, recherche, fiche, formulaire, « Loading… »), avec un délai visible avant chaque
-affichage, et la console montre le chaos à l'œuvre.
+**Critère de réussite de l'étape 00.** L'app fait exactement ce qu'elle faisait à la fin du lab
+Init (dix cartes, recherche, fiche, dossier de candidature, « Loading… »), avec un délai visible
+avant chaque affichage, et la console montre le chaos à l'œuvre, y compris sur l'envoi du dossier.
 
 > 💡 **Tester :** ouvrez `http://localhost:4200/`, console ouverte avec le filtre `/api/` :
 >
@@ -466,6 +491,23 @@ affichage, et la console montre le chaos à l'œuvre.
 > (chaos), …}` (`toSignal` relance l'erreur quand le template lit le signal : c'est attendu).
 > **Remettez `0`** avant de continuer.
 
+Le dossier de candidature passe lui aussi par le proxy et par le chaos, sans que vous ayez touché
+à `ApplicationForm`. Vérifiez-le avec le parcours de l'étape 18 du lab Init.
+
+> 💡 **Tester :** sur `/details/5`, remplissez le dossier (`Camille`, `Martin`,
+> `camille@example.com`, `0612345678`, puis `2500` et une date future) et cliquez **Send my
+> application**. Le bouton affiche `Sending…` le temps du chaos, puis
+> `Application #1 received. We will get back to you soon.` s'affiche. La console montre :
+>
+> ```
+> [chaos] POST /api/applications +930ms
+> POST /api/applications => 201 (967 ms)
+> ```
+>
+> Le dossier a suivi le même chemin que les lectures : adresse relative `/api/applications`,
+> attente du chaos, relais du proxy vers json-server. `curl -s http://localhost:3000/applications/1`
+> renvoie le dossier enregistré, avec `"locationId": 5` et `"id": 1`.
+
 ---
 
-➡️ [01 — Recherche : anti-rebond et annulation](01-RECHERCHE.md)
+➡️ [01 — Le dossier en Signal Forms](01-DOSSIER-SIGNAL-FORMS.md)

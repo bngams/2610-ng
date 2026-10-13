@@ -8,7 +8,7 @@ import { S6Signals } from './s6-signals';
   imports: [ModeToggle, S6Rxjs, S6Signals],
   template: `
     <div class="scenario">
-      <h1>S6 — Filtres : dérivation synchrone, sans requête</h1>
+      <h1>Filtres : dérivation synchrone, sans requête</h1>
       <p class="hint">
         Ville (texte), prix max (nombre), tri (nom ou prix) : les trois se combinent sans nouvel appel HTTP.
       </p>

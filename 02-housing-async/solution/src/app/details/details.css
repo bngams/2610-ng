@@ -44,26 +44,23 @@ li {
   margin-bottom: 15px;
 }
 
-label,
-input {
-  display: block;
-}
-label {
-  color: var(--secondary-color);
-  font-weight: bold;
-  text-transform: uppercase;
-  font-size: 12pt;
-}
-input {
-  font-size: 16pt;
+.form-switch {
+  display: flex;
+  gap: 8px;
   margin-bottom: 15px;
-  padding: 10px;
-  width: 400px;
-  border-top: none;
-  border-right: none;
-  border-left: none;
-  border-bottom: solid 0.3px;
 }
+.form-switch button {
+  padding: 6px 12px;
+  border: solid 1px var(--primary-color);
+  background: white;
+  color: var(--primary-color);
+  border-radius: 8px;
+}
+.form-switch button.on {
+  background: var(--primary-color);
+  color: white;
+}
+
 @media (max-width: 1024px) {
   .listing-photo {
     width: 100%;

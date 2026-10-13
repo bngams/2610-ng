@@ -6,7 +6,7 @@ import { HousingLocationInfo } from '../../housinglocation';
 import { LocationsService } from '../../api/locations.service';
 
 /**
- * S1 côté RxJS : le temps (debounceTime) et l'annulation (switchMap) sont des opérateurs.
+ * La recherche côté RxJS : le temps (debounceTime) et l'annulation (switchMap) sont des opérateurs.
  * Le composant ne contient aucun subscribe() : toSignal s'abonne, et se désabonne à la destruction.
  */
 @Component({

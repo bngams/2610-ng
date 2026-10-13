@@ -1,4 +1,4 @@
-# 🧩 S2 — Détail : trois appels en parallèle
+# 🧩 03 — Détail : trois appels en parallèle
 
 **Contexte.** La fiche d'un logement (`/s2/:id`) a besoin de trois choses : le logement, ses
 avis, et son agent. Le logement et les avis ne dépendent que de l'`id`, alors que l'agent dépend
@@ -15,16 +15,16 @@ Le tableau suivant met en regard les deux façons d'exprimer ces trois besoins :
 | Enchaîner un appel qui dépend d'un autre | `switchMap` à l'intérieur du flux concerné | une fonction de requête qui renvoie `undefined` tant que la dépendance n'a pas de valeur (la resource reste `idle`) |
 | Savoir que « tout est là » | c'est le comportement par défaut de `forkJoin` | un `computed` sur les `hasValue()` |
 
-Pour la page, la route et le lien, refaites **le même geste que pour la recherche** (étape 01),
+Pour la page, la route et le lien, refaites **le même geste que pour la recherche** (étape 02),
 avec les noms suivants :
 
 | Quoi | Nom |
 |---|---|
 | Dossier | `src/app/scenarios/s2-details/` |
-| Page | `s2-page.ts`, classe `S2Page`, sélecteur `app-s2-page` (la page sert aussi à l'étape suivante, d'où son titre), `<h1>S2-S3 — Détail : trois appels en parallèle, un sur trois échoue</h1>` |
+| Page | `s2-page.ts`, classe `S2Page`, sélecteur `app-s2-page` (la page sert aussi à l'étape suivante, d'où son titre), `<h1>Détail : trois appels en parallèle, un sur trois échoue</h1>` |
 | Volets | `s2-rxjs.ts` (`S2Rxjs`, `app-s2-rxjs`) et `s2-signals.ts` (`S2Signals`, `app-s2-signals`) |
-| Route | `{ path: 's2/:id', component: S2Page, title: 'S2-S3 — Détail : trois appels en parallèle, un sur trois échoue' }` |
-| Lien | `<a routerLink="/s2/3" routerLinkActive="active">S2-S3 Détail</a>` |
+| Route | `{ path: 's2/:id', component: S2Page, title: 'Détail : trois appels en parallèle, un sur trois échoue' }` |
+| Lien | `<a routerLink="/s2/3" routerLinkActive="active">Détail</a>` |
 
 Il y a une différence avec la page de la recherche : la nouvelle page lit l'`id` de la route et le
 **passe** aux deux volets, qui le reçoivent par `input.required`. Voici les lignes de `s2-page.ts`
@@ -162,6 +162,8 @@ function describe(err: unknown): string {
 }
 ```
 
+Chaque morceau du fichier a sa raison d'être, détaillée dans ce tableau :
+
 | Morceau | Pourquoi il est là, et à cet endroit |
 |---|---|
 | `toObservable(this.locationId)` en tête de flux | l'input requis n'est pas disponible à la construction ; `toObservable` n'émet qu'une fois qu'il l'est (piège `NG0950`) |
@@ -260,10 +262,10 @@ et pourquoi.
 - La **dépendance** (agent après logement) s'écrit `switchMap` dans le flux concerné en RxJS, et
   `undefined` tant que la dépendance n'a pas de valeur en signals.
 - Côté signals, aucun pont : la sortie est déjà un signal. Le prix à payer : trois URL dupliquées
-  depuis le service (`rxResource` les éviterait, au prix d'un peu de plomberie ; l'étape 08 les
+  depuis le service (`rxResource` les éviterait, au prix d'un peu de plomberie ; l'étape 09 les
   range dans le service, avec `getResource` et `listResource`).
 </details>
 
 ---
 
-➡️ [S3 — Détail, un appel sur trois échoue](03-DETAIL-ERREUR.md)
+➡️ [04 — Détail : un appel sur trois échoue](04-DETAIL-ERREUR.md)

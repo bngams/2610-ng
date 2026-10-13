@@ -8,7 +8,7 @@ import { S1Signals } from './s1-signals';
   imports: [ModeToggle, S1Rxjs, S1Signals],
   template: `
     <div class="scenario">
-      <h1>S1 — Recherche : anti-rebond et annulation</h1>
+      <h1>Recherche : anti-rebond et annulation</h1>
       <p class="hint">
         Tapez « Jun », une courte pause, puis « eau » : seul le résultat de « Juneau » doit
         s'afficher, et le log chaos doit montrer « Jun => annulée ».

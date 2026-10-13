@@ -5,7 +5,7 @@ export type Mode = 'rxjs' | 'signals';
 /**
  * Bascule RxJS / Signals, partagée par toutes les pages de scénario. Un seul volet à la fois :
  * quand on change de mode, le composant du volet précédent est détruit (c'est la façon de
- * vérifier qu'un flux s'arrête bien, S5), et le log chaos ne montre que les requêtes d'un volet.
+ * vérifier qu'un flux s'arrête bien, le suivi de disponibilité), et le log chaos ne montre que les requêtes d'un volet.
  */
 @Component({
   selector: 'app-mode-toggle',

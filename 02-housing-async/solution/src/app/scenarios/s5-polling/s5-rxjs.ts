@@ -5,7 +5,7 @@ import { Availability } from '../../housinglocation';
 import { AvailabilityService } from '../../api/availability.service';
 
 /**
- * S5 côté RxJS : le temps est un flux comme un autre.
+ * Le suivi de disponibilité côté RxJS : le temps est un flux comme un autre.
  *   timer(0, 3000) -> switchMap(http) -> takeUntilDestroyed()
  *
  * switchMap (et non mergeMap) : si l'appel précédent traîne plus de 3 s (chaos), on l'abandonne

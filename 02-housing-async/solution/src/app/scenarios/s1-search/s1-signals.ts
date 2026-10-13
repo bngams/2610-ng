@@ -4,7 +4,7 @@ import { debounceTime } from 'rxjs';
 import { LocationsService } from '../../api/locations.service';
 
 /**
- * S1 côté signals : httpResource annule tout seul la requête précédente quand sa requête change
+ * La recherche côté signals : httpResource annule tout seul la requête précédente quand sa requête change
  * (il se désabonne, l'intercepteur chaos logue "annulée"). Mais il ne sait pas attendre : le
  * debounce est une notion de temps, elle passe par le pont RxJS.
  *

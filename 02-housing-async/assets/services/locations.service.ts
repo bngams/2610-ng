@@ -11,11 +11,4 @@ export class LocationsService extends ResourceService<number, HousingLocationInf
   searchByCity(query: string): Observable<HousingLocationInfo[]> {
     return this.list({ city_like: query });
   }
-
-  /** La méthode du tutoriel, reprise telle quelle : elle n'appelle pas l'API. */
-  submitApplication(firstName: string, lastName: string, email: string) {
-    console.log(
-      `Homes application received: firstName: ${firstName}, lastName: ${lastName}, email: ${email}.`,
-    );
-  }
 }

@@ -4,7 +4,7 @@ import { LocationsService } from '../../api/locations.service';
 import { ReviewsService } from '../../api/reviews.service';
 
 /**
- * S2 côté signals : trois resources indépendantes, chacune avec son propre statut.
+ * La fiche détail côté signals : trois resources indépendantes, chacune avec son propre statut.
  * UX : chaque bloc apparaît dès qu'il est prêt (pas de "tout ou rien"), et un computed
  * `ready` dit quand tout est là, si vous préférez l'UX de forkJoin.
  *
@@ -13,7 +13,7 @@ import { ReviewsService } from '../../api/reviews.service';
  * location se résout, les params changent et la requête part : c'est le switchMap de RxJS,
  * exprimé en dérivation. (Angular 22.2 propose aussi `chain()` dans le contexte des params.)
  *
- * S3 : l'erreur est locale à la resource. reviews.error() pour l'afficher, reviews.reload()
+ * L'erreur partielle : l'erreur est locale à la resource. reviews.error() pour l'afficher, reviews.reload()
  * pour ne relancer QUE les avis : c'est exactement ce que forkJoin ne savait pas faire.
  */
 @Component({

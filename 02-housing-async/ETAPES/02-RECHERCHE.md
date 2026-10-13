@@ -1,4 +1,4 @@
-# 🔎 S1 — Recherche : anti-rebond et annulation
+# 🔎 02 — Recherche : anti-rebond et annulation
 
 > Cette première expérience sert de modèle. La section « Comment une expérience est construite »
 > ci-dessous ne se fait qu'une fois : les expériences suivantes réutilisent le même geste.
@@ -10,10 +10,16 @@ page tient en quatre morceaux : une route `/sN`, un composant de page qui porte 
 consigne et une bascule **RxJS / Signals**, et deux composants, `sN-rxjs.ts` et `sN-signals.ts`,
 un par volet.
 
+Le `N` de ces noms est un simple identifiant, hérité de la première numérotation des expériences :
+la recherche est la n° 1 (`/s1`, dossier `s1-search/`, classe `S1Page`), la fiche détail la n° 2,
+la réservation la n° 4… Il ne correspond pas au numéro de l'étape, et il n'apparaît nulle part à
+l'écran : les titres des pages et les liens de navigation parlent en mots (« Recherche »,
+« Détail », « Réserver », « Disponibilité », « Filtres »).
+
 Un seul volet est affiché à la fois : quand vous basculez, le composant de l'autre volet est
 **détruit**. C'est voulu, pour deux raisons. D'abord, le log chaos ne montre que les requêtes du
 volet affiché, sinon tout apparaîtrait en double. Ensuite, la destruction est le moyen de vérifier
-qu'un flux s'arrête bien, ce que vous ferez avec le suivi de disponibilité (étape 05).
+qu'un flux s'arrête bien, ce que vous ferez avec le suivi de disponibilité (étape 06).
 
 Pour la recherche, tout est montré, fichier par fichier. Les étapes suivantes vous diront « même
 geste que pour la recherche » et ne donneront plus que les noms.
@@ -68,6 +74,8 @@ export class ModeToggle {
 }
 ```
 
+Voici le rôle de chaque morceau :
+
 | Morceau | Rôle |
 |---|---|
 | `model<Mode>('rxjs')` | un input **bidirectionnel** : la page le lie avec `[(mode)]="mode"`, et `mode.set(m)` dans la bascule remonte dans le signal de la page |
@@ -90,7 +98,7 @@ import { S1Signals } from './s1-signals';
   imports: [ModeToggle, S1Rxjs, S1Signals],
   template: `
     <div class="scenario">
-      <h1>S1 — Recherche : anti-rebond et annulation</h1>
+      <h1>Recherche : anti-rebond et annulation</h1>
       <p class="hint">
         Tapez « Jun », une courte pause, puis « eau » : seul le résultat de « Juneau » doit
         s'afficher, et le log chaos doit montrer « Jun => annulée ».
@@ -109,6 +117,8 @@ export class S1Page {
 }
 ```
 
+Voici le rôle de chaque morceau :
+
 | Morceau | Rôle |
 |---|---|
 | `@if (mode() === 'rxjs') … @else` | un seul volet dans le DOM ; changer de mode détruit l'autre composant |
@@ -123,7 +133,7 @@ import { S1Page } from './scenarios/s1-search/s1-page';
 
 export const routes: Routes = [
   // … les routes '' et 'details/:id' du tutoriel, inchangées …
-  { path: 's1', component: S1Page, title: 'S1 — Recherche : anti-rebond et annulation' },
+  { path: 's1', component: S1Page, title: 'Recherche : anti-rebond et annulation' },
 ];
 ```
 
@@ -147,7 +157,7 @@ import { LoadingService } from './loading.service';
           <img class="brand-logo" src="/logo.svg" alt="logo" aria-hidden="true" />
         </a>
         <nav class="scenarios">
-          <a routerLink="/s1" routerLinkActive="active">S1 Recherche</a>
+          <a routerLink="/s1" routerLinkActive="active">Recherche</a>
         </nav>
       </header>
       @if (loadingService.pending() > 0) {
@@ -291,6 +301,8 @@ export class S1Rxjs {
 }
 ```
 
+Chaque opérateur a sa raison d'être, et sa place dans la chaîne :
+
 | Opérateur | Pourquoi il est là, et à cet endroit |
 |---|---|
 | `valueChanges` + `startWith(this.city.value)` | `valueChanges` n'émet pas la valeur initiale ; `startWith` déclenche la première recherche (la liste complète) |
@@ -360,7 +372,7 @@ Quelques indices pour écrire les deux `TODO` :
 - `httpResource` accepte un objet `{ url, params }`, comme `HttpClient` dans `searchByCity`. Une resource
   prend une URL, pas un Observable : construisez-la comme le service, avec
   `` `${environment.apiUrl}/locations` `` (l'import d'`environment` est déjà dans le squelette).
-  L'étape 08 supprimera cette duplication.
+  L'étape 09 supprimera cette duplication.
 - L'option `{ defaultValue: [] }` joue le rôle de l'`initialValue` de `toSignal`, et évite un
   `@for` sur `undefined`.
 - Pas besoin de `distinctUntilChanged` : un signal ne notifie pas une valeur identique.
@@ -413,4 +425,4 @@ côté RxJS), vous verriez une ligne par lettre, chacune annulée par la suivant
 
 ---
 
-➡️ [S2 — Détail, trois appels en parallèle](02-DETAIL-PARALLELE.md)
+➡️ [03 — Détail : trois appels en parallèle](03-DETAIL-PARALLELE.md)

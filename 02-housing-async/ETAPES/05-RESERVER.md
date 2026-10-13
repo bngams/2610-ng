@@ -1,4 +1,4 @@
-# 🏁 S4 — Réserver : clics rapides
+# 🏁 05 — Réserver : clics rapides
 
 **Contexte.** Un bouton « Réserver » fait un `POST /bookings`, et l'utilisateur clique trois fois
 très vite. Selon l'opérateur, il se passe trois choses différentes, et une seule est acceptable
@@ -17,16 +17,16 @@ Voici ce que fait chacun des trois opérateurs face à ces trois clics :
 | `exhaustMap` | on **ignore** tant que l'appel en cours n'est pas fini | 1 réservation, 2 clics ignorés | un paiement, une double soumission |
 
 Pour la page, la route et le lien, refaites **le même geste que pour la recherche et la fiche
-détail** (étapes 01 et 02) : comme pour la fiche, la page passe `[locationId]="id"` aux deux
+détail** (étapes 02 et 03) : comme pour la fiche, la page passe `[locationId]="id"` aux deux
 volets. Les noms sont les suivants :
 
 | Quoi | Nom |
 |---|---|
 | Dossier | `src/app/scenarios/s4-booking/` |
-| Page | `s4-page.ts`, `S4Page`, `app-s4-page`, `<h1>S4 — Réserver : clics rapides</h1>` |
+| Page | `s4-page.ts`, `S4Page`, `app-s4-page`, `<h1>Réserver : clics rapides</h1>` |
 | Volets | `s4-rxjs.ts` (`S4Rxjs`, `app-s4-rxjs`) et `s4-signals.ts` (`S4Signals`, `app-s4-signals`) |
-| Route | `{ path: 's4/:id', component: S4Page, title: 'S4 — Réserver : clics rapides' }` |
-| Lien | `<a routerLink="/s4/3" routerLinkActive="active">S4 Réserver</a>` |
+| Route | `{ path: 's4/:id', component: S4Page, title: 'Réserver : clics rapides' }` |
+| Lien | `<a routerLink="/s4/3" routerLinkActive="active">Réserver</a>` |
 
 ## Côté RxJS (donné)
 
@@ -125,6 +125,8 @@ export class S4Rxjs {
 }
 ```
 
+Chaque morceau du fichier a sa raison d'être, détaillée dans ce tableau :
+
 | Morceau | Pourquoi il est là |
 |---|---|
 | `Subject<void>` par stratégie | le bouton **pousse** un événement ; le `Subject` est la source du flux |
@@ -134,7 +136,7 @@ export class S4Rxjs {
 | `takeUntilDestroyed()` puis `subscribe` | la première exception à la règle : un événement, donc un `subscribe` ; `takeUntilDestroyed` coupe le flux à la destruction du composant (sans ça, les `Subject` survivent à la page) |
 | `catchError(() => of(null))` dans `book()` | une réservation en erreur ne doit pas tuer le flux des clics suivants |
 | `this.locationId()` dans `book()` | lu au **clic**, donc bien après la construction : pas de `NG0950` ici |
-| `bookingsCount` : `combineLatest([toObservable(locationId), refresh$])` | le compteur côté serveur, relancé par « Compter » ; `toObservable(this.locationId)` parce que `startWith` émet à la construction (piège 3 de l'[étape bonus 09](09-BONUS.md)) |
+| `bookingsCount` : `combineLatest([toObservable(locationId), refresh$])` | le compteur côté serveur, relancé par « Compter » ; `toObservable(this.locationId)` parce que `startWith` émet à la construction (piège 3 de l'[étape bonus 10](10-BONUS.md)) |
 
 ## Côté signals (à vous)
 
@@ -250,4 +252,4 @@ automatique**, et vous notez dans la grille que `resource` se comporte comme `sw
 
 ---
 
-➡️ [S5 — Disponibilité](05-DISPONIBILITE.md)
+➡️ [06 — Disponibilité : polling](06-DISPONIBILITE.md)

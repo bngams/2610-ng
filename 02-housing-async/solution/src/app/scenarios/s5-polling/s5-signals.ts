@@ -4,7 +4,7 @@ import { EMPTY, catchError, switchMap, timer } from 'rxjs';
 import { AvailabilityService } from '../../api/availability.service';
 
 /**
- * S5 côté signals, version A : « signals seuls ».
+ * Le suivi de disponibilité côté signals, version A : « signals seuls ».
  *
  * Un resource sait charger une fois ; pour recharger toutes les 3 s il faut un setInterval,
  * et pour l'arrêter, un onCleanup dans un effect. Ça marche, mais :
@@ -45,7 +45,7 @@ export class S5SignalsEffect {
 }
 
 /**
- * S5 côté signals, version B : le pont. Le temps reste RxJS (timer + switchMap), la resource
+ * Le suivi de disponibilité côté signals, version B : le pont. Le temps reste RxJS (timer + switchMap), la resource
  * ne fait que consommer le flux : à la destruction, rxResource se désabonne, le polling cesse.
  * C'est la version à retenir : « signals pour l'état, RxJS pour le temps, le pont dans le composant ».
  */

@@ -1,8 +1,8 @@
-# ✅ 09 — Bonus : trois pièges RxJS qu'on voit dans toutes les revues de code
+# ✅ 10 — Bonus : trois pièges RxJS qu'on voit dans toutes les revues de code
 
-> Facultatif, à faire si vous avez fini l'étape 08 avant le débrief final. Gardez le
+> Facultatif, à faire si vous avez fini l'étape 09 avant le débrief final. Gardez le
 > chaos actif : le symptôme du piège 1 se lit dans son log. Les extraits reprennent les noms de
-> `HousingService` (étapes 00 à 06) ; après l'étape 08, lisez par exemple
+> `HousingService` (étapes 00 à 07) ; après l'étape 09, lisez par exemple
 > `locationsService.get(id)` à la place de `housingService.getHousingLocationById(id)`.
 
 Voici trois extraits bugués, à corriger. Pour chacun, lisez d'abord le code et cherchez le bug
@@ -103,7 +103,7 @@ Ici, l'erreur est immédiate, dès l'ouverture de la page :
 | **Cause** | `toSignal` s'abonne **à la construction** et `startWith` émet **tout de suite** : `locationId()` est lu avant que le parent n'ait fourni la valeur. |
 | **Correctif** | partir de `toObservable(this.locationId)`, qui n'émet qu'une fois l'input disponible, et le combiner avec `refresh$`. |
 
-C'est la forme utilisée dans le volet RxJS de la réservation (étape 04) : l'`id` n'est plus lu à la
+C'est la forme utilisée dans le volet RxJS de la réservation (étape 05) : l'`id` n'est plus lu à la
 construction, il arrive dans le flux.
 
 ```ts

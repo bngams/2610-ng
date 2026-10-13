@@ -1,4 +1,4 @@
-# ⏱️ S5 — Disponibilité : polling, arrêt en quittant la page
+# ⏱️ 06 — Disponibilité : polling, arrêt en quittant la page
 
 **Contexte.** La disponibilité d'un logement change côté serveur, par exemple quand un autre agent
 réserve. Vous interrogez donc `GET /availability/:id` toutes les 3 secondes tant que la page est
@@ -13,16 +13,16 @@ Ce besoin se décompose en trois morceaux, que les deux approches traitent ainsi
 | Arrêter à la destruction | `takeUntilDestroyed()` (ou `toSignal`, qui se désabonne) | `onCleanup` dans un `effect`, à ne pas oublier |
 
 Pour la page, la route et le lien, refaites **le même geste que pour la fiche détail et la
-réservation** (étapes 02 et 04), avec une page qui passe `[locationId]="id"` aux deux volets. Les
+réservation** (étapes 03 et 05), avec une page qui passe `[locationId]="id"` aux deux volets. Les
 noms sont les suivants :
 
 | Quoi | Nom |
 |---|---|
 | Dossier | `src/app/scenarios/s5-polling/` |
-| Page | `s5-page.ts`, `S5Page`, `app-s5-page`, `<h1>S5 — Disponibilité : polling, arrêt en quittant la page</h1>` |
+| Page | `s5-page.ts`, `S5Page`, `app-s5-page`, `<h1>Disponibilité : polling, arrêt en quittant la page</h1>` |
 | Volets | `s5-rxjs.ts` (`S5Rxjs`, `app-s5-rxjs`) et `s5-signals.ts` (`S5Signals`, `app-s5-signals`) |
-| Route | `{ path: 's5/:id', component: S5Page, title: 'S5 — Disponibilité : polling, arrêt en quittant la page' }` |
-| Lien | `<a routerLink="/s5/3" routerLinkActive="active">S5 Disponibilité</a>` |
+| Route | `{ path: 's5/:id', component: S5Page, title: 'Disponibilité : polling, arrêt en quittant la page' }` |
+| Lien | `<a routerLink="/s5/3" routerLinkActive="active">Disponibilité</a>` |
 
 ## Côté RxJS (donné)
 
@@ -75,6 +75,8 @@ export class S5Rxjs {
 }
 ```
 
+Chaque morceau du fichier a sa raison d'être, détaillée dans ce tableau :
+
 | Morceau | Pourquoi il est là |
 |---|---|
 | `timer(0, 3000)` | un tick tout de suite, puis toutes les 3 s ; `interval(3000)` attendrait 3 s avant le premier |
@@ -103,7 +105,7 @@ Faites-la marcher (elle marche), puis répondez à trois questions avant d'ouvri
 - Que se passe-t-il si vous oubliez `clearInterval` ?
 
 Une fois vos réponses notées, lisez `solution/src/app/scenarios/s5-polling/s5-signals.ts`. La
-solution est dans l'état final du lab (après l'étape 08) : `this.availabilityService.get(params)` y
+solution est dans l'état final du lab (après l'étape 09) : `this.availabilityService.get(params)` y
 tient la place de votre `this.housingService.getAvailability(params)`. Elle garde votre tentative
 (version A) et ajoute la version B, **le pont** : un `rxResource` dont le `stream` est
 `timer(0, 3000).pipe(switchMap(http))`. Le temps reste RxJS, la resource ne fait que consommer le
@@ -125,7 +127,7 @@ polling survit à la page. Le temps est un flux ; les signals ne modélisent pas
 
 Changez `available` (avec le `PATCH` ci-dessous, ou en éditant `api/db.json`) : l'affichage suit
 au tick suivant, soit en moins de 3 s plus la latence du chaos. Quittez ensuite la page (par le
-logo, vers l'accueil, ou par « S1 Recherche ») : 10 secondes plus tard, il n'y a **plus aucune
+logo, vers l'accueil, ou par le lien « Recherche ») : 10 secondes plus tard, il n'y a **plus aucune
 ligne** `availability` dans le log, ni dans l'onglet Réseau.
 
 > 💡 **Tester :** pour changer la disponibilité sans éditer le fichier, lancez cette commande dans
@@ -160,4 +162,4 @@ ligne** `availability` dans le log, ni dans l'onglet Réseau.
 
 ---
 
-➡️ [S6 — Filtres](06-FILTRES.md)
+➡️ [07 — Filtres : dérivation synchrone](07-FILTRES.md)
