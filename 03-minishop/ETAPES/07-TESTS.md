@@ -369,5 +369,7 @@ Voici ce que montre chacun de leurs tests :
 
 ---
 
-Vous avez terminé le cœur du lab. Retour au [README](../README.md) : les étapes 08
-(micro-frontends) et 09 (notifications) sont à venir.
+Vous avez terminé le cœur du lab. La suite assemble la boutique autrement : une bannière promo
+livrée par une autre application, chargée à l'exécution.
+
+➡️ [08 — Une bannière promo en micro-frontend](08-MICRO-FRONTEND.md)

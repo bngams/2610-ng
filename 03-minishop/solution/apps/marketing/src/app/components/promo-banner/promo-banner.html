@@ -1,0 +1,11 @@
+<mat-card class="promo" appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>Offre de la semaine</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <p>-20 % sur les parfums, avec le code PARFUM20.</p>
+    @if (session.user(); as user) {
+      <p class="personal">{{ user.username }}, -10 % de plus pour vous.</p>
+    }
+  </mat-card-content>
+</mat-card>

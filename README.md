@@ -30,7 +30,7 @@ Supports et cas pratiques. Deux parcours (**Init** et **Avancé**) autour d'un s
 | Fiche | [03 — Authentification et autorisation](03-intro-auth/) : JWT, où garder le jeton (cookie `httpOnly` plutôt que `localStorage`), OIDC, guards, RBAC et CASL ([version en ligne](https://bngams.github.io/2610-ng/03-intro-auth/)) | tout le monde |
 | Fiche | [03 — Un service comme store](03-intro-store/) : panier et session en services avec signals, puis SignalStore ([version en ligne](https://bngams.github.io/2610-ng/03-intro-store/)) | tout le monde |
 | Fiche | [03 — Workspace, bibliothèques et micro-frontends](03-intro-workspace/) : workspace CLI, Nx, Native Federation ([version en ligne](https://bngams.github.io/2610-ng/03-intro-workspace/)) | tout le monde |
-| Lab | [03 — Le mini e-shop](03-minishop/) : workspace `fo` + `bo` et bibliothèques `api`, `auth`, `ui`, `products` ; panier en store, session par cookie `httpOnly`, guards et rôles, tests (étapes 01 à 07 ; micro-frontends et notifications à venir) | tout le monde |
+| Lab | [03 — Le mini e-shop](03-minishop/) : workspace `fo` + `bo` et bibliothèques `api`, `auth`, `ui`, `products` ; panier en store, session par cookie `httpOnly`, guards et rôles, tests, bannière promo en micro-frontend (Native Federation), notifications en bonus | tout le monde |
 
 ## Prérequis
 

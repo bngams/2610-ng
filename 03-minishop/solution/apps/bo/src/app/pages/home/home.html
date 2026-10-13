@@ -1,4 +1,7 @@
-<!-- emplacement réservé : une bannière viendra ici (étape 08) -->
+<!-- la bannière promo, chargée à l'exécution depuis l'application marketing (étape 08) -->
+<lib-remote-slot remote="marketing" exposed="./PromoBanner" component="PromoBanner">
+  <p class="promo-off">Aperçu de la promo indisponible : l'application marketing ne répond pas.</p>
+</lib-remote-slot>
 <h1>Back-office</h1>
 <p>Les produits de la boutique, en lecture seule.</p>
 <lib-product-list />

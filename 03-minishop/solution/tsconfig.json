@@ -62,6 +62,9 @@
     },
     {
       "path": "./libs/products/tsconfig.spec.json"
+    },
+    {
+      "path": "./apps/marketing/tsconfig.app.json"
     }
   ]
 }

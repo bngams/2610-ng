@@ -14,6 +14,38 @@
       "prefix": "app",
       "architect": {
         "build": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "cacheExternalArtifacts": true,
+            "tsConfig": "apps/fo/tsconfig.federation.json"
+          },
+          "configurations": {
+            "production": {
+              "target": "fo:esbuild:production"
+            },
+            "development": {
+              "target": "fo:esbuild:development",
+              "dev": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "target": "fo:serve-original:development",
+            "tsConfig": "apps/fo/tsconfig.federation.json",
+            "rebuildDelay": 500,
+            "cacheExternalArtifacts": true,
+            "dev": true,
+            "devServer": true,
+            "port": 0
+          }
+        },
+        "test": {
+          "builder": "@angular/build:unit-test"
+        },
+        "esbuild": {
           "builder": "@angular/build:application",
           "options": {
             "browser": "apps/fo/src/main.ts",
@@ -24,7 +56,8 @@
                 "input": "apps/fo/public"
               }
             ],
-            "styles": ["apps/fo/src/material-theme.scss", "apps/fo/src/styles.css"]
+            "styles": ["apps/fo/src/material-theme.scss", "apps/fo/src/styles.css"],
+            "polyfills": ["es-module-shims"]
           },
           "configurations": {
             "production": {
@@ -50,14 +83,14 @@
           },
           "defaultConfiguration": "production"
         },
-        "serve": {
+        "serve-original": {
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "fo:build:production"
+              "buildTarget": "fo:esbuild:production"
             },
             "development": {
-              "buildTarget": "fo:build:development"
+              "buildTarget": "fo:esbuild:development"
             }
           },
           "defaultConfiguration": "development",
@@ -65,9 +98,6 @@
             "port": 4200,
             "proxyConfig": "proxy.conf.json"
           }
-        },
-        "test": {
-          "builder": "@angular/build:unit-test"
         }
       }
     },
@@ -79,6 +109,38 @@
       "prefix": "app",
       "architect": {
         "build": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "cacheExternalArtifacts": true,
+            "tsConfig": "apps/bo/tsconfig.federation.json"
+          },
+          "configurations": {
+            "production": {
+              "target": "bo:esbuild:production"
+            },
+            "development": {
+              "target": "bo:esbuild:development",
+              "dev": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "target": "bo:serve-original:development",
+            "tsConfig": "apps/bo/tsconfig.federation.json",
+            "rebuildDelay": 500,
+            "cacheExternalArtifacts": true,
+            "dev": true,
+            "devServer": true,
+            "port": 0
+          }
+        },
+        "test": {
+          "builder": "@angular/build:unit-test"
+        },
+        "esbuild": {
           "builder": "@angular/build:application",
           "options": {
             "browser": "apps/bo/src/main.ts",
@@ -89,7 +151,8 @@
                 "input": "apps/bo/public"
               }
             ],
-            "styles": ["apps/bo/src/material-theme.scss", "apps/bo/src/styles.css"]
+            "styles": ["apps/bo/src/material-theme.scss", "apps/bo/src/styles.css"],
+            "polyfills": ["es-module-shims"]
           },
           "configurations": {
             "production": {
@@ -115,14 +178,14 @@
           },
           "defaultConfiguration": "production"
         },
-        "serve": {
+        "serve-original": {
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "bo:build:production"
+              "buildTarget": "bo:esbuild:production"
             },
             "development": {
-              "buildTarget": "bo:build:development"
+              "buildTarget": "bo:esbuild:development"
             }
           },
           "defaultConfiguration": "development",
@@ -130,9 +193,6 @@
             "port": 4201,
             "proxyConfig": "proxy.conf.json"
           }
-        },
-        "test": {
-          "builder": "@angular/build:unit-test"
         }
       }
     },
@@ -236,6 +296,123 @@
           "builder": "@angular/build:unit-test",
           "options": {
             "tsConfig": "libs/products/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "marketing": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:class": {
+          "skipTests": true
+        },
+        "@schematics/angular:component": {
+          "skipTests": true
+        },
+        "@schematics/angular:directive": {
+          "skipTests": true
+        },
+        "@schematics/angular:guard": {
+          "skipTests": true
+        },
+        "@schematics/angular:interceptor": {
+          "skipTests": true
+        },
+        "@schematics/angular:pipe": {
+          "skipTests": true
+        },
+        "@schematics/angular:resolver": {
+          "skipTests": true
+        },
+        "@schematics/angular:service": {
+          "skipTests": true
+        }
+      },
+      "root": "apps/marketing",
+      "sourceRoot": "apps/marketing/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "cacheExternalArtifacts": true,
+            "tsConfig": "apps/marketing/tsconfig.federation.json"
+          },
+          "configurations": {
+            "production": {
+              "target": "marketing:esbuild:production"
+            },
+            "development": {
+              "target": "marketing:esbuild:development",
+              "dev": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "target": "marketing:serve-original:development",
+            "tsConfig": "apps/marketing/tsconfig.federation.json",
+            "rebuildDelay": 500,
+            "cacheExternalArtifacts": true,
+            "dev": true,
+            "devServer": true,
+            "port": 0
+          }
+        },
+        "esbuild": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "apps/marketing/src/main.ts",
+            "tsConfig": "apps/marketing/tsconfig.app.json",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "apps/marketing/public"
+              }
+            ],
+            "styles": ["apps/marketing/src/material-theme.scss", "apps/marketing/src/styles.css"],
+            "polyfills": ["es-module-shims"]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve-original": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "marketing:esbuild:production"
+            },
+            "development": {
+              "buildTarget": "marketing:esbuild:development"
+            }
+          },
+          "defaultConfiguration": "development",
+          "options": {
+            "port": 4202,
+            "proxyConfig": "proxy.conf.json"
           }
         }
       }

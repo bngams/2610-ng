@@ -1,7 +1,8 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
-import { provideApi } from '@shop/api';
+import { NOTIFIER, provideApi } from '@shop/api';
 import { authInterceptor, provideAuth } from '@shop/auth';
+import { ToastService } from '@shop/ui';
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
@@ -13,5 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideApi({ url: '/api', interceptors: [authInterceptor] }),
     // la session est chargée avant la première navigation
     provideAuth(),
+    // l'application assemble : le contrat de l'api (NOTIFIER) reçoit l'implémentation de ui (ToastService)
+    { provide: NOTIFIER, useExisting: ToastService },
   ],
 };

@@ -1,0 +1,7 @@
+@if (loaded.hasValue()) {
+  <!-- le composant du remote, créé ici comme s'il était écrit dans le template -->
+  <ng-container *ngComponentOutlet="loaded.value()" />
+} @else if (loaded.error()) {
+  <!-- le repli : ce que l'application a placé entre les balises, ou rien -->
+  <ng-content />
+}

@@ -9,6 +9,7 @@
     "test": "ng test",
     "fo": "ng serve fo",
     "bo": "ng serve bo",
+    "marketing": "ng serve marketing",
     "api": "node api/server.js"
   },
   "private": true,
@@ -23,9 +24,11 @@
     "@angular/platform-browser": "^22.1.0",
     "@angular/router": "^22.1.0",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "es-module-shims": "^2.8.0"
   },
   "devDependencies": {
+    "@angular-architects/native-federation": "^22.2.2",
     "@angular/build": "^22.2.2",
     "@angular/cli": "^22.1.8",
     "@angular/compiler-cli": "^22.1.0",
@@ -34,6 +37,7 @@
     "ng-packagr": "^22.2.0",
     "prettier": "^3.8.1",
     "typescript": "~6.0.2",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.0",
+    "@softarc/native-federation-orchestrator": "^4.6.0"
   }
 }

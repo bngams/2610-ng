@@ -1,7 +1,7 @@
 import { Service, computed, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { API_URL } from '@shop/api';
+import { API_URL, SUCCESS_MESSAGE } from '@shop/api';
 import { User } from '../models/user';
 
 /** La session : QUI est connecté, d'après le serveur. Aucun jeton ici : il vit dans un cookie httpOnly. */
@@ -34,7 +34,12 @@ export class SessionStore {
   /** La réponse pose le cookie httpOnly ; son corps ne contient que l'utilisateur. Rejette si refusé. */
   async login(username: string, password: string): Promise<void> {
     const user = await firstValueFrom(
-      this.http.post<User>(`${this.apiUrl}/auth/login`, { username, password }),
+      this.http.post<User>(
+        `${this.apiUrl}/auth/login`,
+        { username, password },
+        // un message de succès, demandé pour cette requête seulement (étape bonus 09)
+        { context: new HttpContext().set(SUCCESS_MESSAGE, 'Vous êtes connecté.') },
+      ),
     );
     this._user.set(user);
   }

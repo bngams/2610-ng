@@ -3,9 +3,11 @@
 > **Scénario à réaliser en autonomie, en un seul parcours pour tout le groupe.** Vous construisez
 > une petite boutique en ligne, de la commande `ng new` jusqu'aux tests : une vitrine pour les
 > clients (`fo`, le front-office), un back-office pour les administrateurs (`bo`), et quatre
-> bibliothèques que les deux applications partagent. Chaque étape vous guide ; là où un fichier
-> est à écrire, les parties à compléter sont marquées `// TODO`. Le dossier `solution/` contient le
-> projet terminé, à n'ouvrir qu'en cas de blocage.
+> bibliothèques que les deux applications partagent. L'étape 08 ajoute une troisième application,
+> `marketing`, dont la bannière promo est chargée par le FO et le BO en **micro-frontend**, et
+> l'étape bonus 09 affiche enfin les erreurs HTTP à l'écran. Chaque étape vous guide ; là où un
+> fichier est à écrire, les parties à compléter sont marquées `// TODO`. Le dossier `solution/`
+> contient le projet terminé, à n'ouvrir qu'en cas de blocage.
 
 > **Niveau : débutant à confirmé, un seul parcours.** Le lab est écrit pour qui a fait le tutoriel
 > Housing et le jour 2 : composants, `input()` / `output()`, signals, routes, `HttpClient` et
@@ -30,6 +32,10 @@
 - Protéger des routes avec des **guards** (`canActivate`, `canMatch`), et partager la même règle
   avec l'affichage du menu.
 - **Tester** un composant, un composant qui charge des données, et des services, avec Vitest.
+- Charger un composant d'une autre application **à l'exécution** (un micro-frontend, avec Native
+  Federation), et partager la session en singleton.
+- (Bonus) **Inverser une dépendance** : `api` déclare un contrat, `ui` l'implémente,
+  l'application assemble.
 
 ---
 
@@ -51,23 +57,25 @@ servent qu'à ce lab.
 
 ### 📁 La vision finale
 
-Voici l'arborescence du workspace à la fin de l'étape 07. C'est une **vision finale**, pas un
+Voici l'arborescence du workspace à la fin de l'étape 09. C'est une **vision finale**, pas un
 point de départ : l'étape 01 crée le contenant, chaque étape suivante ajoute ses fichiers, et le
 tableau des étapes plus bas dit qui crée quoi. Les fichiers de configuration générés par la CLI
-(`tsconfig.*.json`, `ng-package.json`, `README.md`) ne sont pas listés.
+ou par Native Federation (`tsconfig.*.json`, `ng-package.json`, `README.md`, `bootstrap.ts`) ne
+sont pas listés.
 
 ```
 shop/
-├── angular.json                             6 projets : fo, bo, @shop/api, @shop/auth, @shop/ui, @shop/products
-├── package.json                             un seul pour tout le workspace ; scripts api, fo, bo
+├── angular.json                             7 projets : fo, bo, marketing, @shop/api, @shop/auth, @shop/ui, @shop/products
+├── package.json                             un seul pour tout le workspace ; scripts api, fo, bo, marketing
 ├── tsconfig.json                            les alias @shop/* vers les sources des bibliothèques
 ├── proxy.conf.json                          /api => http://localhost:3000, pour les deux applications
 ├── api/server.js, db.json                   l'API de démonstration (json-server 0.17.4 en module)
 ├── libs/
 │   ├── api/src/lib/
 │   │   ├── api.config.ts                        le jeton API_URL + provideApi({ url }) (branche aussi l'intercepteur de retour d'erreur)
+│   │   ├── models/notifier.ts                   le contrat Notifier et son jeton NOTIFIER (étape 09)
 │   │   ├── services/resource.service.ts         ResourceService<I, T>, abstraite (Observables + fabriques httpResource)
-│   │   └── interceptors/feedback.interceptor.ts erreurs => console.error ; pour un vrai message, étape bonus 09
+│   │   └── interceptors/feedback.interceptor.ts erreurs => le NOTIFIER de l'application, sinon console.error (étape 09)
 │   ├── auth/src/lib/
 │   │   ├── auth.config.ts                       provideAuth() : charge la session au démarrage
 │   │   ├── models/user.ts
@@ -79,18 +87,25 @@ shop/
 │   ├── ui/src/lib/
 │   │   ├── material.ts                          le barrel des modules Material utilisés
 │   │   ├── models/menu-item.ts                  { title, path, visible?: () => boolean }
-│   │   └── components/layout/header/            inputs title + menuItems, et un emplacement <ng-content> (ui ne dépend PAS de auth)
+│   │   ├── models/remote-loader.ts              le contrat « charger un module distant » et son jeton REMOTE_LOADER (étape 08)
+│   │   ├── components/layout/header/            inputs title + menuItems, et un emplacement <ng-content> (ui ne dépend PAS de auth)
+│   │   ├── components/remote-slot/              affiche un composant chargé d'un remote, ou un repli (étape 08)
+│   │   └── services/toast.service.ts            ToastService, la snackbar Material (étape 09)
 │   └── products/src/lib/
 │       ├── models/product.ts
 │       ├── services/products.service.ts         @Service() extends ResourceService<number, Product> (lecture)
 │       └── components/product-card/, product-list/
 └── apps/
-    ├── fo/src/app/   app.ts, app.config.ts, app.routes.ts
-    │   ├── features/catalog/  catalog.routes.ts, pages/catalog/, pages/product-detail/
-    │   ├── features/cart/     cart.routes.ts, services/cart.store.ts, pages/cart/, pages/checkout/ (authGuard), components/cart-badge/
-    │   └── pages/home/, not-found/
-    └── bo/src/app/   app.ts, app.config.ts, app.routes.ts (home sous roleGuard('admin') en canMatch, page de connexion de @shop/auth)
-        └── pages/home/ (product-list de @shop/products, en lecture seule), not-found/
+    ├── fo/                federation.config.mjs, public/federation.manifest.json (hôte dynamique, étape 08)
+    │   └── src/app/       app.ts, app.config.ts, app.routes.ts
+    │       ├── features/catalog/  catalog.routes.ts, pages/catalog/, pages/product-detail/
+    │       ├── features/cart/     cart.routes.ts, services/cart.store.ts, pages/cart/, pages/checkout/ (authGuard), components/cart-badge/
+    │       └── pages/home/ (la bannière de marketing), not-found/
+    ├── bo/                federation.config.mjs, public/federation.manifest.json (hôte dynamique, étape 08)
+    │   └── src/app/       app.ts, app.config.ts, app.routes.ts (home sous roleGuard('admin') en canMatch, page de connexion de @shop/auth)
+    │       └── pages/home/ (la bannière, puis product-list de @shop/products en lecture seule), not-found/
+    └── marketing/         federation.config.mjs : le remote, il expose ./PromoBanner (étape 08)
+        └── src/app/       app.ts, app.config.ts, components/promo-banner/
 ```
 
 Le tableau suivant reprend chaque projet, ce qu'il contient, et pourquoi le découpage est
@@ -104,6 +119,7 @@ celui-là :
 | `@shop/products` | le modèle `Product`, `ProductsService` (lecture), la carte et la liste de produits | le catalogue du FO et la page d'accueil du BO affichent les mêmes produits |
 | `fo` | le catalogue, le **panier** et la commande | le panier reste une feature du FO : le BO n'a pas de panier. On extrait une bibliothèque quand **deux** applications en ont besoin, pas avant |
 | `bo` | une page d'accueil réservée au rôle `admin`, qui réutilise la liste de `@shop/products` | une bibliothèque, deux applications |
+| `marketing` | la bannière promo, `PromoBanner`, exposée par Native Federation (étape 08) | une équipe qui livre seule : la bannière est chargée par le FO et le BO **à l'exécution**, sans les recompiler |
 
 Chaque bibliothèque déclare **ses propres types** (`Product` dans `products`, `User` dans `auth`,
 `MenuItem` dans `ui`) : il n'y a pas de bibliothèque `models` commune, ni de `shared` ou de
@@ -132,7 +148,7 @@ les respecter en écrivant vos `import` :
 | `@shop/api` | rien d'interne au workspace | toute autre bibliothèque |
 | `@shop/auth` | `@shop/api` (et Angular Material, directement) | `ui`, `products`, les applications |
 | `@shop/products` | `@shop/api`, `@shop/ui` | `auth`, les applications |
-| `fo`, `bo` | toutes les bibliothèques | l'autre application |
+| `fo`, `bo`, `marketing` | toutes les bibliothèques | une autre application (le FO charge la bannière de `marketing` à l'exécution, sans l'importer) |
 
 La dernière règle se lit aussi dans l'autre sens : **aucune bibliothèque n'importe une
 application**. C'est pour cela que la carte produit de `@shop/products` ne connaît pas le panier du
@@ -142,12 +158,21 @@ FO : elle émet un événement (un `output()`), et c'est le FO qui le branche su
 
 Le diagramme suivant montre les classes principales, rangées par projet, et les liens qui
 comptent : l'héritage (`<|--`) et les dépendances (`..>`, « utilise »). Il sert de carte : revenez-y
-quand une étape vous fait créer une classe, pour voir où elle se place. La bannière promo de
-l'application `marketing` appartient à l'étape 08, à venir.
+quand une étape vous fait créer une classe, pour voir où elle se place. Les classes des étapes 08
+et 09 y figurent aussi : la bannière de `marketing`, l'emplacement qui la charge, le contrat
+`Notifier` et sa snackbar.
 
 ```mermaid
 classDiagram
   namespace lib_api {
+    class Notifier {
+      <<interface, étape 09>>
+      +error(message)
+      +success?(message)
+    }
+    class feedbackInterceptor {
+      <<HttpInterceptorFn>>
+    }
     class ResourceService~T~ {
       <<abstract>>
       #path: string
@@ -192,6 +217,17 @@ classDiagram
       +menuItems: input
       ng-content
     }
+    class RemoteSlot {
+      <<étape 08>>
+      +remote: input
+      +exposed: input
+      +component: input
+    }
+    class ToastService {
+      <<étape 09>>
+      +error(message)
+      +success(message)
+    }
   }
   namespace lib_products {
     class Product {
@@ -229,7 +265,7 @@ classDiagram
   }
   namespace app_marketing {
     class PromoBanner {
-      <<étape 08>>
+      <<étape 08, exposé>>
     }
   }
   ResourceService <|-- ProductsService
@@ -249,11 +285,18 @@ classDiagram
   Checkout ..> CartStore
   Checkout ..> SessionStore
   BoHome ..> ProductList
+  BoHome ..> RemoteSlot
+  RemoteSlot ..> PromoBanner : à l'exécution
+  PromoBanner ..> SessionStore : bonus, singleton
+  feedbackInterceptor ..> Notifier
+  Notifier <|.. ToastService
 ```
 
 Dans le code, `ResourceService` a deux paramètres de type, `<I, T>` (l'identifiant et le modèle) ;
 le diagramme n'en garde qu'un pour rester lisible. `BoHome` est la classe `Home` du BO, renommée
-ici pour la distinguer de celle du FO.
+ici pour la distinguer de celle du FO (qui utilise aussi `RemoteSlot`). `ToastService` réalise
+`Notifier` sans l'importer : `ui` ne dépend pas d'`api`, et c'est l'application qui branche l'un
+sur l'autre (étape 09).
 
 ---
 
@@ -265,7 +308,7 @@ créé à côté. Voici son contenu :
 ```
 03-minishop/
 ├── README.md                    ce fichier
-├── ETAPES/                      les étapes 01 à 07, une par fichier
+├── ETAPES/                      les étapes 01 à 09, une par fichier
 ├── assets/
 │   ├── 02-catalogue/            le code fourni à l'étape 02 : l'API, le proxy, les bibliothèques api et products,
 │   │                            la feature catalogue du FO (même arborescence que votre workspace)
@@ -284,10 +327,11 @@ Les commandes `cp` du lab supposent que votre workspace `shop/` est **à côté*
 Angular 22 exige **Node 24.15+** (ou **22.22.3+**, voir la
 [matrice des versions](https://angular.dev/reference/versions)) : en dessous, la CLI s'arrête sur
 « Please update your Node.js version ». Le lab a été validé avec Node 24.18.0, npm 11.16.0 et
-Angular CLI 22.2.2.
+Angular CLI 22.2.2 ; les micro-frontends de l'étape 08 avec `@angular-architects/native-federation`
+22.2.2.
 
-Vous aurez besoin de **quatre terminaux**, tous ouverts dans `shop/` une fois le workspace créé.
-Leur numéro reste le même dans tout le lab :
+Vous aurez besoin de **quatre terminaux**, puis d'un cinquième à l'étape 08, tous ouverts dans
+`shop/` une fois le workspace créé. Leur numéro reste le même dans tout le lab :
 
 | Terminal | Commande | Rôle |
 |---|---|---|
@@ -295,6 +339,7 @@ Leur numéro reste le même dans tout le lab :
 | 2 | `npm run fo` | la boutique, sur http://localhost:4200 |
 | 3 | `npm run bo` | le back-office, sur http://localhost:4201 (lancé à l'étape 01 pour vérifier, puis de nouveau à partir de l'étape 06) |
 | 4 | `npx ng …`, `cp …`, `curl …` | le terminal des commandes : générations, copies, builds, tests |
+| 5 | `npm run marketing` | le remote de la bannière promo, sur http://localhost:4202 (à partir de l'étape 08) |
 
 Gardez la console du navigateur ouverte (F12) pendant tout le lab : les erreurs HTTP y sont
 signalées, et plusieurs vérifications s'y font.
@@ -316,8 +361,8 @@ liens de doc » (étape 06). Le tableau suivant résume chaque étape et sa dur�
 | [05 — Les guards côté FO](ETAPES/05-GUARDS.md) | `authGuard` sur la commande, et la même règle pour afficher un lien du menu | 20 min |
 | [06 — Le BO minimal](ETAPES/06-BO.md) | l'accueil du BO sous `roleGuard('admin')` en `canMatch`, la page de connexion et la liste de produits réutilisées, le refus du serveur au `curl` | 20 min |
 | [07 — Les tests](ETAPES/07-TESTS.md) | Vitest : la carte produit, la liste de produits (HTTP simulé), le store du panier et `ProductsService` ; guard et intercepteur en bonus | 45 min |
-| 08 — Les micro-frontends : une bannière promo | à venir | 50 min |
-| 09 — Bonus : Les notifications | à venir | — |
+| [08 — Une bannière promo en micro-frontend](ETAPES/08-MICRO-FRONTEND.md) | une application `marketing` en remote Native Federation, le FO et le BO en hôtes dynamiques, la bannière chargée dans les deux accueils avec un repli ; une promo changée en relançant `marketing` seule ; en bonus, la session partagée en singleton | 50 min |
+| [09 — Bonus : de vraies notifications](ETAPES/09-NOTIFICATIONS.md) | les erreurs HTTP en snackbar sans dépendance `api => ui` : un contrat `Notifier` dans `api`, `ToastService` dans `ui`, le branchement dans chaque application | 25 min |
 
 > 📖 Les synthèses du jour 3 développent les notions que ce lab met en pratique :
 > [authentification et autorisation](https://bngams.github.io/2610-ng/03-intro-auth/) ·
