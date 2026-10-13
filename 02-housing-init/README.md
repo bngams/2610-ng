@@ -7,7 +7,8 @@
 > [« Build your first Angular app »](https://angular.dev/tutorials/first-app) d'angular.dev : à
 > chaque étape, le lien vers la page officielle est donné, vous pouvez l'ouvrir en parallèle. Les
 > étapes 15 à 17 vous font ensuite pratiquer, sur ce même projet, la démo de ce matin :
-> `HttpClient`, les intercepteurs et les fichiers d'environnement. Vous écrivez le code vous-même,
+> `HttpClient`, les intercepteurs et les fichiers d'environnement. L'étape 18 remplace enfin le
+> formulaire de candidature par un vrai dossier en trois écrans, validé, et envoyé à l'API. Vous écrivez le code vous-même,
 > en complétant les `// TODO` ; le dossier `solution/` est là en dernier recours.
 
 > **Niveau : débutant.** Ce lab suppose la matinée : la [synthèse des syntaxes](../00-intro-syntax-recap/index.html)
@@ -30,6 +31,10 @@
 - **Pratiquer la démo du matin** : passer à `HttpClient` et `toSignal`, écrire deux intercepteurs
   (un journal des requêtes, un indicateur de chargement), puis sortir l'URL de l'API dans
   `environment.ts` (facultatif).
+- **Aller au bout des formulaires réactifs** : un dossier de candidature en trois écrans, typé
+  (`NonNullableFormBuilder`), avec groupes imbriqués, `FormArray`, validateurs (dont un écrit par
+  vous), messages d'erreur, et un envoi `POST` à l'API ; puis le pont `toSignal(statusChanges)`
+  vers les signals.
 
 ## 🚀 Prérequis
 
@@ -53,12 +58,12 @@ npm install -g @angular/cli@22       # la CLI Angular, une seule fois ; vérifie
 ## 📁 Ce que vous allez construire
 
 Vous partez d'un projet vide créé par `ng new`. Voici l'arborescence que vous obtiendrez à la fin
-de l'étape 17 (seuls les fichiers que vous touchez sont listés) :
+de l'étape 18 (seuls les fichiers que vous touchez sont listés) :
 
 ```
 homes/
 ├── api/
-│   └── db.json                        <- la base de l'API locale (étape 14)
+│   └── db.json                        <- la base de l'API locale (étape 14), + la collection applications (étape 18)
 ├── public/
 │   ├── favicon.ico
 │   ├── logo.svg                       <- copiés depuis assets/01 (étape 1)
@@ -73,13 +78,15 @@ homes/
 │       ├── app.config.ts              <- provideRouter(routes) écrit par la CLI, puis provideHttpClient (étapes 15, 16)
 │       ├── app.routes.ts              <- vos deux routes (étape 10)
 │       ├── housinglocation.ts         <- l'interface HousingLocationInfo (étape 4)
-│       ├── housing.service.ts         <- HousingService : les données, puis l'API (étapes 9, 12, 14, 15, 17)
+│       ├── housing.service.ts         <- HousingService : les données, puis l'API (étapes 9, 12, 14, 15, 17, 18)
+│       ├── application.ts             <- les interfaces Application et Guarantor : un dossier (étape 18)
 │       ├── logging-interceptor.ts     <- le journal des requêtes (étape 16)
 │       ├── loading-interceptor.ts     <- compte les requêtes en cours (étape 16)
 │       ├── loading.service.ts         <- LoadingService : le compteur partagé (étape 16)
 │       ├── home/home.ts, home.css     <- la liste + la recherche (étapes 2 à 9, 13, 14, 15)
 │       ├── housing-location/…         <- une carte (étapes 3, 5, 7, 11)
-│       └── details/…                  <- la page de détail + le formulaire (étapes 10 à 12, 14, 15)
+│       ├── details/…                  <- la page de détail (étapes 10 à 12, 14, 15, 18)
+│       └── application-form/…         <- ApplicationForm : le dossier de candidature en trois écrans (étape 18)
 ├── angular.json                       <- le fileReplacements ajouté par la CLI (étape 17)
 └── package.json                       <- scripts start, build, api
 ```
@@ -101,9 +108,9 @@ l'affiche et l'étape qui la construit :
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## 🧭 Les 17 étapes
+## 🧭 Les 18 étapes
 
-Les étapes 1 à 14 suivent **une pour une** celles du tutoriel officiel ; les étapes 15 à 17 vont
+Les étapes 1 à 14 suivent **une pour une** celles du tutoriel officiel ; les étapes 15 à 18 vont
 au-delà, et la dernière colonne donne alors la page du guide angular.dev correspondante. La colonne
 « Fichiers » indique ce que vous créez ou modifiez, avec les noms de fichiers d'Angular 22
 (`app.ts`, `home.ts`…).
@@ -127,13 +134,15 @@ au-delà, et la dernière colonne donne alors la page du guide angular.dev corre
 | [15 — Passer à HttpClient](ETAPES/15-HTTPCLIENT.md) | `provideHttpClient()`, `Observable`, `toSignal`, `signal` + `computed` | `app.config.ts`, `housing.service.ts`, `home.ts`, `details.ts` | [http/setup](https://angular.dev/guide/http/setup) |
 | [16 — Un premier intercepteur](ETAPES/16-INTERCEPTEUR.md) | `ng generate interceptor`, `withInterceptors`, `tap`/`finalize`, l'ordre des intercepteurs | `logging-interceptor.ts`, `loading-interceptor.ts`, `loading.service.ts`, `app.config.ts`, `app.ts`, `app.css` | [http/interceptors](https://angular.dev/guide/http/interceptors) |
 | [17 — L'URL de l'API dans `environment.ts`](ETAPES/17-ENVIRONNEMENTS.md) *(facultative)* | `ng generate environments`, `fileReplacements`, rien de secret dans le front | `environments/`, `angular.json`, `housing.service.ts` | [cli/environments](https://angular.dev/tools/cli/environments) |
+| [18 — Le dossier de candidature](ETAPES/18-DOSSIER.md) | `NonNullableFormBuilder`, groupes imbriqués, `FormArray`, `Validators` et validateur maison, `markAllAsTouched`, écrans pilotés par un `signal`, `getRawValue()` et `@let`, `toSignal(statusChanges)`, `http.post` | `api/db.json`, `application.ts`, `housing.service.ts`, `application-form/` (+ `application-form.css` depuis `assets/18`), `details.ts`, `details.css` | [forms/typed-forms](https://angular.dev/guide/forms/typed-forms) |
 
 **Le guidage évolue avec vous**, comme dans le lab Intro : les étapes 1 à 4 écrivent chaque action
 sur chaque fichier ; les étapes 5, 7 et 8 passent aux codes à trous (`// TODO` + un tableau qui explique
 chaque morceau) parce que vous avez déjà fait ces gestes ce matin ; les étapes 9 à 12 et 14 redeviennent guidées (l'étape 13 garde un petit code à trous) parce que les notions sont nouvelles (services, routes, formulaires, HTTP). Les
 étapes 15 et 16 restent guidées : `HttpClient` et les intercepteurs n'ont été vus qu'en démo, et
 chaque fichier y est donné en entier ou morceau par morceau. L'étape 17 est facultative : faites-la
-si vous avez de l'avance.
+si vous avez de l'avance. L'étape 18 est guidée de la même façon, morceau par morceau : le dossier
+est le plus gros composant du lab, et chaque morceau y est accompagné de son tableau d'explication.
 Si vous êtes à l'aise, sautez les blocs de code et travaillez à partir des liens de doc.
 
 ### 🗣️ Débriefs collectifs, ou points à noter
@@ -161,6 +170,7 @@ assets/
 ├── 03/  housing-location.css
 ├── 08/  housingLocationList.ts     <- le tableau des 10 logements, à coller dans Home
 ├── 11/  details.css
+├── 18/  application-form.css       <- le style du dossier : champs, erreurs, garants, boutons
 └── db.json                         <- la base json-server (étape 14)
 ```
 
@@ -190,7 +200,10 @@ Votre application est terminée quand vous pouvez cocher chacune de ces cases :
 - [ ] Avec `npm run api` et `ng serve` lancés, la page affiche 10 cartes avec leur photo.
 - [ ] « oak » puis **Search** => 4 cartes ; champ vide puis **Search** => 10 cartes.
 - [ ] **Learn More** ouvre `/details/5` avec la photo, le nom et les 3 caractéristiques du logement.
-- [ ] Le formulaire envoyé écrit `Homes application received: …` dans la console (F12).
+- [ ] Sur `/details/5`, **Next** sur l'écran 1 vide affiche un message sous chacun des quatre champs, et l'écran ne change pas (étape 18).
+- [ ] Une date d'emménagement passée affiche `The move-in date must be in the future.` (étape 18).
+- [ ] **Add a guarantor** ajoute un garant, **Remove this guarantor** le retire ; un garant incomplet bloque **Next** (étape 18).
+- [ ] L'écran 3 récapitule le dossier, et **Send my application** affiche `Application #… received.` ; la console montre `POST http://localhost:3000/applications => 201 (… ms)` et le dossier apparaît dans `api/db.json` (étape 18).
 - [ ] Le logo en haut ramène à la liste sans recharger la page.
 - [ ] Il ne reste ni `fetch`, ni `ChangeDetectorRef`, ni `markForCheck()` dans `src/app/` (étape 15).
 - [ ] Chaque requête écrit une ligne `GET http://localhost:3000/locations => 200 (… ms)` dans la console (étape 16).
@@ -203,9 +216,12 @@ Si vous avez fini en avance, voici quelques prolongements, du plus simple au plu
 
 - Affichez « Units available » sur la carte, et grisez le lien quand `availableUnits` vaut 0 (`@if`).
 - Faites chercher sur le nom **ou** la ville (une ligne à changer dans le `computed` de l'étape 15).
+- Limitez le dossier à 3 garants : `Validators.maxLength(3)` fonctionne aussi sur un `FormArray`
+  (il compare la longueur de la liste), et masquez **Add a guarantor** quand la limite est atteinte.
 - Dans `Details`, remplacez `toSignal(…)` par `httpResource`, qui renvoie directement un signal et
   passe lui aussi par vos intercepteurs : voir [le guide `httpResource`](https://angular.dev/guide/http/http-resource).
-- Vous avez de l'avance ? Le lab avancé [02-housing-async](../02-housing-async/) part de ce projet.
+- Vous avez de l'avance ? Le lab avancé [02-housing-async](../02-housing-async/) part de ce projet,
+  et migre le dossier de l'étape 18 vers les Signal Forms.
 
 ## Récap
 
@@ -213,7 +229,8 @@ Si vous avez fini en avance, voici quelques prolongements, du plus simple au plu
   typer la donnée, un service pour la fournir.
 - La donnée descend par `input()` et `[prop]`, s'affiche par `{{ }}`, se répète par `@for`.
 - Le routeur affiche un composant selon l'URL (`<router-outlet>`), et `:id` transporte une valeur.
-- Un formulaire réactif = un `FormGroup` de `FormControl`, lu au `(submit)`.
+- Un formulaire réactif = un `FormGroup` de `FormControl`, lu au `(submit)` ; avec `NonNullableFormBuilder`, il est typé, imbriqué, validé, et `getRawValue()` donne un objet prêt à envoyer.
+- Un formulaire réactif n'est pas fait de signals : `toSignal(form.statusChanges)` sert de pont, les Signal Forms le rendent inutile.
 - Une API, c'est juste une fonction `async` dans le service ; le reste de l'app ne change presque pas.
 - `HttpClient` renvoie des `Observable` froids ; `toSignal` s'y abonne et le rendu suit les signals, sans `markForCheck()`.
 - Un intercepteur voit passer toutes les requêtes : `withInterceptors([a, b])`, `a` puis `b` à l'aller, l'inverse au retour.

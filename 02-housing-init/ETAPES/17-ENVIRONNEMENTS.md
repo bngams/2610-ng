@@ -192,8 +192,6 @@ après authentification de l'utilisateur.
 - `ng generate environments` : `environment.ts` (production), `environment.development.ts`, et un `fileReplacements` dans `angular.json`.
 - Le code importe toujours `environment.ts` ; la CLI fait l'échange selon la configuration (`ng serve` => development, `ng build` => production).
 - Tout ce qui est dans un fichier d'environnement finit en clair dans le bundle : configuration publique uniquement.
-- Vous avez terminé le lab : `HttpClient`, deux intercepteurs, et une URL d'API configurable.
+- Vous avez maintenant `HttpClient`, deux intercepteurs, et une URL d'API configurable. Il reste à remplacer le formulaire de l'étape 12 par un vrai dossier de candidature.
 
-➡️ Retour au [README](../README.md) pour le challenge final et les bonus.
-
-Vous avez de l'avance ? Le lab avancé [02-housing-async](../../02-housing-async/) part de ce projet.
+➡️ [18 — Le dossier de candidature](18-DOSSIER.md)

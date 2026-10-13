@@ -416,3 +416,5 @@ Quand vous avez vu l'indicateur, revenez à une API rapide : Ctrl+C dans le term
 - Un service avec un `signal` partage un état entre un intercepteur et un composant.
 
 ➡️ [17 — L'URL de l'API dans `environment.ts` (facultative)](17-ENVIRONNEMENTS.md)
+
+Vous sautez l'étape facultative ? Passez directement à [18 — Le dossier de candidature](18-DOSSIER.md).

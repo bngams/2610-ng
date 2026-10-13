@@ -18,8 +18,9 @@ Supports et cas pratiques. Deux parcours (**Init** et **Avancé**) autour d'un s
 | | Support | Pour qui |
 |---|---|---|
 | Matin | [02 — Démo HTTP](02-demo-http/) : `ng new`, routing, `HttpClient`, typage, enveloppe générique, `ResourceService<I, T>`, environnements, intercepteurs ([version en ligne](https://bngams.github.io/2610-ng/02-demo-http/)) | tout le monde |
-| Ensuite | [02 — Housing, premiers pas](02-housing-init/) : le tutoriel officiel first-app en français, guidé pas à pas, jusqu'à `HttpClient`, un intercepteur et les environnements | Init |
+| Ensuite | [02 — Housing, premiers pas](02-housing-init/) : le tutoriel officiel first-app en français, guidé pas à pas, jusqu'à `HttpClient`, un intercepteur, les environnements et un dossier de candidature en plusieurs étapes (Reactive Forms) | Init |
 | Ensuite | [02 — Housing sous pression asynchrone](02-housing-async/) : à la suite du Housing Init, des scénarios RxJS donnés et côté signals à écrire, puis un intercepteur de reprise et un service générique `ResourceService<I, T>` | Avancé |
+| En appui | [02 — Les formulaires](02-intro-forms/) : template-driven, Reactive Forms, Signal Forms, formulaire dynamique ([version en ligne](https://bngams.github.io/2610-ng/02-intro-forms/)) | tout le monde |
 | Fin de journée | Débrief final : la grille de décision RxJS / signals | tout le monde |
 
 ## Prérequis

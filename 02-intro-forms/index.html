@@ -1,0 +1,1033 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Angular 22 — Les formulaires</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f8fafc; --s1:#ffffff; --s2:#eef2f6; --tx:#0f172a; --tx2:#475569; --mu:#64748b; --bd:#e2e8f0; --bd2:#cbd5e1;
+  --brand:#d9472b; --acc:#c2391f; --soft:#ffe4dc; --softfg:#b33a1f; --ok:#047857; --okbg:#ecfdf5; --ko:#be123c;
+  --code:#0f172a; --codefg:#e2e8f0; --bar:#0f172a; --barfg:#e2e8f0; --u:#fb8f6f; --info:#475569; --infobg:#f1f5f9;
+  --blue:#0369a1; --bluebg:#e0f2fe;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--tx);background:var(--bg);margin:0;padding:0 0 60px}
+.bar{background:var(--bar);color:var(--barfg);padding:12px 24px;display:flex;align-items:center;gap:12px;font-size:13px}
+.bar .wm{font-weight:800;letter-spacing:-.02em;font-size:15px}.bar .wm .u{color:var(--u)}
+.bar .r{margin-left:auto;color:#94a3b8}
+.wrap{max-width:1000px;margin:0 auto;padding:28px 24px 0}
+h1{font-size:2rem;font-weight:800;letter-spacing:-.02em;margin:0 0 .25rem}
+h2{margin:0 0 .6rem;font-size:1.3rem;font-weight:800;letter-spacing:-.015em;display:flex;align-items:center;gap:.55rem}
+h3{margin:1.1rem 0 .4rem;font-size:.98rem;font-weight:700}
+.lead{color:var(--tx2);font-size:1.02rem;margin:0 0 .4rem}
+a{color:var(--acc)}
+nav.toc{border:1px solid var(--bd);border-radius:10px;padding:14px 18px;margin:18px 0 26px;background:var(--s1)}
+nav.toc .cap{font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin-bottom:6px}
+nav.toc ol{margin:0;padding-left:1.3rem;columns:2;column-gap:28px}
+nav.toc li{break-inside:avoid;margin:.15rem 0}
+nav.toc a{color:var(--tx);text-decoration:none}
+nav.toc a:hover{color:var(--acc);text-decoration:underline}
+section.card{border:1px solid var(--bd);border-radius:10px;padding:20px 24px 18px;margin:20px 0;background:var(--s1);break-inside:avoid;page-break-inside:avoid}
+.num{display:inline-flex;align-items:center;justify-content:center;min-width:1.7em;height:1.7em;background:var(--soft);color:var(--softfg);border-radius:7px;font:700 .85rem var(--mono);padding:0 .4em}
+code{font-family:var(--mono);font-size:.86em;background:var(--s2);color:var(--tx);padding:.1em .3em;border-radius:4px}
+pre{background:var(--code);color:var(--codefg);padding:13px 15px;border-radius:8px;overflow:auto;font:12.5px/1.5 var(--mono);margin:.6rem 0}
+pre code{background:none;padding:0;color:inherit;font-size:inherit}
+.cm{color:#94a3b8}.kw{color:var(--u)}.str{color:#86efac}.fn{color:#79c0ff}
+table{border-collapse:collapse;width:100%;margin:.6rem 0;font-size:.92rem;background:var(--s1)}
+th,td{border-bottom:1px solid var(--bd);padding:6px 10px;text-align:left;vertical-align:top}
+th{font-size:12px;color:var(--tx2);font-weight:600;background:var(--bg)}
+.retenir{background:var(--infobg);border-left:3px solid var(--brand);padding:9px 14px;border-radius:0 8px 8px 0;margin:.9rem 0 .4rem;font-size:.95rem;color:var(--tx)}
+.retenir strong{display:block;font:600 10.5px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--softfg);margin-bottom:3px}
+.doc{font-size:.88rem;color:var(--mu);margin:.5rem 0 0}
+.doc a{color:var(--acc);text-decoration:none}.doc a:hover{text-decoration:underline}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}nav.toc ol{columns:1}}
+figure{margin:.6rem 0}
+figure svg{width:100%;height:auto;display:block}
+figcaption{font-size:.84rem;color:var(--mu);margin-top:.3rem}
+small{color:var(--mu)}
+kbd{font:600 11px var(--mono);background:var(--s2);border:1px solid var(--bd2);border-radius:4px;padding:1px 5px}
+.svg-box{fill:#fff;stroke:#94a3b8;stroke-width:1.4}
+.svg-box.alt{fill:var(--soft);stroke:var(--brand)}
+.svg-box.svc{fill:var(--bluebg);stroke:var(--blue)}
+.svg-box.soft{fill:var(--s2);stroke:var(--bd2)}
+.svg-t{font-family:Inter,system-ui,sans-serif;font-size:13px;fill:var(--tx)}
+.svg-t.small{font-size:11px;fill:var(--tx2)}
+.svg-t.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11.5px}
+.svg-t.b{font-weight:700}
+.svg-arrow{stroke:#475569;stroke-width:1.6;fill:none;marker-end:url(#arr)}
+.svg-arrow.down{stroke:var(--acc);marker-end:url(#arr-brand)}
+.svg-arrow.up{stroke:var(--blue);marker-end:url(#arr-blue)}
+footer{color:var(--mu);font-size:.88rem;margin:40px 0 0;border-top:1px solid var(--bd);padding-top:12px}
+@media print{
+  html,body{background:#fff}
+  body{font-size:11pt;padding:0}
+  .bar,nav.toc,.noprint{display:none}
+  .wrap{max-width:none;padding:0 8mm}
+  section.card{border:none;padding:0;margin:0 0 14pt;page-break-inside:avoid;background:none}
+  section.card+section.card{border-top:1px solid #ccc;padding-top:12pt}
+  pre{font-size:9pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .retenir,.num,.svg-box{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  a{color:inherit;text-decoration:none}
+}
+.file{font:600 11px var(--mono);color:var(--mu);margin:.8rem 0 -.3rem}
+.file a{color:var(--mu)}
+.grid2>*{min-width:0}
+h2{flex-wrap:wrap}
+body,code,pre,svg text{font-variant-ligatures:none} /* => reste => (pas de ligature) */
+@media (max-width:760px){table{display:block;overflow-x:auto}}
+</style>
+</head>
+<body>
+<div class="bar"><span class="wm">Angular 22 <span class="u">_</span> formulaires</span><span class="r">Formation AELION · J2</span></div>
+<div class="wrap">
+
+<h1>Angular 22 — Les formulaires</h1>
+<p class="lead">Angular propose trois façons de construire un formulaire : <em>template-driven</em>, <em>Reactive Forms</em> et, depuis
+la v22 en version stable, <em>Signal Forms</em>. Cette page les compare, montre qui détient la valeur dans chacune, puis va jusqu'au
+formulaire construit à partir d'une description JSON. Chaque extrait de code est copié d'un projet Angular 22 qui compile
+(<code>ng build</code>) et dont le comportement décrit ici a été vérifié dans le navigateur ; ce projet de vérification n'est pas livré.</p>
+<p class="noprint"><small>Imprimable : <kbd>Ctrl/Cmd + P</kbd> puis « Enregistrer en PDF ». Avant cette page, la
+<a href="../00-intro-syntax-recap/index.html">synthèse du jour 1</a> et la <a href="../02-demo-http/index.html">démo HTTP</a>. Pour pratiquer :
+<a href="https://github.com/bngams/2610-ng/tree/main/02-housing-init/">Housing, premiers pas</a> (parcours Init, avec un dossier de candidature
+en plusieurs étapes en Reactive Forms) et <a href="https://github.com/bngams/2610-ng/tree/main/02-housing-async/">Housing sous pression asynchrone</a>
+(parcours Avancé, qui migre ce dossier vers Signal Forms).</small></p>
+<p><small>Le fil rouge est une candidature à un logement : nom, email, adresse, revenus, occupants. Les exemples sont volontairement petits,
+pour que chaque mécanisme se voie seul.</small></p>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+    <marker id="arr-brand" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c2391f"/></marker>
+    <marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0369a1"/></marker>
+  </defs>
+</svg>
+
+<nav class="toc" aria-label="Sommaire">
+<div class="cap">Sommaire</div>
+<ol>
+<li><a href="#s1">Trois familles de formulaires</a></li>
+<li><a href="#s2">Fonctionnement dans Angular : qui détient la valeur</a></li>
+<li><a href="#s3">Template-driven</a></li>
+<li><a href="#s4">Reactive Forms</a></li>
+<li><a href="#s5">Signal Forms</a></li>
+<li><a href="#s6">Formulaire dynamique, construit depuis un JSON</a></li>
+<li><a href="#s7">Choisir, et migrer</a></li>
+</ol>
+</nav>
+
+<!-- ============================================================ 1 -->
+<section class="card" id="s1">
+<h2><span class="num">1</span>Trois familles de formulaires</h2>
+<p>Un formulaire Angular doit faire trois choses : garder la valeur de chaque champ, la valider, et dire à l'écran si elle est valide.
+Les trois familles font les mêmes choses ; ce qui change, c'est <strong>où vit la valeur</strong>, donc où l'on écrit la validation et comment on la lit.</p>
+<ul>
+<li><strong>Template-driven</strong> (<code>FormsModule</code>) : on décrit le formulaire dans le HTML avec <code>[(ngModel)]</code> et des attributs
+comme <code>required</code>. C'est la plus ancienne ; elle n'est pas dépréciée en v22, mais on ne la choisit plus pour un nouveau formulaire complexe.</li>
+<li><strong>Reactive Forms</strong> (<code>ReactiveFormsModule</code>) : on crée le formulaire dans la classe, avec <code>FormControl</code>,
+<code>FormGroup</code> et <code>FormArray</code>, puis le HTML s'y branche. C'est le standard des projets v20 et antérieurs.</li>
+<li><strong>Signal Forms</strong> (<code>@angular/forms/signals</code>) : on part d'un <code>signal</code> qui contient les données, et
+<code>form()</code> en dérive les champs et leur validation. C'est la plus récente.</li>
+</ul>
+
+<p>Le statut de Signal Forms dépend de la version, et c'est le point à vérifier avant de l'utiliser sur un projet existant.</p>
+<table>
+<tr><th>Version</th><th>Signal Forms</th><th>Source</th></tr>
+<tr><td>v20</td><td><strong>absent</strong> : <code>@angular/forms/signals</code> n'existe pas</td><td>première apparition dans le changelog en 21.0.0</td></tr>
+<tr><td>v21</td><td><strong>expérimental</strong> ; la directive s'appelait <code>[field]</code> avant d'être renommée <code>[formField]</code> en 21.0.9</td><td>changelog 21.0.0 « add experimental signal-based forms », 21.0.9 « Rename signal form [field] to [formField] »</td></tr>
+<tr><td>v22</td><td><strong>stable</strong> : <code>form</code>, <code>FormField</code>, <code>submit</code>, les validateurs… sont marqués <code>@publicApi 22.0</code> ; seules les options WebMCP restent expérimentales</td><td>changelog 22.0.0 « graduate signal forms APIs to public API », types installés de <code>@angular/forms</code> 22.2.2</td></tr>
+</table>
+
+<p>Le tableau suivant compare les trois familles critère par critère. Les lignes « accès » et « typage » sont celles qui se ressentent
+le plus au quotidien ; elles sont illustrées dans les sections 3 à 5.</p>
+<table>
+<tr><th></th><th>Template-driven</th><th>Reactive Forms</th><th>Signal Forms</th></tr>
+<tr><td>Import</td><td><code>FormsModule</code></td><td><code>ReactiveFormsModule</code></td><td><code>FormField</code> (et <code>FormRoot</code>) depuis <code>@angular/forms/signals</code></td></tr>
+<tr><td>Source de vérité</td><td>le template : <code>NgModel</code> crée les <code>FormControl</code></td><td>une instance <code>FormGroup</code> / <code>FormControl</code> créée dans la classe</td><td>un <code>signal</code> (le modèle) ; <code>form()</code> lit et écrit dedans</td></tr>
+<tr><td>Accès à la valeur</td><td><strong>asynchrone</strong> : les contrôles n'existent qu'un tour après l'affichage</td><td>synchrone : <code>form.value</code> est à jour immédiatement</td><td>synchrone et réactif : <code>f.nom().value()</code> est un signal</td></tr>
+<tr><td>Typage</td><td>faible : <code>f.value</code> est <code>any</code></td><td>typé depuis la v14 (<code>FormControl&lt;string | null&gt;</code>)</td><td>typé par l'interface du modèle, et vérifié jusque dans le template</td></tr>
+<tr><td>Où vit la validation</td><td>dans le HTML : <code>required</code>, <code>email</code>, <code>minlength</code></td><td>dans la classe : des fonctions <code>ValidatorFn</code></td><td>dans un <strong>schéma</strong>, à un seul endroit : <code>required(p.nom)</code></td></tr>
+<tr><td>Réagir aux changements</td><td><code>(ngModelChange)</code></td><td><code>valueChanges</code>, <code>statusChanges</code> : des Observables</td><td><code>computed</code>, <code>effect</code> sur les signals du champ</td></tr>
+<tr><td>Testabilité</td><td>il faut rendre le template</td><td>sans DOM : on instancie le <code>FormGroup</code></td><td>sans DOM, dans un contexte d'injection (<code>TestBed.runInInjectionContext</code>)</td></tr>
+<tr><td>Passage à l'échelle</td><td>petits formulaires</td><td>gros formulaires, dynamiques</td><td>gros formulaires ; dynamique possible, avec un typage moins confortable (section 6)</td></tr>
+<tr><td>Quand la choisir</td><td>2 ou 3 champs, code existant</td><td>projet v20, formulaire construit à l'exécution</td><td>tout nouveau formulaire en v22</td></tr>
+<tr><td>Disponible en v20 / v22</td><td>oui / oui</td><td>oui / oui</td><td><strong>non</strong> / oui, stable</td></tr>
+</table>
+
+<div class="retenir"><strong>À retenir</strong> Trois familles, une question : où vit la valeur ? Dans le template (template-driven), dans un
+objet <code>FormControl</code> de la classe (Reactive), ou dans un <code>signal</code> (Signal Forms). Signal Forms n'existe pas en v20,
+est expérimental en v21 et stable en v22.</div>
+<p class="doc">📖 <a href="https://angular.dev/guide/forms">guide : formulaires</a> ·
+<a href="https://angular.dev/guide/forms/signals/overview">Signal Forms, vue d'ensemble</a> ·
+<a href="https://github.com/angular/angular/blob/main/CHANGELOG.md">changelog Angular</a> ·
+<a href="https://blog.angular.dev/announcing-angular-v21-57946c34f14b">annonce de la v21</a></p>
+</section>
+
+<!-- ============================================================ 2 -->
+<section class="card" id="s2">
+<h2><span class="num">2</span>Fonctionnement dans Angular : qui détient la valeur</h2>
+<p>Dans les trois familles, une <strong>directive</strong> posée sur l'<code>&lt;input&gt;</code> fait le lien entre l'élément HTML et
+un objet qui garde la valeur et l'état (valide, touché…). La différence est de savoir qui crée cet objet, et si votre code peut le
+toucher directement. Les trois schémas suivants se lisent de la même façon : la classe du composant à gauche, le template à droite.</p>
+
+<h3>Template-driven : NgModel crée le FormControl</h3>
+<p>Ici, vous ne créez aucun contrôle. La directive <code>NgModel</code> en crée un, le garde pour elle, et l'enregistre auprès du
+<code>NgForm</code> posé automatiquement sur <code>&lt;form&gt;</code>. La classe ne connaît que l'objet <code>applicant</code>,
+synchronisé par <code>[(ngModel)]</code>.</p>
+<figure>
+<svg viewBox="0 0 680 250" role="img" aria-label="Template-driven : la classe tient l'objet applicant ; dans le template, NgModel crée un FormControl qui s'enregistre auprès de NgForm">
+  <rect class="svg-box" x="10" y="95" width="190" height="60" rx="8"/>
+  <text class="svg-t b" x="105" y="118" text-anchor="middle">Composant (classe)</text>
+  <text class="svg-t mono" x="105" y="139" text-anchor="middle">applicant.lastName</text>
+  <text class="svg-t small" x="105" y="178" text-anchor="middle">aucune référence directe</text>
+  <text class="svg-t small" x="105" y="193" text-anchor="middle">au FormControl</text>
+  <rect class="svg-box soft" x="230" y="10" width="440" height="230" rx="10"/>
+  <text class="svg-t small" x="245" y="29">template</text>
+  <rect class="svg-box svc" x="250" y="38" width="400" height="46" rx="8"/>
+  <text class="svg-t b" x="450" y="57" text-anchor="middle">NgForm</text>
+  <text class="svg-t small" x="450" y="75" text-anchor="middle">posé sur &lt;form&gt;, tient le FormGroup racine</text>
+  <rect class="svg-box alt" x="250" y="110" width="180" height="60" rx="8"/>
+  <text class="svg-t b" x="340" y="133" text-anchor="middle">NgModel</text>
+  <text class="svg-t mono" x="340" y="153" text-anchor="middle">[(ngModel)]</text>
+  <rect class="svg-box" x="470" y="110" width="180" height="60" rx="8"/>
+  <text class="svg-t b" x="560" y="133" text-anchor="middle">FormControl</text>
+  <text class="svg-t small" x="560" y="153" text-anchor="middle">créé par NgModel</text>
+  <rect class="svg-box" x="250" y="192" width="180" height="36" rx="8"/>
+  <text class="svg-t mono" x="340" y="215" text-anchor="middle">&lt;input name="lastName"&gt;</text>
+  <path class="svg-arrow down" d="M200,117 L248,117"/>
+  <path class="svg-arrow up" d="M248,145 L202,145"/>
+  <path class="svg-arrow" d="M430,140 L468,140"/>
+  <text class="svg-t small" x="449" y="132" text-anchor="middle">crée</text>
+  <path class="svg-arrow" d="M560,110 L560,86"/>
+  <text class="svg-t small" x="552" y="102" text-anchor="end">s'enregistre (async)</text>
+  <path class="svg-arrow" marker-start="url(#arr)" d="M340,172 L340,190"/>
+</svg>
+<figcaption>Le <code>FormControl</code> existe, mais il appartient à <code>NgModel</code> : on ne l'atteint que par une référence de template
+(<code>#lastName="ngModel"</code>) ou par le <code>NgForm</code>.</figcaption>
+</figure>
+
+<h3>Reactive Forms : vous créez le FormControl, la directive s'y branche</h3>
+<p>Le sens est inversé : c'est la classe qui crée <code>FormGroup</code> et <code>FormControl</code>. Les directives
+<code>[formGroup]</code> et <code>formControlName</code> ne créent rien, elles se <strong>branchent</strong> sur ces instances. La classe
+y a donc un accès direct et immédiat.</p>
+<figure>
+<svg viewBox="0 0 680 250" role="img" aria-label="Reactive Forms : la classe crée FormGroup et FormControl ; les directives formGroup et formControlName du template s'y branchent">
+  <rect class="svg-box soft" x="10" y="10" width="310" height="230" rx="10"/>
+  <text class="svg-t small" x="25" y="29">classe du composant</text>
+  <rect class="svg-box alt" x="30" y="40" width="270" height="52" rx="8"/>
+  <text class="svg-t mono" x="165" y="62" text-anchor="middle">new FormGroup({ ... })</text>
+  <text class="svg-t small" x="165" y="81" text-anchor="middle">créé par vous</text>
+  <rect class="svg-box alt" x="30" y="122" width="270" height="52" rx="8"/>
+  <text class="svg-t mono" x="165" y="144" text-anchor="middle">new FormControl('')</text>
+  <text class="svg-t small" x="165" y="163" text-anchor="middle">lastName : la source de vérité</text>
+  <rect class="svg-box" x="30" y="192" width="270" height="36" rx="8"/>
+  <text class="svg-t mono" x="165" y="215" text-anchor="middle">application.value</text>
+  <path class="svg-arrow" d="M165,92 L165,120"/>
+  <text class="svg-t small" x="172" y="110">contient</text>
+  <rect class="svg-box soft" x="360" y="10" width="310" height="230" rx="10"/>
+  <text class="svg-t small" x="375" y="29">template</text>
+  <rect class="svg-box" x="380" y="40" width="270" height="52" rx="8"/>
+  <text class="svg-t mono" x="515" y="62" text-anchor="middle">[formGroup]="application"</text>
+  <text class="svg-t small" x="515" y="81" text-anchor="middle">directive FormGroupDirective</text>
+  <rect class="svg-box" x="380" y="122" width="270" height="52" rx="8"/>
+  <text class="svg-t mono" x="515" y="144" text-anchor="middle">formControlName="lastName"</text>
+  <text class="svg-t small" x="515" y="163" text-anchor="middle">directive FormControlName</text>
+  <rect class="svg-box svc" x="380" y="192" width="270" height="36" rx="8"/>
+  <text class="svg-t mono" x="515" y="215" text-anchor="middle">&lt;input&gt;</text>
+  <path class="svg-arrow down" d="M300,66 L378,66"/>
+  <path class="svg-arrow down" d="M300,148 L378,148"/>
+  <text class="svg-t small" x="340" y="140" text-anchor="middle">lie</text>
+  <path class="svg-arrow" marker-start="url(#arr)" d="M515,176 L515,190"/>
+</svg>
+<figcaption>La flèche part de la classe : l'instance existe avant le template, et <code>application.value</code> se lit à tout moment, de façon synchrone.</figcaption>
+</figure>
+
+<h3>Signal Forms : un signal, et un arbre de champs dérivé</h3>
+<p>Le point de départ est un <code>signal</code> qui contient les données. <code>form(model, schema)</code> en construit un
+<strong>arbre de champs</strong> : <code>f.lastName</code> est un champ, et <code>f.lastName()</code> donne son état sous forme de signals.
+La directive <code>[formField]</code> lit la valeur du champ et, à la saisie, écrit directement dans le signal du modèle.</p>
+<figure>
+<svg viewBox="0 0 680 250" role="img" aria-label="Signal Forms : la classe tient le signal model ; form construit l'arbre de champs ; la directive formField lit le champ et écrit dans le signal">
+  <rect class="svg-box soft" x="10" y="10" width="310" height="230" rx="10"/>
+  <text class="svg-t small" x="25" y="29">classe du composant</text>
+  <rect class="svg-box alt" x="30" y="40" width="270" height="52" rx="8"/>
+  <text class="svg-t mono" x="165" y="62" text-anchor="middle">model = signal({ ... })</text>
+  <text class="svg-t small" x="165" y="81" text-anchor="middle">la source de vérité</text>
+  <rect class="svg-box svc" x="30" y="122" width="270" height="52" rx="8"/>
+  <text class="svg-t mono" x="165" y="144" text-anchor="middle">f = form(model, schema)</text>
+  <text class="svg-t small" x="165" y="163" text-anchor="middle">arbre de champs + validation</text>
+  <rect class="svg-box" x="30" y="192" width="270" height="36" rx="8"/>
+  <text class="svg-t mono" x="165" y="215" text-anchor="middle">f.lastName().valid()</text>
+  <path class="svg-arrow" d="M165,92 L165,120"/>
+  <text class="svg-t small" x="172" y="110">dérive</text>
+  <rect class="svg-box soft" x="360" y="10" width="310" height="230" rx="10"/>
+  <text class="svg-t small" x="375" y="29">template</text>
+  <rect class="svg-box alt" x="380" y="100" width="270" height="56" rx="8"/>
+  <text class="svg-t mono" x="515" y="124" text-anchor="middle">[formField]="f.lastName"</text>
+  <text class="svg-t small" x="515" y="143" text-anchor="middle">directive FormField</text>
+  <rect class="svg-box svc" x="380" y="186" width="270" height="40" rx="8"/>
+  <text class="svg-t mono" x="515" y="211" text-anchor="middle">&lt;input&gt;</text>
+  <path class="svg-arrow down" d="M300,148 L378,136"/>
+  <text class="svg-t small" x="339" y="133" text-anchor="middle">lit</text>
+  <path class="svg-arrow up" d="M410,100 L302,70"/>
+  <text class="svg-t small" x="340" y="72" text-anchor="middle">écrit</text>
+  <path class="svg-arrow" marker-start="url(#arr)" d="M515,158 L515,184"/>
+</svg>
+<figcaption>Pas de copie de la valeur : la saisie modifie <code>model()</code>, et tout ce qui lit ce signal (affichage, <code>computed</code>, validation) se met à jour.</figcaption>
+</figure>
+
+<div class="retenir"><strong>À retenir</strong> Template-driven : <code>NgModel</code> crée le contrôle, vous n'y accédez qu'à travers lui.
+Reactive : vous créez le contrôle, <code>[formControl]</code> / <code>formControlName</code> s'y branche. Signal Forms : vous créez un
+<code>signal</code>, <code>form()</code> en dérive les champs, <code>[formField]</code> lit et écrit le signal.</div>
+<p class="doc">📖 <a href="https://angular.dev/guide/forms/template-driven-forms">template-driven</a> ·
+<a href="https://angular.dev/guide/forms/reactive-forms">reactive forms</a> ·
+<a href="https://angular.dev/guide/forms/signals/models">Signal Forms : le modèle</a></p>
+</section>
+
+<!-- ============================================================ 3 -->
+<section class="card" id="s3">
+<h2><span class="num">3</span>Template-driven</h2>
+<p>Pour un petit formulaire, tout tient dans le HTML. Le composant importe <code>FormsModule</code>, qui apporte les directives
+<code>ngModel</code> et <code>ngForm</code>, puis expose un simple objet que le formulaire va remplir.</p>
+<div class="file">src/app/template-driven/td-application.ts</div><pre><code><span class="kw">import</span> { AfterViewInit, Component, viewChild } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { FormsModule, NgForm } <span class="kw">from</span> <span class="str">'@angular/forms'</span>;
+<span class="kw">import</span> { JsonPipe } <span class="kw">from</span> <span class="str">'@angular/common'</span>;
+
+<span class="fn">@Component</span>({
+  selector: <span class="str">'app-td-application'</span>,
+  imports: [FormsModule, JsonPipe], <span class="cm">// FormsModule apporte ngModel et ngForm</span>
+<span class="cm">// ...</span>
+<span class="kw">export</span> <span class="kw">class</span> TdApplication <span class="kw">implements</span> AfterViewInit {
+  <span class="cm">// la source de vérité : un simple objet, modifié par [(ngModel)]</span>
+  applicant = { lastName: <span class="str">''</span>, email: <span class="str">''</span> };</code></pre>
+
+<p>Le template fait le reste. Trois écritures sont à reconnaître : <code>[(ngModel)]</code> lie un champ à une propriété dans les deux sens
+(l'attribut <code>name</code> est obligatoire, c'est la clé du contrôle dans le formulaire), <code>required</code> et <code>email</code>
+sont des directives de validation, et <code>#f="ngForm"</code> donne un nom au <code>NgForm</code> qu'Angular pose sur
+<code>&lt;form&gt;</code>, pour lire <code>f.valid</code> ou <code>f.value</code>.</p>
+<div class="file">src/app/template-driven/td-application.ts</div><pre><code><span class="cm">&lt;!-- #f="ngForm" : une référence vers le NgForm qu'Angular pose sur &lt;form&gt; --&gt;</span>
+&lt;form #f=<span class="str">"ngForm"</span> (ngSubmit)=<span class="str">"send(f)"</span>&gt;
+  &lt;label&gt;Nom
+    &lt;input name=<span class="str">"lastName"</span> [(ngModel)]=<span class="str">"applicant.lastName"</span> required #lastName=<span class="str">"ngModel"</span> /&gt;
+  &lt;/label&gt;
+  <span class="fn">@if</span> (lastName.invalid &amp;&amp; lastName.touched) {
+    &lt;small class=<span class="str">"error"</span>&gt;Le nom est obligatoire&lt;/small&gt;
+  }
+  &lt;label&gt;Email
+    &lt;input name=<span class="str">"email"</span> type=<span class="str">"email"</span> [(ngModel)]=<span class="str">"applicant.email"</span> required email /&gt;
+  &lt;/label&gt;
+  &lt;button [disabled]=<span class="str">"f.invalid"</span>&gt;Envoyer&lt;/button&gt;
+&lt;/form&gt;
+&lt;pre&gt;f.valid = {{ f.valid }} · f.value = {{ f.value | json }}&lt;/pre&gt;</code></pre>
+
+<p>Dans le navigateur, voici ce qu'affiche la ligne de contrôle sous le formulaire au fil de la saisie.</p>
+<table>
+<tr><th>Action</th><th>Affiché</th></tr>
+<tr><td>on quitte le champ Nom sans rien saisir</td><td>« Le nom est obligatoire », bouton désactivé</td></tr>
+<tr><td>Nom = <code>Martin</code>, Email = <code>pas-un-email</code></td><td><code>f.valid = false</code> (la directive <code>email</code> refuse)</td></tr>
+<tr><td>Email = <code>martin@example.com</code></td><td><code>f.valid = true</code>, bouton actif, <code>f.value = { lastName: "Martin", email: "martin@example.com" }</code></td></tr>
+</table>
+
+<p>Le revers apparaît dès qu'on veut lire le formulaire depuis la classe. <code>NgModel</code> enregistre ses contrôles de façon
+<strong>asynchrone</strong> : au moment de <code>ngAfterViewInit</code>, le formulaire est encore vide. Le composant de vérification le
+journalise.</p>
+<div class="file">src/app/template-driven/td-application.ts</div><pre><code><span class="cm">// le NgForm du template, lu depuis la classe</span>
+<span class="kw">private</span> <span class="kw">readonly</span> ngForm = viewChild.<span class="fn">required</span>(NgForm);
+
+<span class="fn">ngAfterViewInit</span>() {
+  <span class="cm">// NgModel enregistre ses FormControl de façon ASYNCHRONE : pas encore là</span>
+  console.<span class="fn">log</span>(<span class="str">'[td] contrôles à AfterViewInit :'</span>, Object.<span class="fn">keys</span>(<span class="kw">this</span>.<span class="fn">ngForm</span>().controls));
+  <span class="fn">setTimeout</span>(() =&gt; console.<span class="fn">log</span>(<span class="str">'[td] un tour plus tard :'</span>, Object.<span class="fn">keys</span>(<span class="kw">this</span>.<span class="fn">ngForm</span>().controls)));
+}</code></pre>
+<p>Dans la console du navigateur, la première ligne montre un formulaire encore vide, la seconde les deux contrôles enregistrés entre-temps.</p>
+<pre><code>[td] contrôles à AfterViewInit : []
+[td] un tour plus tard : ['lastName', 'email']</code></pre>
+
+<div class="retenir"><strong>À retenir</strong> <code>FormsModule</code>, <code>[(ngModel)]</code> + <code>name</code>, des attributs de validation,
+<code>#f="ngForm"</code> pour lire l'état. Simple pour quelques champs ; mais la valeur n'est pas typée et les contrôles n'existent qu'un tour
+après l'affichage, ce qui complique la logique et les tests dès que le formulaire grossit.</div>
+<p class="doc">📖 <a href="https://angular.dev/guide/forms/template-driven-forms">guide : template-driven forms</a> ·
+<a href="https://angular.dev/api/forms/NgModel">NgModel</a></p>
+</section>
+
+<!-- ============================================================ 4 -->
+<section class="card" id="s4">
+<h2><span class="num">4</span>Reactive Forms</h2>
+<p>Avec les Reactive Forms, le formulaire est d'abord un objet TypeScript. On le construit dans la classe, contrôle par contrôle,
+puis le template s'y branche. C'est ce que fait l'étape « formulaire » du tutoriel Housing, et c'est la famille la plus répandue dans
+les projets existants.</p>
+
+<h3>FormControl, FormGroup imbriqué et validateurs</h3>
+<p>Un <code>FormControl</code> tient une valeur ; un <code>FormGroup</code> regroupe des contrôles sous des clés, et peut en contenir
+un autre (ici l'adresse). Chaque contrôle reçoit ses validateurs : ceux d'Angular (<code>Validators.required</code>,
+<code>Validators.email</code>) ou les vôtres. Le second argument du groupe porte un validateur <strong>de groupe</strong>, qui voit tous
+les contrôles à la fois.</p>
+<div class="file">src/app/reactive/reactive-application.ts</div><pre><code><span class="kw">export</span> <span class="kw">class</span> ReactiveApplication {
+  <span class="cm">// on CRÉE les contrôles dans la classe : c'est eux la source de vérité</span>
+  <span class="kw">readonly</span> search = <span class="kw">new</span> <span class="fn">FormControl</span>(<span class="str">''</span>);
+
+  <span class="kw">readonly</span> application = <span class="kw">new</span> <span class="fn">FormGroup</span>(
+    {
+      lastName: <span class="kw">new</span> <span class="fn">FormControl</span>(<span class="str">''</span>, Validators.required),
+      email: <span class="kw">new</span> <span class="fn">FormControl</span>(<span class="str">''</span>, [Validators.required, Validators.email]),
+      confirmEmail: <span class="kw">new</span> <span class="fn">FormControl</span>(<span class="str">''</span>),
+      address: <span class="kw">new</span> <span class="fn">FormGroup</span>({
+        city: <span class="kw">new</span> <span class="fn">FormControl</span>(<span class="str">''</span>),
+        zip: <span class="kw">new</span> <span class="fn">FormControl</span>(<span class="str">''</span>, [Validators.required, zipCode]),
+      }),
+    },
+    { validators: emailsMatch }, <span class="cm">// validateur inter-champs, au niveau du groupe</span>
+  );
+
+  <span class="fn">send</span>() {
+    <span class="cm">// accès synchrone : la valeur est là, tout de suite</span>
+    console.<span class="fn">log</span>(<span class="str">'[reactive] envoyé'</span>, <span class="kw">this</span>.application.<span class="fn">getRawValue</span>());
+  }
+}</code></pre>
+
+<p>Un validateur est une simple fonction : elle reçoit le contrôle et renvoie <code>null</code> si tout va bien, ou un objet d'erreurs.
+Le premier exemple vérifie un seul champ ; le second, posé sur le groupe, compare deux champs frères, ce qu'un validateur de champ ne
+peut pas faire.</p>
+<div class="file">src/app/reactive/validators.ts</div><pre><code><span class="kw">import</span> { AbstractControl, ValidationErrors, ValidatorFn } <span class="kw">from</span> <span class="str">'@angular/forms'</span>;
+
+<span class="cm">// Validateur personnalisé sur UN champ : un code postal français = 5 chiffres.</span>
+<span class="kw">export</span> <span class="kw">const</span> zipCode: ValidatorFn = (control: AbstractControl): ValidationErrors | <span class="kw">null</span> =&gt;
+  <span class="str">/^\d{5}$/</span>.<span class="fn">test</span>(control.value ?? <span class="str">''</span>) ? <span class="kw">null</span> : { zipCode: { actual: control.value } };
+
+<span class="cm">// Validateur inter-champs, posé sur le GROUPE : il compare deux contrôles frères.</span>
+<span class="kw">export</span> <span class="kw">const</span> emailsMatch: ValidatorFn = (group: AbstractControl): ValidationErrors | <span class="kw">null</span> =&gt; {
+  <span class="kw">const</span> email = group.<span class="kw">get</span>(<span class="str">'email'</span>)?.value;
+  <span class="kw">const</span> confirm = group.<span class="kw">get</span>(<span class="str">'confirmEmail'</span>)?.value;
+  <span class="kw">return</span> email === confirm ? <span class="kw">null</span> : { emailsMismatch: <span class="kw">true</span> };
+};</code></pre>
+
+<p>Côté template, <code>[formGroup]</code> se pose sur <code>&lt;form&gt;</code>, <code>formControlName</code> sur chaque champ et
+<code>formGroupName</code> sur le bloc imbriqué. Un contrôle isolé, hors de tout groupe, se lie avec <code>[formControl]</code>. Les erreurs
+se lisent avec <code>hasError()</code>, sur le contrôle ou sur le groupe.</p>
+<div class="file">src/app/reactive/reactive-application.ts</div><pre><code><span class="cm">&lt;!-- un FormControl seul, sans groupe : [formControl] --&gt;</span>
+&lt;label&gt;Recherche &lt;input [formControl]=<span class="str">"search"</span> /&gt;&lt;/label&gt;
+&lt;p&gt;search.value = {{ search.value }}&lt;/p&gt;
+<span class="cm">&lt;!-- ... --&gt;</span>
+&lt;form [formGroup]=<span class="str">"application"</span> (ngSubmit)=<span class="str">"send()"</span>&gt;
+  &lt;label&gt;Nom &lt;input formControlName=<span class="str">"lastName"</span> /&gt;&lt;/label&gt;
+  <span class="fn">@if</span> (application.controls.lastName.hasError('required') &amp;&amp; application.controls.lastName.touched) {
+    &lt;small class=<span class="str">"error"</span>&gt;Le nom est obligatoire&lt;/small&gt;
+  }
+  &lt;label&gt;Email &lt;input formControlName=<span class="str">"email"</span> /&gt;&lt;/label&gt;
+  &lt;label&gt;Confirmer l'email &lt;input formControlName=<span class="str">"confirmEmail"</span> /&gt;&lt;/label&gt;
+  <span class="fn">@if</span> (application.hasError('emailsMismatch')) {
+    &lt;small class=<span class="str">"error"</span>&gt;Les deux emails diffèrent&lt;/small&gt;
+  }
+
+  <span class="cm">&lt;!-- groupe imbriqué : formGroupName --&gt;</span>
+  &lt;fieldset formGroupName=<span class="str">"address"</span>&gt;
+    &lt;label&gt;Ville &lt;input formControlName=<span class="str">"city"</span> /&gt;&lt;/label&gt;
+    &lt;label&gt;Code postal &lt;input formControlName=<span class="str">"zip"</span> /&gt;&lt;/label&gt;
+    <span class="fn">@let</span> zip = application.controls.address.controls.zip;
+    <span class="fn">@if</span> (zip.hasError('zipCode') &amp;&amp; zip.touched) {
+      &lt;small class=<span class="str">"error"</span>&gt;5 chiffres attendus&lt;/small&gt;
+    }
+  &lt;/fieldset&gt;
+  &lt;button [disabled]=<span class="str">"application.invalid"</span>&gt;Envoyer&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+
+<p>Voici l'état observé dans le navigateur, étape par étape.</p>
+<table>
+<tr><th>Saisie</th><th>Message</th><th><code>application.status</code></th></tr>
+<tr><td>Nom vidé puis quitté</td><td>« Le nom est obligatoire »</td><td>INVALID</td></tr>
+<tr><td>email <code>a@b.fr</code>, confirmation <code>a@c.fr</code></td><td>« Les deux emails diffèrent », et <code>errors (groupe) = { "emailsMismatch": true }</code></td><td>INVALID</td></tr>
+<tr><td>code postal <code>350</code></td><td>« 5 chiffres attendus »</td><td>INVALID</td></tr>
+<tr><td>code postal <code>35000</code>, emails identiques</td><td>aucun</td><td>VALID, bouton actif</td></tr>
+</table>
+
+<h3>Typed forms : FormBuilder et NonNullableFormBuilder</h3>
+<p>Depuis la v14, les formulaires réactifs sont <strong>typés</strong>. Un détail surprend : <code>reset()</code> remet un contrôle à
+<code>null</code>, donc son type inclut <code>null</code>. <code>NonNullableFormBuilder</code> (ou l'option <code>nonNullable: true</code>)
+fait revenir <code>reset()</code> à la valeur initiale et retire le <code>null</code> du type. Le compilateur refuse alors une valeur du
+mauvais type : la ligne marquée <code>@ts-expect-error</code> provoque bien, sans ce commentaire, l'erreur
+<code>TS2345: Argument of type 'string' is not assignable to parameter of type 'number'</code>.</p>
+<div class="file">src/app/reactive/typed-forms.ts</div><pre><code><span class="kw">export</span> <span class="kw">class</span> TypedForms {
+  <span class="cm">// FormBuilder : le type inclut null, car reset() remet la valeur à null</span>
+  <span class="kw">readonly</span> city: FormControl&lt;string | <span class="kw">null</span>&gt; = <span class="fn">inject</span>(FormBuilder).<span class="fn">control</span>(<span class="str">'Rennes'</span>);
+
+  <span class="cm">// NonNullableFormBuilder : reset() revient à la valeur initiale, pas de null</span>
+  <span class="kw">readonly</span> cityNonNullable: FormControl&lt;string&gt; = <span class="fn">inject</span>(NonNullableFormBuilder).<span class="fn">control</span>(<span class="str">'Rennes'</span>);
+
+  <span class="kw">readonly</span> rent = <span class="kw">new</span> <span class="fn">FormControl</span>(800, { nonNullable: <span class="kw">true</span> }); <span class="cm">// FormControl&lt;number&gt;</span>
+
+  <span class="fn">resetBoth</span>() {
+    <span class="kw">this</span>.city.<span class="fn">reset</span>(); <span class="cm">// value = null</span>
+    <span class="kw">this</span>.cityNonNullable.<span class="fn">reset</span>(); <span class="cm">// value = 'Rennes'</span>
+  }
+
+  <span class="fn">wrongType</span>() {
+    <span class="cm">// @ts-expect-error : une chaîne dans un FormControl&lt;number&gt; ne compile pas</span>
+    <span class="kw">this</span>.rent.<span class="fn">setValue</span>(<span class="str">'huit cents'</span>);
+  }
+}</code></pre>
+<p>Après un clic sur « reset() des deux », l'écran affiche <code>city.value = null</code> et <code>cityNonNullable.value = Rennes</code>.</p>
+
+<h3>FormArray : une liste de longueur variable</h3>
+<p>Un <code>FormArray</code> est une liste de contrôles dont la longueur change à l'exécution : ici, les occupants du logement. Le
+<code>NonNullableFormBuilder</code> injecté raccourcit l'écriture : <code>fb.group({ cle: [valeur, validateurs] })</code>. On ajoute avec
+<code>push()</code> et on retire avec <code>removeAt()</code>.</p>
+<div class="file">src/app/reactive/occupants-form.ts</div><pre><code><span class="kw">export</span> <span class="kw">class</span> OccupantsForm {
+  <span class="cm">// NonNullableFormBuilder : chaque contrôle est créé avec nonNullable: true</span>
+  <span class="kw">private</span> <span class="kw">readonly</span> fb = <span class="fn">inject</span>(NonNullableFormBuilder);
+
+  <span class="kw">readonly</span> household = <span class="kw">this</span>.fb.<span class="fn">group</span>({
+    maxRent: [800, [Validators.required, Validators.<span class="fn">min</span>(300)]],
+    occupants: <span class="kw">this</span>.fb.<span class="fn">array</span>([<span class="kw">this</span>.<span class="fn">newOccupant</span>()]),
+  });
+
+  <span class="cm">// raccourci typé vers le FormArray</span>
+  <span class="kw">get</span> <span class="fn">occupants</span>() {
+    <span class="kw">return</span> <span class="kw">this</span>.household.controls.occupants;
+  }
+  <span class="cm">// ...</span>
+  <span class="fn">newOccupant</span>() {
+    <span class="kw">return</span> <span class="kw">this</span>.fb.<span class="fn">group</span>({
+      firstName: [<span class="str">''</span>, Validators.required],
+      age: [18, [Validators.required, Validators.<span class="fn">min</span>(0)]],
+    });
+  }
+
+  <span class="fn">addOccupant</span>() {
+    <span class="kw">this</span>.occupants.<span class="fn">push</span>(<span class="kw">this</span>.<span class="fn">newOccupant</span>());
+  }
+
+  <span class="fn">removeOccupant</span>(index: number) {
+    <span class="kw">this</span>.occupants.<span class="fn">removeAt</span>(index);
+  }</code></pre>
+
+<p>Dans le template, <code>formArrayName</code> désigne la liste et chaque élément est repéré par son index, avec <code>[formGroupName]="i"</code>.</p>
+<div class="file">src/app/reactive/occupants-form.ts</div><pre><code>&lt;form [formGroup]=<span class="str">"household"</span>&gt;
+  &lt;label&gt;Loyer max (€) &lt;input type=<span class="str">"number"</span> formControlName=<span class="str">"maxRent"</span> /&gt;&lt;/label&gt;
+  &lt;div formArrayName=<span class="str">"occupants"</span>&gt;
+    <span class="fn">@for</span> (occupant of occupants.controls; track occupant; let i = $index) {
+      &lt;fieldset [formGroupName]=<span class="str">"i"</span>&gt;
+        &lt;input formControlName=<span class="str">"firstName"</span> placeholder=<span class="str">"Prénom"</span> /&gt;
+        &lt;input type=<span class="str">"number"</span> formControlName=<span class="str">"age"</span> placeholder=<span class="str">"Âge"</span> /&gt;
+        &lt;button type=<span class="str">"button"</span> (click)=<span class="str">"removeOccupant(i)"</span>&gt;Retirer&lt;/button&gt;
+      &lt;/fieldset&gt;
+    }
+  &lt;/div&gt;
+  &lt;button type=<span class="str">"button"</span> (click)=<span class="str">"addOccupant()"</span>&gt;Ajouter un occupant&lt;/button&gt;
+  &lt;button type=<span class="str">"button"</span> (click)=<span class="str">"household.reset()"</span>&gt;Réinitialiser&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+
+<h3>valueChanges, statusChanges et le pont vers les signals</h3>
+<p>Chaque contrôle expose deux Observables : <code>valueChanges</code> émet à chaque modification de valeur, <code>statusChanges</code> à
+chaque changement de statut. Pour les afficher ou les combiner avec des signals, <code>toSignal</code> fait le pont, comme dans la
+<a href="../02-demo-http/index.html">démo HTTP</a>. Comme ces Observables n'émettent qu'au premier changement, on fournit une
+<code>initialValue</code>.</p>
+<div class="file">src/app/reactive/occupants-form.ts</div><pre><code><span class="cm">// valueChanges / statusChanges sont des Observables : toSignal fait le pont vers les signals</span>
+<span class="kw">readonly</span> status = <span class="fn">toSignal</span>(<span class="kw">this</span>.household.statusChanges, { initialValue: <span class="kw">this</span>.household.status });
+<span class="kw">readonly</span> occupantCount = <span class="fn">toSignal</span>(
+  <span class="kw">this</span>.household.valueChanges.<span class="fn">pipe</span>(<span class="fn">map</span>((v) =&gt; v.occupants?.length ?? 0)),
+  { initialValue: 1 },
+);</code></pre>
+
+<p>Dans le navigateur, avec un occupant au départ : saisir son prénom fait passer le statut de INVALID à VALID ; « Ajouter un occupant »
+donne <code>occupants = 2</code> et repasse INVALID (le nouveau prénom est vide) ; « Retirer » sur le premier ne garde que le second ;
+un loyer de 100 repasse INVALID (<code>Validators.min(300)</code>) ; « Réinitialiser » remet le loyer à 800 et le prénom à vide, les valeurs
+initiales, grâce au builder non nullable.</p>
+
+<div class="retenir"><strong>À retenir</strong> Vous créez les contrôles dans la classe (<code>FormControl</code>, <code>FormGroup</code>,
+<code>FormArray</code>), le template s'y branche (<code>[formGroup]</code>, <code>formControlName</code>, <code>formArrayName</code>). Un
+validateur est une fonction ; s'il compare plusieurs champs, il se pose sur le groupe. Préférez <code>NonNullableFormBuilder</code> pour des
+types sans <code>null</code>, et <code>toSignal</code> pour passer de <code>valueChanges</code> aux signals.</div>
+<p class="doc">📖 <a href="https://angular.dev/guide/forms/reactive-forms">guide : reactive forms</a> ·
+<a href="https://angular.dev/guide/forms/typed-forms">typed forms</a> ·
+<a href="https://angular.dev/guide/forms/form-validation">validation</a> ·
+<a href="https://angular.dev/api/forms/NonNullableFormBuilder">NonNullableFormBuilder</a></p>
+</section>
+
+<!-- ============================================================ 5 -->
+<section class="card" id="s5">
+<h2><span class="num">5</span>Signal Forms</h2>
+<p>Signal Forms reprend la même candidature avec une autre logique : on décrit d'abord les <strong>données</strong>, avec une interface et
+un signal, et tout le reste en découle. Le composant importe deux directives de <code>@angular/forms/signals</code> :
+<code>FormField</code> pour <code>[formField]</code> et <code>FormRoot</code> pour <code>[formRoot]</code>.</p>
+<div class="file">src/app/signal/signal-application.ts</div><pre><code><span class="kw">import</span> { Component, signal } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { JsonPipe } <span class="kw">from</span> <span class="str">'@angular/common'</span>;
+<span class="kw">import</span> {
+  applyEach, email, form, FormField, FormRoot, min, pattern, required, validate,
+} <span class="kw">from</span> <span class="str">'@angular/forms/signals'</span>;
+
+<span class="cm">// 1. Le modèle : une interface, les données du formulaire</span>
+<span class="kw">interface</span> HousingApplication {
+  lastName: string;
+  email: string;
+  confirmEmail: string;
+  monthlyIncome: number;
+  address: { city: string; zip: string };
+  occupants: { firstName: string }[];
+}
+<span class="cm">// ...</span>
+<span class="fn">@Component</span>({
+  selector: <span class="str">'app-signal-application'</span>,
+  imports: [FormField, FormRoot, JsonPipe], <span class="cm">// FormField = [formField], FormRoot = [formRoot]</span></code></pre>
+
+<h3>Le modèle et le schéma</h3>
+<p>Le modèle est un <code>signal</code> qui contient toutes les valeurs de départ. <code>form(model, schema, options)</code> construit
+l'arbre de champs. Le schéma est une fonction qui reçoit <code>p</code>, le <em>chemin</em> vers chaque champ, et déclare les règles :
+<code>required</code>, <code>email</code>, <code>min</code>, <code>pattern</code>. Une règle personnalisée s'écrit avec
+<code>validate</code>, qui reçoit la valeur du champ et peut lire un autre champ avec <code>valueOf</code> : c'est ainsi qu'on fait un
+contrôle inter-champs. <code>applyEach</code> applique une règle à chaque élément d'un tableau, ce qui remplace le <code>FormArray</code>.</p>
+<div class="file">src/app/signal/signal-application.ts</div><pre><code><span class="kw">export</span> <span class="kw">class</span> SignalApplication {
+  <span class="cm">// le signal EST la source de vérité : le formulaire lit et écrit dedans</span>
+  <span class="kw">readonly</span> model = <span class="fn">signal</span>&lt;HousingApplication&gt;({
+    lastName: <span class="str">''</span>,
+    email: <span class="str">''</span>,
+    confirmEmail: <span class="str">''</span>,
+    monthlyIncome: 0,
+    address: { city: <span class="str">''</span>, zip: <span class="str">''</span> },
+    occupants: [],
+  });
+  <span class="kw">readonly</span> sent = <span class="fn">signal</span>(<span class="kw">false</span>);
+
+  <span class="cm">// 2. form(modèle, schéma) : toute la validation au même endroit</span>
+  <span class="kw">readonly</span> f = <span class="fn">form</span>(
+    <span class="kw">this</span>.model,
+    (p) =&gt; {
+      <span class="fn">required</span>(p.lastName, { message: <span class="str">'Le nom est obligatoire'</span> });
+      <span class="fn">required</span>(p.email, { message: <span class="str">"L'email est obligatoire"</span> });
+      <span class="fn">email</span>(p.email, { message: <span class="str">'Email invalide'</span> });
+      <span class="cm">// validateur personnalisé et inter-champs : on lit un autre champ avec valueOf</span>
+      <span class="fn">validate</span>(p.confirmEmail, ({ value, valueOf }) =&gt;
+        <span class="fn">value</span>() === <span class="fn">valueOf</span>(p.email) ? <span class="kw">undefined</span> : { kind: <span class="str">'emailsMismatch'</span>, message: <span class="str">'Les deux emails diffèrent'</span> },
+      );
+      <span class="fn">min</span>(p.monthlyIncome, 1000, { message: <span class="str">'Au moins 1000 €'</span> });
+      <span class="fn">pattern</span>(p.address.zip, <span class="str">/^\d{5}$/</span>, { message: <span class="str">'5 chiffres attendus'</span> });
+      <span class="cm">// un tableau du modèle : la même règle pour chaque élément</span>
+      <span class="fn">applyEach</span>(p.occupants, (o) =&gt; <span class="fn">required</span>(o.firstName, { message: <span class="str">'Prénom obligatoire'</span> }));
+    },
+    {
+      <span class="cm">// 3. l'envoi : lancé par [formRoot] seulement si le formulaire est valide</span>
+      submission: {
+        action: <span class="kw">async</span> (field) =&gt; {
+          console.<span class="fn">log</span>(<span class="str">'[signal] envoyé'</span>, <span class="fn">field</span>().<span class="fn">value</span>());
+          <span class="kw">this</span>.sent.<span class="fn">set</span>(<span class="kw">true</span>);
+        },
+      },
+    },
+  );</code></pre>
+
+<h3>La liaison dans le template, et l'état d'un champ</h3>
+<p><code>[formField]="f.lastName"</code> lie un élément natif à un champ. L'état d'un champ s'obtient en l'appelant :
+<code>f.lastName()</code> renvoie un objet de signals, <code>value()</code>, <code>valid()</code>, <code>invalid()</code>,
+<code>errors()</code>, <code>touched()</code>, <code>dirty()</code>. Les erreurs portent le <code>message</code> déclaré dans le schéma.
+Un tableau du modèle se parcourt directement avec <code>@for</code>.</p>
+<div class="file">src/app/signal/signal-application.ts</div><pre><code>&lt;form [formRoot]=<span class="str">"f"</span>&gt;
+  &lt;label&gt;Nom &lt;input [formField]=<span class="str">"f.lastName"</span> /&gt;&lt;/label&gt;
+  <span class="fn">@if</span> (f.lastName().touched() &amp;&amp; f.lastName().invalid()) {
+    <span class="fn">@for</span> (e of f.lastName().errors(); track e.kind) { &lt;small class=<span class="str">"error"</span>&gt;{{ e.message }}&lt;/small&gt; }
+  }
+  &lt;label&gt;Email &lt;input type=<span class="str">"email"</span> [formField]=<span class="str">"f.email"</span> /&gt;&lt;/label&gt;
+  &lt;label&gt;Confirmer l'email &lt;input [formField]=<span class="str">"f.confirmEmail"</span> /&gt;&lt;/label&gt;
+  <span class="fn">@for</span> (e of f.confirmEmail().errors(); track e.kind) { &lt;small class=<span class="str">"error"</span>&gt;{{ e.message }}&lt;/small&gt; }
+
+  &lt;label&gt;Revenus mensuels &lt;input type=<span class="str">"number"</span> [formField]=<span class="str">"f.monthlyIncome"</span> /&gt;&lt;/label&gt;
+  &lt;label&gt;Ville &lt;input [formField]=<span class="str">"f.address.city"</span> /&gt;&lt;/label&gt;
+  &lt;label&gt;Code postal &lt;input [formField]=<span class="str">"f.address.zip"</span> /&gt;&lt;/label&gt;
+
+  <span class="fn">@for</span> (occupant of f.occupants; track $index) {
+    &lt;label&gt;Occupant {{ $index + 1 }} &lt;input [formField]=<span class="str">"occupant.firstName"</span> /&gt;&lt;/label&gt;
+  }
+  &lt;button type=<span class="str">"button"</span> (click)=<span class="str">"addOccupant()"</span>&gt;Ajouter un occupant&lt;/button&gt;
+  &lt;button type=<span class="str">"submit"</span>&gt;Envoyer&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+
+<p>Ajouter un occupant ne passe par aucune API de formulaire : on modifie le modèle, et l'arbre de champs suit.</p>
+<div class="file">src/app/signal/signal-application.ts</div><pre><code><span class="cm">// ajouter un élément = modifier le modèle, le formulaire suit</span>
+<span class="fn">addOccupant</span>() {
+  <span class="kw">this</span>.model.<span class="fn">update</span>((m) =&gt; ({ ...m, occupants: [...m.occupants, { firstName: <span class="str">''</span> }] }));
+}</code></pre>
+
+<h3>L'envoi : submit() et [formRoot]</h3>
+<p><code>[formRoot]</code> pose <code>novalidate</code> sur <code>&lt;form&gt;</code>, empêche le rechargement de la page et appelle
+<code>submit()</code> avec l'action déclarée dans <code>form()</code>. <code>submit()</code> marque d'abord tous les champs comme
+touchés (les messages apparaissent), puis ne lance l'action que si le formulaire est valide. Voici ce que montre le navigateur.</p>
+<table>
+<tr><th>Action</th><th>Observé</th></tr>
+<tr><td>« Envoyer » sur le formulaire vide</td><td>« Le nom est obligatoire » apparaît, <code>touched = true</code>, <code>envoyé = false</code></td></tr>
+<tr><td>Email = <code>pas-un-email</code></td><td><code>email.errors = [{ "kind": "email", "message": "Email invalide" }]</code></td></tr>
+<tr><td>Confirmation différente de l'email</td><td>« Les deux emails diffèrent »</td></tr>
+<tr><td>Revenus saisis : <code>2500</code></td><td><code>model.monthlyIncome = 2500</code>, un <strong>nombre</strong> : <code>type="number"</code> écrit un number</td></tr>
+<tr><td>Tout rempli, puis « Ajouter un occupant »</td><td><code>valid</code> repasse à <code>false</code> (prénom vide, règle de <code>applyEach</code>)</td></tr>
+<tr><td>Prénom saisi, « Envoyer »</td><td><code>envoyé = true</code>, et la console affiche <code>[signal] envoyé {lastName: 'Martin', …}</code></td></tr>
+</table>
+<p><small>Deux différences visibles avec Reactive Forms. Les classes CSS <code>ng-invalid</code> / <code>ng-touched</code> ne sont pas posées
+par défaut (pour les retrouver : <code>provideSignalFormsConfig</code> avec <code>NG_STATUS_CLASSES</code>, de
+<code>@angular/forms/signals/compat</code>). En revanche, le schéma ajoute lui-même l'attribut <code>required</code> sur l'<code>&lt;input&gt;</code>.</small></p>
+
+<h3>Un formulaire en plusieurs étapes</h3>
+<p>Pour un dossier en plusieurs étapes, gardez <strong>un seul</strong> modèle et <strong>un seul</strong> <code>form()</code>, et ajoutez un
+signal <code>step</code> à part, qui dit seulement quelle étape afficher. La validité de l'étape courante se dérive avec un
+<code>computed</code> ; <code>submit()</code> vérifie à la fin le formulaire entier.</p>
+<div class="file">src/app/signal/signal-wizard.ts</div><pre><code><span class="kw">export</span> <span class="kw">class</span> SignalWizard {
+  <span class="cm">// UN seul modèle et UN seul form() pour toutes les étapes</span>
+  <span class="kw">readonly</span> model = <span class="fn">signal</span>&lt;Dossier&gt;({ firstName: <span class="str">''</span>, emailAddress: <span class="str">''</span>, employer: <span class="str">''</span>, taxNumber: <span class="str">''</span> });
+  <span class="kw">readonly</span> f = <span class="fn">form</span>(<span class="kw">this</span>.model, (p) =&gt; {
+    <span class="fn">required</span>(p.firstName);
+    <span class="fn">required</span>(p.emailAddress);
+    <span class="fn">email</span>(p.emailAddress);
+    <span class="fn">required</span>(p.employer);
+    <span class="fn">required</span>(p.taxNumber);
+    <span class="fn">minLength</span>(p.taxNumber, 13); <span class="cm">// 13 chiffres</span>
+  });
+
+  <span class="cm">// l'étape courante : un signal SÉPARÉ, qui ne dit rien de la validité</span>
+  <span class="kw">readonly</span> step = <span class="fn">signal</span>(1);
+  <span class="kw">readonly</span> sent = <span class="fn">signal</span>(<span class="kw">false</span>);
+
+  <span class="cm">// la validité de l'étape affichée, dérivée des champs de cette étape</span>
+  <span class="kw">readonly</span> currentStepValid = <span class="fn">computed</span>(() =&gt; {
+    <span class="kw">switch</span> (<span class="kw">this</span>.<span class="fn">step</span>()) {
+      <span class="kw">case</span> 1: <span class="kw">return</span> <span class="kw">this</span>.f.<span class="fn">firstName</span>().<span class="fn">valid</span>() &amp;&amp; <span class="kw">this</span>.f.<span class="fn">emailAddress</span>().<span class="fn">valid</span>();
+      <span class="kw">case</span> 2: <span class="kw">return</span> <span class="kw">this</span>.f.<span class="fn">employer</span>().<span class="fn">valid</span>() &amp;&amp; <span class="kw">this</span>.f.<span class="fn">taxNumber</span>().<span class="fn">valid</span>();
+      <span class="kw">default</span>: <span class="kw">return</span> <span class="kw">true</span>;
+    }
+  });
+
+  <span class="fn">next</span>() { <span class="kw">if</span> (<span class="kw">this</span>.<span class="fn">currentStepValid</span>()) <span class="kw">this</span>.step.<span class="fn">update</span>((s) =&gt; s + 1); }
+  <span class="fn">prev</span>() { <span class="kw">this</span>.step.<span class="fn">update</span>((s) =&gt; Math.<span class="fn">max</span>(1, s - 1)); }
+
+  <span class="kw">async</span> <span class="fn">send</span>() {
+    <span class="cm">// submit() vérifie le formulaire ENTIER avant de lancer l'action</span>
+    <span class="kw">await</span> <span class="fn">submit</span>(<span class="kw">this</span>.f, <span class="kw">async</span> () =&gt; { <span class="kw">this</span>.sent.<span class="fn">set</span>(<span class="kw">true</span>); });
+  }</code></pre>
+<p>Le template affiche les champs de l'étape courante, et le bouton « Suivant » suit <code>currentStepValid()</code>.</p>
+<div class="file">src/app/signal/signal-wizard.ts</div><pre><code><span class="fn">@if</span> (step() === 1) {
+  &lt;label&gt;Prénom &lt;input [formField]=<span class="str">"f.firstName"</span> /&gt;&lt;/label&gt;
+  &lt;label&gt;Email &lt;input type=<span class="str">"email"</span> [formField]=<span class="str">"f.emailAddress"</span> /&gt;&lt;/label&gt;
+<span class="fn">} @else</span> if (step() === 2) {
+  &lt;label&gt;Employeur &lt;input [formField]=<span class="str">"f.employer"</span> /&gt;&lt;/label&gt;
+  &lt;label&gt;N° fiscal &lt;input [formField]=<span class="str">"f.taxNumber"</span> /&gt;&lt;/label&gt;
+<span class="fn">} @else</span> {
+  &lt;p&gt;{{ model().firstName }} ({{ model().emailAddress }}), {{ model().employer }}&lt;/p&gt;
+}
+&lt;nav&gt;
+  <span class="fn">@if</span> (step() &gt; 1) { &lt;button type=<span class="str">"button"</span> (click)=<span class="str">"prev()"</span>&gt;Précédent&lt;/button&gt; }
+  <span class="fn">@if</span> (step() &lt; 3) {
+    &lt;button type=<span class="str">"button"</span> [disabled]=<span class="str">"!currentStepValid()"</span> (click)=<span class="str">"next()"</span>&gt;Suivant&lt;/button&gt;
+  <span class="fn">} @else</span> {
+    &lt;button type=<span class="str">"button"</span> (click)=<span class="str">"send()"</span>&gt;Envoyer le dossier&lt;/button&gt;
+  }
+&lt;/nav&gt;</code></pre>
+<p>Vérifié dans le navigateur : « Suivant » reste désactivé avec un email <code>alex@</code>, s'active avec <code>alex@example.com</code> ;
+à l'étape 2, un n° fiscal de 3 chiffres le désactive, 13 chiffres l'activent ; « Précédent » revient à l'étape 1 avec les valeurs
+conservées, puisque c'est le même modèle ; l'envoi affiche « Dossier envoyé ».</p>
+
+<div class="retenir"><strong>À retenir</strong> Un <code>signal</code> pour les données, <code>form(model, schema)</code> pour les champs et
+<strong>toute</strong> la validation au même endroit, <code>[formField]</code> pour lier, <code>f.champ()</code> pour l'état
+(<code>value()</code>, <code>valid()</code>, <code>errors()</code>, <code>touched()</code>), <code>submit()</code> ou
+<code>[formRoot]</code> pour envoyer. Pour plusieurs étapes : un modèle, un formulaire, et un signal <code>step</code> séparé.</div>
+<p class="doc">📖 <a href="https://angular.dev/guide/forms/signals/overview">Signal Forms, vue d'ensemble</a> ·
+<a href="https://angular.dev/guide/forms/signals/validation">validation</a> ·
+<a href="https://angular.dev/guide/forms/signals/form-submission">envoi du formulaire</a> ·
+<a href="https://angular.dev/api/forms/signals/form">form()</a></p>
+</section>
+
+<!-- ============================================================ 6 -->
+<section class="card" id="s6">
+<h2><span class="num">6</span>Formulaire dynamique, construit depuis un JSON</h2>
+<p>Certains formulaires ne sont pas connus à l'avance : un dossier dont les questions viennent d'une API ou d'un back-office. On ne
+peut plus écrire le template champ par champ. L'idée, celle d'un <em>form builder</em>, tient en quatre étapes : une description JSON, un
+modèle typé de « question », un service qui fabrique le <code>FormGroup</code>, et un template générique qui affiche chaque question selon son type.</p>
+<figure>
+<svg viewBox="0 0 680 120" role="img" aria-label="Description JSON, puis type Question, puis QuestionControlService.toFormGroup, puis template générique avec for et switch">
+  <rect class="svg-box soft" x="10" y="30" width="140" height="56" rx="8"/>
+  <text class="svg-t b" x="80" y="54" text-anchor="middle">JSON</text>
+  <text class="svg-t small" x="80" y="72" text-anchor="middle">HOUSING_DOSSIER</text>
+  <rect class="svg-box" x="185" y="30" width="140" height="56" rx="8"/>
+  <text class="svg-t b" x="255" y="54" text-anchor="middle">Question</text>
+  <text class="svg-t small" x="255" y="72" text-anchor="middle">le type, union</text>
+  <rect class="svg-box svc" x="360" y="30" width="140" height="56" rx="8"/>
+  <text class="svg-t mono" x="430" y="54" text-anchor="middle">toFormGroup()</text>
+  <text class="svg-t small" x="430" y="72" text-anchor="middle">le service</text>
+  <rect class="svg-box alt" x="535" y="30" width="135" height="56" rx="8"/>
+  <text class="svg-t b" x="602" y="54" text-anchor="middle">DynamicForm</text>
+  <text class="svg-t small" x="602" y="72" text-anchor="middle">@for + @switch</text>
+  <path class="svg-arrow" d="M150,58 L183,58"/>
+  <path class="svg-arrow" d="M325,58 L358,58"/>
+  <path class="svg-arrow down" d="M500,58 L533,58"/>
+  <text class="svg-t small" x="340" y="110" text-anchor="middle">changer le JSON change le formulaire, sans toucher au template</text>
+</svg>
+</figure>
+
+<h3>1. Le modèle de question : des types, pas des classes</h3>
+<p>La documentation Angular décrit les questions avec une classe <code>QuestionBase&lt;T&gt;</code> et des sous-classes. On préfère ici des
+<strong>interfaces</strong> réunies en une <strong>union discriminée</strong> : le champ <code>controlType</code> dit de quelle question il
+s'agit. Deux raisons. Un JSON reçu est un objet brut, jamais une instance de classe (le piège vu dans la
+<a href="../02-demo-http/index.html">démo HTTP</a>, section 4) : avec des interfaces, il n'y a rien à construire. Et l'union permet à
+TypeScript de savoir, après un test sur <code>controlType</code>, que la question a des <code>options</code> ou un <code>min</code>.</p>
+<div class="file">src/app/dynamic/question.ts</div><pre><code><span class="cm">// La description d'UNE question, telle qu'elle arrive en JSON.</span>
+<span class="cm">// Des types (pas des classes) : un JSON reçu est un objet brut, jamais une instance.</span>
+
+<span class="kw">interface</span> QuestionCommon {
+  key: string; <span class="cm">// le nom du contrôle dans le FormGroup</span>
+  label: string;
+  required?: boolean;
+  order: number;
+}
+
+<span class="kw">export</span> <span class="kw">interface</span> TextQuestion <span class="kw">extends</span> QuestionCommon {
+  controlType: <span class="str">'text'</span>;
+  minLength?: number;
+  pattern?: string; <span class="cm">// une RegExp écrite en chaîne, puisque le JSON n'a pas de RegExp</span>
+  value?: string;
+}
+
+<span class="kw">export</span> <span class="kw">interface</span> NumberQuestion <span class="kw">extends</span> QuestionCommon {
+  controlType: <span class="str">'number'</span>;
+  min?: number;
+  max?: number;
+  value?: number;
+}
+
+<span class="kw">export</span> <span class="kw">interface</span> SelectQuestion <span class="kw">extends</span> QuestionCommon {
+  controlType: <span class="str">'select'</span>;
+  options: { key: string; label: string }[];
+  value?: string;
+}
+
+<span class="kw">export</span> <span class="kw">interface</span> CheckboxQuestion <span class="kw">extends</span> QuestionCommon {
+  controlType: <span class="str">'checkbox'</span>;
+  value?: boolean;
+}
+
+<span class="cm">// L'union discriminée : controlType dit de quelle question il s'agit.</span>
+<span class="kw">export</span> <span class="kw">type</span> Question = TextQuestion | NumberQuestion | SelectQuestion | CheckboxQuestion;</code></pre>
+
+<h3>2. La description du dossier</h3>
+<p>Le dossier de candidature est un tableau de questions. Dans le projet de vérification, c'est une constante typée ; dans une vraie
+application, ce même tableau arriverait d'une API, par exemple avec <code>httpResource</code>. Le champ <code>order</code> fixe l'ordre
+d'affichage, indépendamment de l'ordre du tableau.</p>
+<div class="file">src/app/dynamic/housing-dossier.ts</div><pre><code><span class="kw">import</span> { Question } <span class="kw">from</span> <span class="str">'./question'</span>;
+
+<span class="cm">// La description du dossier, comme si elle venait d'une API ou d'un fichier .json.</span>
+<span class="cm">// Changer ce tableau change le formulaire, sans toucher au template.</span>
+<span class="kw">export</span> <span class="kw">const</span> HOUSING_DOSSIER: Question[] = [
+  { key: <span class="str">'lastName'</span>, label: <span class="str">'Nom'</span>, controlType: <span class="str">'text'</span>, required: <span class="kw">true</span>, order: 1 },
+  {
+    key: <span class="str">'zip'</span>, label: <span class="str">'Code postal'</span>, controlType: <span class="str">'text'</span>, required: <span class="kw">true</span>,
+    pattern: <span class="str">'^\\d{5}$'</span>, order: 3,
+  },
+  {
+    key: <span class="str">'housingType'</span>, label: <span class="str">'Type de logement'</span>, controlType: <span class="str">'select'</span>, required: <span class="kw">true</span>, order: 2,
+    options: [
+      { key: <span class="str">'studio'</span>, label: <span class="str">'Studio'</span> },
+      { key: <span class="str">'t2'</span>, label: <span class="str">'T2'</span> },
+      { key: <span class="str">'house'</span>, label: <span class="str">'Maison'</span> },
+    ],
+  },
+  {
+    key: <span class="str">'monthlyIncome'</span>, label: <span class="str">'Revenus mensuels (€)'</span>, controlType: <span class="str">'number'</span>,
+    required: <span class="kw">true</span>, min: 1000, order: 4,
+  },
+  { key: <span class="str">'guarantor'</span>, label: <span class="str">"J'ai un garant"</span>, controlType: <span class="str">'checkbox'</span>, value: <span class="kw">false</span>, order: 5 },
+];</code></pre>
+
+<h3>3. Le service : de la configuration au FormGroup</h3>
+<p>Le service parcourt les questions et crée un <code>FormControl</code> par question, avec ses validateurs déduits de la configuration.
+Le <code>switch</code> sur <code>controlType</code> est exactement l'endroit où l'union discriminée sert : dans le cas <code>'number'</code>,
+TypeScript sait que <code>q.min</code> existe.</p>
+<div class="file">src/app/dynamic/question-control.service.ts</div><pre><code><span class="kw">import</span> { Injectable } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { FormControl, FormGroup, ValidatorFn, Validators } <span class="kw">from</span> <span class="str">'@angular/forms'</span>;
+<span class="kw">import</span> { Question } <span class="kw">from</span> <span class="str">'./question'</span>;
+
+<span class="fn">@Injectable</span>({ providedIn: <span class="str">'root'</span> })
+<span class="kw">export</span> <span class="kw">class</span> QuestionControlService {
+  <span class="cm">// la configuration =&gt; un FormGroup, un FormControl par question</span>
+  <span class="fn">toFormGroup</span>(questions: Question[]): FormGroup {
+    <span class="kw">const</span> controls: Record&lt;string, FormControl&gt; = {};
+    <span class="kw">for</span> (<span class="kw">const</span> q <span class="kw">of</span> questions) {
+      controls[q.key] = <span class="kw">new</span> <span class="fn">FormControl</span>(q.value ?? <span class="kw">null</span>, <span class="kw">this</span>.<span class="fn">validatorsFor</span>(q));
+    }
+    <span class="kw">return</span> <span class="kw">new</span> <span class="fn">FormGroup</span>(controls);
+  }
+
+  <span class="cm">// les règles du JSON =&gt; les validateurs Angular</span>
+  <span class="kw">private</span> <span class="fn">validatorsFor</span>(q: Question): ValidatorFn[] {
+    <span class="kw">const</span> validators: ValidatorFn[] = [];
+    <span class="kw">if</span> (q.required) {
+      validators.<span class="fn">push</span>(q.controlType === <span class="str">'checkbox'</span> ? Validators.requiredTrue : Validators.required);
+    }
+    <span class="kw">switch</span> (q.controlType) {
+      <span class="kw">case</span> <span class="str">'text'</span>:
+        <span class="kw">if</span> (q.minLength) validators.<span class="fn">push</span>(Validators.<span class="fn">minLength</span>(q.minLength));
+        <span class="kw">if</span> (q.pattern) validators.<span class="fn">push</span>(Validators.<span class="fn">pattern</span>(q.pattern));
+        <span class="kw">break</span>;
+      <span class="kw">case</span> <span class="str">'number'</span>:
+        <span class="kw">if</span> (q.min !== <span class="kw">undefined</span>) validators.<span class="fn">push</span>(Validators.<span class="fn">min</span>(q.min));
+        <span class="kw">if</span> (q.max !== <span class="kw">undefined</span>) validators.<span class="fn">push</span>(Validators.<span class="fn">max</span>(q.max));
+        <span class="kw">break</span>;
+    }
+    <span class="kw">return</span> validators;
+  }
+}</code></pre>
+
+<h3>4. Le template générique</h3>
+<p>Le composant reçoit les questions en <code>input()</code>, les trie et construit le <code>FormGroup</code> avec un <code>computed</code>.
+Le template parcourt les questions avec <code>@for</code> et choisit le bon élément avec <code>@switch</code> ; <code>[formControlName]</code>
+reçoit la clé de la question.</p>
+<div class="file">src/app/dynamic/dynamic-form.ts</div><pre><code>&lt;form [formGroup]=<span class="str">"form()"</span> (ngSubmit)=<span class="str">"payload = form().getRawValue()"</span>&gt;
+  <span class="fn">@for</span> (q of sorted(); track q.key) {
+    &lt;div class=<span class="str">"row"</span>&gt;
+      &lt;label [for]=<span class="str">"q.key"</span>&gt;{{ q.label }}&lt;/label&gt;
+      <span class="cm">&lt;!-- @switch sur controlType : TypeScript sait quel type de question on a --&gt;</span>
+      <span class="fn">@switch</span> (q.controlType) {
+        <span class="fn">@case</span> ('text') { &lt;input [id]=<span class="str">"q.key"</span> [formControlName]=<span class="str">"q.key"</span> /&gt; }
+        <span class="fn">@case</span> ('number') { &lt;input [id]=<span class="str">"q.key"</span> type=<span class="str">"number"</span> [formControlName]=<span class="str">"q.key"</span> /&gt; }
+        <span class="fn">@case</span> ('select') {
+          &lt;select [id]=<span class="str">"q.key"</span> [formControlName]=<span class="str">"q.key"</span>&gt;
+            <span class="fn">@for</span> (opt of q.options; track opt.key) {
+              &lt;option [value]=<span class="str">"opt.key"</span>&gt;{{ opt.label }}&lt;/option&gt;
+            }
+          &lt;/select&gt;
+        }
+        <span class="fn">@case</span> ('checkbox') { &lt;input [id]=<span class="str">"q.key"</span> type=<span class="str">"checkbox"</span> [formControlName]=<span class="str">"q.key"</span> /&gt; }
+      }
+      <span class="fn">@let</span> control = form().controls[q.key];
+      <span class="fn">@if</span> (control.invalid &amp;&amp; control.touched) {
+        &lt;small class=<span class="str">"error"</span>&gt;{{ messageFor(control.errors) }}&lt;/small&gt;
+      }
+    &lt;/div&gt;
+  }
+  &lt;button [disabled]=<span class="str">"form().invalid"</span>&gt;Envoyer&lt;/button&gt;
+&lt;/form&gt;
+<span class="fn">@if</span> (payload) { &lt;pre&gt;envoyé = {{ payload | json }}&lt;/pre&gt; }</code></pre>
+<p>La classe se résume au tri, à la construction du groupe et à un message lisible par type d'erreur.</p>
+<div class="file">src/app/dynamic/dynamic-form.ts</div><pre><code><span class="kw">export</span> <span class="kw">class</span> DynamicForm {
+  <span class="kw">readonly</span> questions = input.required&lt;Question[]&gt;();
+  <span class="kw">private</span> <span class="kw">readonly</span> qcs = <span class="fn">inject</span>(QuestionControlService);
+
+  <span class="kw">readonly</span> sorted = <span class="fn">computed</span>(() =&gt; [...<span class="kw">this</span>.<span class="fn">questions</span>()].<span class="fn">sort</span>((a, b) =&gt; a.order - b.order));
+  <span class="cm">// le FormGroup est reconstruit si la configuration change</span>
+  <span class="kw">readonly</span> form = <span class="fn">computed</span>(() =&gt; <span class="kw">this</span>.qcs.<span class="fn">toFormGroup</span>(<span class="kw">this</span>.<span class="fn">questions</span>()));
+  payload: unknown = <span class="kw">null</span>;
+
+  <span class="cm">// un message lisible par erreur (les clés sont celles des validateurs Angular)</span>
+  <span class="fn">messageFor</span>(errors: ValidationErrors | <span class="kw">null</span>): string {
+    <span class="kw">if</span> (!errors) <span class="kw">return</span> <span class="str">''</span>;
+    <span class="kw">if</span> (errors[<span class="str">'required'</span>]) <span class="kw">return</span> <span class="str">'Champ obligatoire'</span>;
+    <span class="kw">if</span> (errors[<span class="str">'min'</span>]) <span class="kw">return</span> <span class="str">`Minimum ${errors['min'].min}`</span>;
+    <span class="kw">if</span> (errors[<span class="str">'minlength'</span>]) <span class="kw">return</span> <span class="str">`${errors['minlength'].requiredLength} caractères minimum`</span>;
+    <span class="kw">if</span> (errors[<span class="str">'pattern'</span>]) <span class="kw">return</span> <span class="str">'Format invalide'</span>;
+    <span class="kw">return</span> <span class="str">'Valeur invalide'</span>;
+  }
+}</code></pre>
+<p>Une page n'a plus qu'à passer la description du dossier au composant générique.</p>
+<div class="file">src/app/dynamic/dossier-page.ts</div><pre><code>&lt;h2&gt;Dossier logement (formulaire dynamique)&lt;/h2&gt;
+&lt;app-dynamic-form [questions]=<span class="str">"dossier"</span> /&gt;</code></pre>
+
+<p>Dans le navigateur, les champs apparaissent dans l'ordre <code>order</code> (Nom, Type de logement, Code postal, Revenus, J'ai un garant),
+la liste déroulante propose Studio, T2 et Maison. Quitter les champs vides affiche quatre « Champ obligatoire » ; <code>350</code> donne
+« Format invalide » et <code>800</code> « Minimum 1000 ». Une fois tout valide, l'envoi affiche
+<code>{ "lastName": "Martin", "zip": "35000", "housingType": "t2", "monthlyIncome": 2500, "guarantor": true }</code>.</p>
+
+<h3>La même idée avec Signal Forms</h3>
+<p>Elle fonctionne aussi : le modèle initial se calcule depuis le JSON (une valeur par question), et le schéma est écrit en parcourant
+la configuration. Mais le typage, point fort de Signal Forms, se perd : avec un <code>Record&lt;string, string | number | boolean&gt;</code>,
+le compilateur refuse de lier un <code>&lt;input type="number"&gt;</code> à un champ qui pourrait être une chaîne. Il faut redonner le type
+à la main, comme le montrent les trois dernières méthodes.</p>
+<div class="file">src/app/dynamic/dynamic-signal-form.ts</div><pre><code><span class="kw">type</span> Answers = Record&lt;string, string | number | boolean&gt;;
+
+<span class="cm">// la configuration =&gt; le modèle initial (une valeur par question)</span>
+<span class="kw">function</span> <span class="fn">initialAnswers</span>(questions: Question[]): Answers {
+  <span class="kw">const</span> defaults = { text: <span class="str">''</span>, number: 0, select: <span class="str">''</span>, checkbox: <span class="kw">false</span> };
+  <span class="kw">return</span> Object.<span class="fn">fromEntries</span>(questions.<span class="fn">map</span>((q) =&gt; [q.key, q.value ?? defaults[q.controlType]]));
+}
+<span class="cm">// ...</span>
+<span class="kw">export</span> <span class="kw">class</span> DynamicSignalForm {
+  <span class="kw">readonly</span> questions = [...HOUSING_DOSSIER].<span class="fn">sort</span>((a, b) =&gt; a.order - b.order);
+  <span class="kw">readonly</span> model = <span class="fn">signal</span>&lt;Answers&gt;(<span class="fn">initialAnswers</span>(<span class="kw">this</span>.questions));
+
+  <span class="cm">// le schéma est écrit en parcourant la configuration</span>
+  <span class="kw">readonly</span> f = <span class="fn">form</span>(<span class="kw">this</span>.model, (p) =&gt; {
+    <span class="kw">for</span> (<span class="kw">const</span> q <span class="kw">of</span> <span class="kw">this</span>.questions) {
+      <span class="kw">if</span> (q.required) <span class="fn">required</span>(p[q.key]);
+      <span class="kw">if</span> (q.controlType === <span class="str">'text'</span> &amp;&amp; q.pattern) {
+        <span class="fn">pattern</span>(p[q.key] as SchemaPath&lt;string&gt;, <span class="kw">new</span> <span class="fn">RegExp</span>(q.pattern));
+      }
+      <span class="kw">if</span> (q.controlType === <span class="str">'number'</span> &amp;&amp; q.min !== <span class="kw">undefined</span>) {
+        <span class="fn">min</span>(p[q.key] as SchemaPath&lt;number&gt;, q.min);
+      }
+    }
+  });
+
+  <span class="cm">// le prix du dynamique : Record&lt;string, mixte&gt; perd le type de chaque champ,</span>
+  <span class="cm">// il faut le redonner à la main pour que [formField] accepte la liaison</span>
+  <span class="fn">asText</span>(key: string) { <span class="kw">return</span> <span class="kw">this</span>.f[key] as FieldTree&lt;string&gt;; }
+  <span class="fn">asNumber</span>(key: string) { <span class="kw">return</span> <span class="kw">this</span>.f[key] as FieldTree&lt;number&gt;; }
+  <span class="fn">asBoolean</span>(key: string) { <span class="kw">return</span> <span class="kw">this</span>.f[key] as FieldTree&lt;boolean&gt;; }
+}</code></pre>
+<p>Vérifié : ce composant compile, et le modèle passe à <code>valid = true</code> avec les mêmes valeurs que la version Reactive. Pour un
+formulaire entièrement piloté par une configuration, Reactive Forms reste aujourd'hui l'écriture la plus directe ; Signal Forms brille
+quand la forme des données est connue à la compilation.</p>
+
+<div class="retenir"><strong>À retenir</strong> JSON => un type <code>Question</code> (union discriminée par <code>controlType</code>) =>
+un service qui fabrique le <code>FormGroup</code> => un template générique <code>@for</code> + <code>@switch</code>. Des interfaces plutôt que
+des classes, car le JSON reste un objet brut. Ajouter une question = ajouter une ligne au JSON.</div>
+<p class="doc">📖 <a href="https://angular.dev/guide/forms/dynamic-forms">guide : formulaires dynamiques</a> ·
+<a href="https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions">unions discriminées (TypeScript)</a></p>
+</section>
+
+<!-- ============================================================ 7 -->
+<section class="card" id="s7">
+<h2><span class="num">7</span>Choisir, et migrer</h2>
+<p>Le bon choix dépend surtout de la version du projet : Signal Forms n'existe pas en v20. Le tableau suivant donne un choix par défaut
+pour les situations les plus courantes.</p>
+<table>
+<tr><th>Situation</th><th>Nouveau projet v22</th><th>Projet existant en v20</th></tr>
+<tr><td>Formulaire simple (contact, recherche, 2 ou 3 champs)</td><td>Signal Forms</td><td>template-driven ou Reactive Forms</td></tr>
+<tr><td>Formulaire complexe (groupes imbriqués, validations croisées, listes)</td><td>Signal Forms : schéma, <code>validate</code>, <code>applyEach</code></td><td>Reactive Forms typés, <code>NonNullableFormBuilder</code></td></tr>
+<tr><td>Formulaire dynamique, construit depuis un JSON</td><td>Reactive Forms (section 6), ou Signal Forms en acceptant des conversions de type</td><td>Reactive Forms</td></tr>
+<tr><td>Dossier en plusieurs étapes</td><td>Signal Forms : un modèle, un <code>form()</code>, un signal <code>step</code></td><td>Reactive Forms : un <code>FormGroup</code> par étape dans un groupe parent</td></tr>
+<tr><td>Formulaires Reactive déjà en place</td><td>les garder, migrer au fil de l'eau (ci-dessous)</td><td>les garder ; monter de version avant de penser Signal Forms</td></tr>
+</table>
+
+<p>La migration de Reactive Forms vers Signal Forms se fait progressivement, formulaire par formulaire, et la documentation fournit des
+outils de cohabitation dans <code>@angular/forms/signals/compat</code>.</p>
+<ol>
+<li><strong>Passer en v22</strong> avec <code>ng update</code> : en v21, l'API est encore expérimentale et ses noms ont changé.</li>
+<li><strong>Écrire les nouveaux formulaires en Signal Forms</strong>, sans toucher aux anciens.</li>
+<li><strong>Migrer par les feuilles</strong> : <code>SignalFormControl</code> se comporte comme un <code>FormControl</code> dans un
+<code>FormGroup</code> existant, et se lie avec <code>[formField]="control.fieldTree"</code>.</li>
+<li><strong>Ou par le haut</strong> : <code>compatForm</code> crée un formulaire Signal Forms dont le modèle contient encore des
+<code>FormControl</code> existants, le temps de les porter.</li>
+<li><strong>Remplacer l'impératif par du déclaratif</strong> : <code>enable()</code>, <code>disable()</code>, <code>setValidators()</code>
+deviennent des règles du schéma (<code>disabled</code>, <code>applyWhen</code>, validateurs).</li>
+<li><strong>Adapter les composants de saisie maison</strong> : un <code>ControlValueAccessor</code> devient un <code>FormValueControl</code>,
+et <code>NG_STATUS_CLASSES</code> restaure les classes <code>ng-invalid</code> si votre CSS en dépend.</li>
+</ol>
+<p><small>Ces noms existent dans les types installés de <code>@angular/forms</code> 22.2.2 (<code>@publicApi 22.0</code>), mais ils n'ont pas été
+exercés dans le projet de vérification : suivez le guide de migration pour leur usage exact.</small></p>
+<p>Pour pratiquer : le tutoriel <a href="https://github.com/bngams/2610-ng/tree/main/02-housing-init/">Housing, premiers pas</a> construit,
+à son étape 18, un dossier de candidature en plusieurs étapes en Reactive Forms ; le parcours avancé
+<a href="https://github.com/bngams/2610-ng/tree/main/02-housing-async/">Housing sous pression asynchrone</a> le migre vers Signal Forms.</p>
+
+<div class="retenir"><strong>À retenir</strong> En v22, Signal Forms par défaut pour un nouveau formulaire ; Reactive Forms pour un
+formulaire entièrement piloté par une configuration, et pour tout projet v20. Template-driven reste possible pour quelques champs. On migre
+sans tout réécrire : nouveaux formulaires d'abord, puis les anciens, contrôle par contrôle.</div>
+<p class="doc">📖 <a href="https://angular.dev/guide/forms/signals/migration">migrer depuis Reactive Forms</a> ·
+<a href="https://angular.dev/reference/versions">versions et support</a> ·
+<a href="https://angular.dev/update-guide">guide de mise à jour</a></p>
+</section>
+
+<footer>
+Les formulaires en Angular 22, formation AELION, jour 2. Revoir la <a href="../00-intro-syntax-recap/index.html">synthèse du jour 1</a> et la
+<a href="../02-demo-http/index.html">démo HTTP</a> ; pratiquer avec <a href="https://github.com/bngams/2610-ng/tree/main/02-housing-init/">Housing, premiers pas</a>
+ou <a href="https://github.com/bngams/2610-ng/tree/main/02-housing-async/">Housing sous pression asynchrone</a>. Documentation de référence :
+<a href="https://angular.dev/guide/forms">angular.dev, formulaires</a>.
+</footer>
+</div>
+</body>
+</html>

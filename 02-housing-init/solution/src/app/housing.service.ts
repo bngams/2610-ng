@@ -2,12 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { HousingLocationInfo } from './housinglocation';
+import { Application } from './application';
 import { environment } from '../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class HousingService {
   private readonly http = inject(HttpClient);
   readonly url = `${environment.apiUrl}/locations`;
+  readonly applicationsUrl = `${environment.apiUrl}/applications`;
 
   getAllHousingLocations(): Observable<HousingLocationInfo[]> {
     return this.http.get<HousingLocationInfo[]>(this.url);
@@ -17,9 +19,7 @@ export class HousingService {
     return this.http.get<HousingLocationInfo>(`${this.url}/${id}`);
   }
 
-  submitApplication(firstName: string, lastName: string, email: string) {
-    console.log(
-      `Homes application received: firstName: ${firstName}, lastName: ${lastName}, email: ${email}.`,
-    );
+  submitApplication(application: Application): Observable<Application> {
+    return this.http.post<Application>(this.applicationsUrl, application);
   }
 }
