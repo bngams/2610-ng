@@ -1,0 +1,12 @@
+@if (product.isLoading()) {
+  <p>Chargement…</p>
+} @else if (product.error()) {
+  <p class="error">Ce produit est introuvable.</p>
+} @else if (product.value(); as p) {
+  <img [src]="p.thumbnail" [alt]="p.name" width="300" height="300" />
+  <h1>{{ p.name }}</h1>
+  <p class="category">{{ p.category }}</p>
+  <p class="price">{{ p.price | currency: 'USD' }}</p>
+  <p>{{ p.description }}</p>
+}
+<a mat-button routerLink="/catalog">Retour au catalogue</a>

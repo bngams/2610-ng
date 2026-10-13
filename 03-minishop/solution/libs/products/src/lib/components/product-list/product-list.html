@@ -1,0 +1,13 @@
+@if (products.isLoading()) {
+  <p>Chargement des produits…</p>
+} @else if (products.error()) {
+  <p class="error">Les produits sont indisponibles.</p>
+} @else {
+  <div class="grid">
+    @for (product of products.value(); track product.id) {
+      <lib-product-card [product]="product" />
+    } @empty {
+      <p>Aucun produit.</p>
+    }
+  </div>
+}

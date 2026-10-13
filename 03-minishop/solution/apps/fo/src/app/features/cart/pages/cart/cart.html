@@ -1,0 +1,29 @@
+<h1>Mon panier</h1>
+@for (line of cart.lines(); track line.product.id) {
+  <div class="line">
+    <span class="name">{{ line.product.name }}</span>
+    <button
+      mat-stroked-button
+      type="button"
+      (click)="cart.changeQty(line.product.id, line.qty - 1)"
+    >
+      -
+    </button>
+    <span class="qty">{{ line.qty }}</span>
+    <button
+      mat-stroked-button
+      type="button"
+      (click)="cart.changeQty(line.product.id, line.qty + 1)"
+    >
+      +
+    </button>
+    <span class="price">{{ line.qty * line.product.price | currency: 'USD' }}</span>
+    <button mat-button type="button" (click)="cart.remove(line.product.id)">Retirer</button>
+  </div>
+} @empty {
+  <p>Votre panier est vide. <a routerLink="/catalog">Voir le catalogue</a></p>
+}
+@if (cart.count() > 0) {
+  <p class="total">Total : {{ cart.total() | currency: 'USD' }}</p>
+  <a mat-flat-button routerLink="/cart/checkout">Passer commande</a>
+}

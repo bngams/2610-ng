@@ -1,0 +1,9 @@
+.category {
+  color: var(--mat-sys-on-surface-variant);
+}
+.price {
+  font: var(--mat-sys-title-large);
+}
+.error {
+  color: var(--mat-sys-error);
+}

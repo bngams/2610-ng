@@ -1,0 +1,14 @@
+mat-toolbar {
+  gap: 8px;
+}
+.title {
+  color: inherit;
+  text-decoration: none;
+  margin-right: 16px;
+}
+.spacer {
+  flex: 1;
+}
+.active {
+  text-decoration: underline;
+}

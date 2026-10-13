@@ -1,0 +1,17 @@
+<mat-toolbar>
+  <a class="title" routerLink="/">{{ title() }}</a>
+  <nav>
+    @for (item of visibleItems(); track item.path) {
+      <a
+        mat-button
+        [routerLink]="item.path"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.path === '/' }"
+        >{{ item.title }}</a
+      >
+    }
+  </nav>
+  <span class="spacer"></span>
+  <!-- l'emplacement libre : chaque application y projette ce qu'elle veut -->
+  <ng-content />
+</mat-toolbar>

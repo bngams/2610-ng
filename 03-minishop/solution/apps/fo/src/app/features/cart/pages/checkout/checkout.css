@@ -1,0 +1,4 @@
+.confirmation {
+  font: var(--mat-sys-title-medium);
+  color: var(--mat-sys-primary);
+}
