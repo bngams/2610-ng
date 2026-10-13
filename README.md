@@ -23,6 +23,14 @@ Supports et cas pratiques. Deux parcours (**Init** et **Avancé**) autour d'un s
 | En appui | [02 — Les formulaires](02-intro-forms/) : template-driven, Reactive Forms, Signal Forms, formulaire dynamique ([version en ligne](https://bngams.github.io/2610-ng/02-intro-forms/)) | tout le monde |
 | Fin de journée | Débrief final : la grille de décision RxJS / signals | tout le monde |
 
+## Jour 3 — Auth, store, workspace et micro-frontends
+
+| | Support | Pour qui |
+|---|---|---|
+| Fiche | [03 — Authentification et autorisation](03-intro-auth/) : JWT, où garder le jeton (cookie `httpOnly` plutôt que `localStorage`), OIDC, guards, RBAC et CASL ([version en ligne](https://bngams.github.io/2610-ng/03-intro-auth/)) | tout le monde |
+| Fiche | [03 — Un service comme store](03-intro-store/) : panier et session en services avec signals, puis SignalStore ([version en ligne](https://bngams.github.io/2610-ng/03-intro-store/)) | tout le monde |
+| Fiche | [03 — Workspace, bibliothèques et micro-frontends](03-intro-workspace/) : workspace CLI, Nx, Native Federation ([version en ligne](https://bngams.github.io/2610-ng/03-intro-workspace/)) | tout le monde |
+
 ## Prérequis
 
 - **Node.js 22.22 ou 24.15 minimum** (`node -v`). Sinon : `nvm install 24 && nvm use 24`.

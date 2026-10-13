@@ -1,0 +1,1066 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Angular 22 — Workspace, bibliothèques et micro-frontends</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f8fafc; --s1:#ffffff; --s2:#eef2f6; --tx:#0f172a; --tx2:#475569; --mu:#64748b; --bd:#e2e8f0; --bd2:#cbd5e1;
+  --brand:#d9472b; --acc:#c2391f; --soft:#ffe4dc; --softfg:#b33a1f; --ok:#047857; --okbg:#ecfdf5; --ko:#be123c;
+  --code:#0f172a; --codefg:#e2e8f0; --bar:#0f172a; --barfg:#e2e8f0; --u:#fb8f6f; --info:#475569; --infobg:#f1f5f9;
+  --blue:#0369a1; --bluebg:#e0f2fe;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--tx);background:var(--bg);margin:0;padding:0 0 60px}
+.bar{background:var(--bar);color:var(--barfg);padding:12px 24px;display:flex;align-items:center;gap:12px;font-size:13px}
+.bar .wm{font-weight:800;letter-spacing:-.02em;font-size:15px}.bar .wm .u{color:var(--u)}
+.bar .r{margin-left:auto;color:#94a3b8}
+.wrap{max-width:1000px;margin:0 auto;padding:28px 24px 0}
+h1{font-size:2rem;font-weight:800;letter-spacing:-.02em;margin:0 0 .25rem}
+h2{margin:0 0 .6rem;font-size:1.3rem;font-weight:800;letter-spacing:-.015em;display:flex;align-items:center;gap:.55rem}
+h3{margin:1.1rem 0 .4rem;font-size:.98rem;font-weight:700}
+.lead{color:var(--tx2);font-size:1.02rem;margin:0 0 .4rem}
+a{color:var(--acc)}
+nav.toc{border:1px solid var(--bd);border-radius:10px;padding:14px 18px;margin:18px 0 26px;background:var(--s1)}
+nav.toc .cap{font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin-bottom:6px}
+nav.toc ol{margin:0;padding-left:1.3rem;columns:2;column-gap:28px}
+nav.toc li{break-inside:avoid;margin:.15rem 0}
+nav.toc a{color:var(--tx);text-decoration:none}
+nav.toc a:hover{color:var(--acc);text-decoration:underline}
+section.card{border:1px solid var(--bd);border-radius:10px;padding:20px 24px 18px;margin:20px 0;background:var(--s1);break-inside:avoid;page-break-inside:avoid}
+.num{display:inline-flex;align-items:center;justify-content:center;min-width:1.7em;height:1.7em;background:var(--soft);color:var(--softfg);border-radius:7px;font:700 .85rem var(--mono);padding:0 .4em}
+code{font-family:var(--mono);font-size:.86em;background:var(--s2);color:var(--tx);padding:.1em .3em;border-radius:4px}
+pre{background:var(--code);color:var(--codefg);padding:13px 15px;border-radius:8px;overflow:auto;font:12.5px/1.5 var(--mono);margin:.6rem 0}
+pre code{background:none;padding:0;color:inherit;font-size:inherit}
+.cm{color:#94a3b8}.kw{color:var(--u)}.str{color:#86efac}.fn{color:#79c0ff}
+table{border-collapse:collapse;width:100%;margin:.6rem 0;font-size:.92rem;background:var(--s1)}
+th,td{border-bottom:1px solid var(--bd);padding:6px 10px;text-align:left;vertical-align:top}
+th{font-size:12px;color:var(--tx2);font-weight:600;background:var(--bg)}
+.retenir{background:var(--infobg);border-left:3px solid var(--brand);padding:9px 14px;border-radius:0 8px 8px 0;margin:.9rem 0 .4rem;font-size:.95rem;color:var(--tx)}
+.retenir strong{display:block;font:600 10.5px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--softfg);margin-bottom:3px}
+.doc{font-size:.88rem;color:var(--mu);margin:.5rem 0 0}
+.doc a{color:var(--acc);text-decoration:none}.doc a:hover{text-decoration:underline}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}nav.toc ol{columns:1}}
+figure{margin:.6rem 0}
+figure svg{width:100%;height:auto;display:block}
+figcaption{font-size:.84rem;color:var(--mu);margin-top:.3rem}
+small{color:var(--mu)}
+kbd{font:600 11px var(--mono);background:var(--s2);border:1px solid var(--bd2);border-radius:4px;padding:1px 5px}
+.svg-box{fill:#fff;stroke:#94a3b8;stroke-width:1.4}
+.svg-box.alt{fill:var(--soft);stroke:var(--brand)}
+.svg-box.svc{fill:var(--bluebg);stroke:var(--blue)}
+.svg-box.soft{fill:var(--s2);stroke:var(--bd2)}
+.svg-t{font-family:Inter,system-ui,sans-serif;font-size:13px;fill:var(--tx)}
+.svg-t.small{font-size:11px;fill:var(--tx2)}
+.svg-t.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11.5px}
+.svg-t.b{font-weight:700}
+.svg-arrow{stroke:#475569;stroke-width:1.6;fill:none;marker-end:url(#arr)}
+.svg-arrow.down{stroke:var(--acc);marker-end:url(#arr-brand)}
+.svg-arrow.up{stroke:var(--blue);marker-end:url(#arr-blue)}
+footer{color:var(--mu);font-size:.88rem;margin:40px 0 0;border-top:1px solid var(--bd);padding-top:12px}
+@media print{
+  html,body{background:#fff}
+  body{font-size:11pt;padding:0}
+  .bar,nav.toc,.noprint{display:none}
+  .wrap{max-width:none;padding:0 8mm}
+  section.card{border:none;padding:0;margin:0 0 14pt;page-break-inside:avoid;background:none}
+  section.card+section.card{border-top:1px solid #ccc;padding-top:12pt}
+  pre{font-size:9pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .retenir,.num,.svg-box{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  a{color:inherit;text-decoration:none}
+}
+.file{font:600 11px var(--mono);color:var(--mu);margin:.8rem 0 -.3rem}
+.file a{color:var(--mu)}
+.grid2>*{min-width:0}
+h2{flex-wrap:wrap}
+body,code,pre,svg text{font-variant-ligatures:none} /* => reste => (pas de ligature) */
+@media (max-width:760px){table{display:block;overflow-x:auto}}
+.svg-arrow.dash{stroke-dasharray:5 4}
+.svg-arrow.ko{stroke:var(--ko);stroke-dasharray:5 4;marker-end:url(#arr-ko)}
+.svg-t.ko{fill:var(--ko);font-weight:700}
+.svg-box.ok{fill:var(--okbg);stroke:var(--ok)}
+.ok{color:var(--ok);font-weight:600}.ko{color:var(--ko);font-weight:600}
+</style>
+</head>
+<body>
+<div class="bar"><span class="wm">Angular 22 <span class="u">_</span> workspace</span><span class="r">Formation AELION · J3</span></div>
+<div class="wrap">
+
+<h1>Angular 22 — Workspace, bibliothèques et micro-frontends</h1>
+<p class="lead">Quand une application grossit, on finit par la découper. Cette page présente trois niveaux de découpage : une application
+avec des routes lazy, un workspace qui contient plusieurs applications et des bibliothèques partagées, puis des micro-frontends assemblés
+dans le navigateur. Elle compare au passage le workspace du CLI Angular et Nx. Chaque commande, chaque sortie et chaque extrait de code
+vient d'une exécution réelle avec Angular CLI 22.2.2 et Node 24.18.0 (le workspace Nx de la section 4 a ses propres versions, indiquées là-bas) ; l'exemple Native Federation a été lancé et vérifié dans le
+navigateur. Les projets de vérification ne sont pas livrés.</p>
+<p class="noprint"><small>Imprimable : <kbd>Ctrl/Cmd + P</kbd> puis « Enregistrer en PDF ». Les autres synthèses du jour 3 :
+<a href="../03-intro-auth/index.html">authentification</a> et <a href="../03-intro-store/index.html">gestion d'état</a>. Pour pratiquer :
+le lab <a href="https://github.com/bngams/2610-ng/tree/main/03-minishop/">Minishop</a> (en cours d'écriture).</small></p>
+<p><small>Le fil rouge est une boutique : une vitrine publique (<code>fo</code>, <em>front-office</em>), un back-office marchand
+(<code>bo</code>) et des bibliothèques communes. Pour les micro-frontends, une application hôte (<code>shell</code>) charge un catalogue
+servi par une autre application (<code>mfe1</code>).</small></p>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+    <marker id="arr-brand" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c2391f"/></marker>
+    <marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0369a1"/></marker>
+    <marker id="arr-ko" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#be123c"/></marker>
+  </defs>
+</svg>
+
+<nav class="toc" aria-label="Sommaire">
+<div class="cap">Sommaire</div>
+<ol>
+<li><a href="#s1">Trois paliers de découpage</a></li>
+<li><a href="#s2">Le workspace Angular CLI</a></li>
+<li><a href="#s3">Ranger les bibliothèques</a></li>
+<li><a href="#s4">Nx, en comparaison</a></li>
+<li><a href="#s5">Micro-frontends : quand, et à quel prix</a></li>
+<li><a href="#s6">Native Federation, pas à pas</a></li>
+<li><a href="#s7">Récap : choisir son palier</a></li>
+</ol>
+</nav>
+
+<!-- ============================================================ 1 -->
+<section class="card" id="s1">
+<h2><span class="num">1</span>Trois paliers de découpage</h2>
+<p>Découper une application, c'est décider de ce qu'on <strong>compile</strong> et de ce qu'on <strong>déploie</strong> ensemble. Il y a
+trois paliers, et chacun ajoute de l'indépendance en échange de complexité. Le schéma les met côte à côte : ce qui change de l'un à
+l'autre, c'est le nombre de déploiements et le moment où les morceaux se rejoignent.</p>
+<figure>
+<svg viewBox="0 0 930 300" role="img" aria-label="Trois paliers : une application avec des routes lazy, un workspace avec deux applications et des bibliothèques, des micro-frontends assemblés dans le navigateur">
+  <!-- palier 1 -->
+  <text class="svg-t b" x="150" y="20" text-anchor="middle">1. Une application</text>
+  <rect class="svg-box soft" x="10" y="32" width="280" height="190" rx="10"/>
+  <rect class="svg-box alt" x="30" y="48" width="240" height="40" rx="8"/>
+  <text class="svg-t mono" x="150" y="73" text-anchor="middle">shop (app.routes.ts)</text>
+  <rect class="svg-box" x="30" y="112" width="72" height="40" rx="8"/>
+  <text class="svg-t mono" x="66" y="136" text-anchor="middle">/produits</text>
+  <rect class="svg-box" x="114" y="112" width="72" height="40" rx="8"/>
+  <text class="svg-t mono" x="150" y="136" text-anchor="middle">/panier</text>
+  <rect class="svg-box" x="198" y="112" width="72" height="40" rx="8"/>
+  <text class="svg-t mono" x="234" y="136" text-anchor="middle">/compte</text>
+  <path class="svg-arrow dash" d="M66,88 L66,110"/>
+  <path class="svg-arrow dash" d="M150,88 L150,110"/>
+  <path class="svg-arrow dash" d="M234,88 L234,110"/>
+  <text class="svg-t small" x="150" y="178" text-anchor="middle">une route lazy par feature</text>
+  <text class="svg-t small" x="150" y="194" text-anchor="middle">(un fichier JS chargé à la demande)</text>
+  <rect class="svg-box ok" x="40" y="240" width="220" height="44" rx="8"/>
+  <text class="svg-t b" x="150" y="260" text-anchor="middle">1 build, 1 déploiement</text>
+  <text class="svg-t small" x="150" y="276" text-anchor="middle">une équipe</text>
+  <!-- palier 2 -->
+  <text class="svg-t b" x="465" y="20" text-anchor="middle">2. Un workspace</text>
+  <rect class="svg-box soft" x="325" y="32" width="280" height="190" rx="10"/>
+  <rect class="svg-box alt" x="345" y="48" width="110" height="40" rx="8"/>
+  <text class="svg-t mono" x="400" y="73" text-anchor="middle">apps/fo</text>
+  <rect class="svg-box alt" x="475" y="48" width="110" height="40" rx="8"/>
+  <text class="svg-t mono" x="530" y="73" text-anchor="middle">apps/bo</text>
+  <rect class="svg-box svc" x="345" y="128" width="110" height="40" rx="8"/>
+  <text class="svg-t mono" x="400" y="153" text-anchor="middle">libs/models</text>
+  <rect class="svg-box svc" x="475" y="128" width="110" height="40" rx="8"/>
+  <text class="svg-t mono" x="530" y="153" text-anchor="middle">libs/ui</text>
+  <path class="svg-arrow" d="M400,88 L400,126"/>
+  <path class="svg-arrow" d="M412,88 L518,126"/>
+  <path class="svg-arrow" d="M530,88 L530,126"/>
+  <path class="svg-arrow" d="M518,88 L412,126"/>
+  <text class="svg-t small" x="465" y="194" text-anchor="middle">un seul dépôt, des imports @shop/…</text>
+  <text class="svg-t small" x="465" y="210" text-anchor="middle">assemblés à la compilation</text>
+  <rect class="svg-box ok" x="355" y="240" width="220" height="44" rx="8"/>
+  <text class="svg-t b" x="465" y="260" text-anchor="middle">2 builds, 2 déploiements</text>
+  <text class="svg-t small" x="465" y="276" text-anchor="middle">une ou plusieurs équipes</text>
+  <!-- palier 3 -->
+  <text class="svg-t b" x="780" y="20" text-anchor="middle">3. Des micro-frontends</text>
+  <rect class="svg-box soft" x="640" y="32" width="280" height="96" rx="10"/>
+  <text class="svg-t small" x="655" y="50">navigateur</text>
+  <rect class="svg-box alt" x="660" y="60" width="240" height="52" rx="8"/>
+  <text class="svg-t mono" x="780" y="82" text-anchor="middle">shell (hôte)</text>
+  <text class="svg-t small" x="780" y="100" text-anchor="middle">charge les remotes à l'exécution</text>
+  <rect class="svg-box svc" x="650" y="160" width="120" height="48" rx="8"/>
+  <text class="svg-t mono" x="710" y="181" text-anchor="middle">mfe1</text>
+  <text class="svg-t small" x="710" y="198" text-anchor="middle">serveur A</text>
+  <rect class="svg-box svc" x="790" y="160" width="120" height="48" rx="8"/>
+  <text class="svg-t mono" x="850" y="181" text-anchor="middle">mfe2</text>
+  <text class="svg-t small" x="850" y="198" text-anchor="middle">serveur B</text>
+  <path class="svg-arrow up dash" d="M710,158 L740,114"/>
+  <path class="svg-arrow up dash" d="M850,158 L820,114"/>
+  <rect class="svg-box ok" x="670" y="240" width="220" height="44" rx="8"/>
+  <text class="svg-t b" x="780" y="260" text-anchor="middle">N déploiements indépendants</text>
+  <text class="svg-t small" x="780" y="276" text-anchor="middle">une équipe par remote</text>
+</svg>
+<figcaption>Les flèches pleines sont des imports résolus à la compilation ; les flèches pointillées sont des chargements à
+l'exécution, dans le navigateur.</figcaption>
+</figure>
+
+<p>Le tableau suivant résume ce que chaque palier apporte et ce qu'il coûte. La dernière ligne est la plus importante : on monte d'un
+palier pour une raison d'<strong>organisation</strong>, pas parce que le code est gros.</p>
+<table>
+<tr><th></th><th>1. Une application</th><th>2. Un workspace</th><th>3. Des micro-frontends</th></tr>
+<tr><td>Ce qu'on livre</td><td>un seul <code>dist/</code></td><td>un <code>dist/</code> par application</td><td>un shell et des remotes, chacun sur son serveur</td></tr>
+<tr><td>Quand les morceaux se rejoignent</td><td>à la compilation</td><td>à la compilation (chaque app embarque les libs qu'elle importe)</td><td>à l'exécution, dans le navigateur</td></tr>
+<tr><td>Partage de code</td><td>des dossiers <code>features/</code>, <code>shared/</code></td><td>des bibliothèques importées par un alias <code>@shop/…</code></td><td>des dépendances partagées négociées à l'exécution</td></tr>
+<tr><td>Coût</td><td>faible</td><td>moyen : configuration, règles de dépendance</td><td>élevé : versions, pannes à l'exécution, cohérence de l'UX</td></tr>
+<tr><td>Le bon critère</td><td>une équipe, un rythme de livraison</td><td>plusieurs produits (vitrine, back-office) qui partagent du code</td><td>plusieurs <strong>équipes</strong> qui doivent livrer <strong>sans se synchroniser</strong></td></tr>
+</table>
+<p>Une application de 300 composants maintenue par une seule équipe reste très bien au palier 1, avec une route lazy par feature. À
+l'inverse, deux équipes qui livrent l'une le catalogue chaque jour et l'autre le compte client chaque mois ont un vrai motif de passer
+au palier 3. C'est le cas de nombreux projets Angular en entreprise, souvent montés en Module Federation sur un workspace Nx.</p>
+
+<div class="retenir"><strong>À retenir</strong> Trois paliers : une application avec des routes lazy, un workspace (plusieurs applications et
+des bibliothèques, compilées et déployées séparément), des micro-frontends (un shell qui charge des remotes à l'exécution). On choisit
+selon les équipes et le rythme de déploiement, pas selon la taille du code.</div>
+<p class="doc">📖 <a href="https://angular.dev/guide/routing/define-routes#lazily-loaded-components-and-routes">routes lazy</a> ·
+<a href="https://angular.dev/reference/configs/file-structure#multiple-projects">workspace multi-projets</a> ·
+<a href="https://martinfowler.com/articles/micro-frontends.html">Micro Frontends (martinfowler.com)</a></p>
+</section>
+
+<!-- ============================================================ 2 -->
+<section class="card" id="s2">
+<h2><span class="num">2</span>Le workspace Angular CLI</h2>
+<p>Un workspace est un dossier avec un seul <code>angular.json</code>, un seul <code>package.json</code> et un seul
+<code>node_modules</code>, qui déclare plusieurs <strong>projets</strong> : des applications et des bibliothèques. Toutes partagent donc les
+mêmes versions d'Angular, ce qui est à la fois un confort et une contrainte.</p>
+
+<h3>Créer un workspace vide</h3>
+<p>D'habitude, <code>ng new</code> crée un workspace et une application du même nom. L'option <code>--no-create-application</code> crée
+seulement le contenant, sans application.</p>
+<pre><code>npx @angular/cli@22.2.2 new shop --no-create-application --package-manager=npm --skip-git
+cd shop</code></pre>
+<p>Le fichier <code>angular.json</code> obtenu ne déclare encore aucun projet. La clé <code>newProjectRoot</code> indique où le CLI
+rangerait les projets par défaut, dans <code>projects/</code>.</p>
+<div class="file">shop/angular.json (juste après ng new)</div><pre><code>{
+  <span class="str">"$schema"</span>: <span class="str">"./node_modules/@angular/cli/lib/config/schema.json"</span>,
+  <span class="str">"version"</span>: 1,
+  <span class="str">"cli"</span>: {
+    <span class="str">"packageManager"</span>: <span class="str">"npm"</span>
+  },
+  <span class="str">"newProjectRoot"</span>: <span class="str">"projects"</span>,
+  <span class="str">"projects"</span>: {
+  }
+}</code></pre>
+
+<h3>Générer les applications dans apps/</h3>
+<p>Plutôt que de tout mettre à plat dans <code>projects/</code>, on range les applications dans <code>apps/</code> et les bibliothèques dans
+<code>libs/</code>, une convention venue de Nx. C'est l'option <code>--project-root</code> qui choisit le dossier ; le nom du projet,
+lui, reste court (<code>fo</code>), car c'est lui qu'on tape ensuite dans <code>ng serve fo</code>. Les autres options évitent les questions
+interactives : un fichier de routes (<code>--routing</code>), du CSS simple, pas de rendu serveur (<code>--ssr=false</code>), pas de fichiers de
+test (<code>--skip-tests</code>).</p>
+<pre><code>npx ng generate application fo --project-root apps/fo --routing --style=css --ssr=false --skip-tests
+npx ng generate application bo --project-root apps/bo --routing --style=css --ssr=false --skip-tests</code></pre>
+<p>La première commande affiche les fichiers créés, puis met à jour les trois fichiers communs du workspace.</p>
+<pre><code>CREATE apps/fo/src/app/app.css (0 bytes)
+CREATE apps/fo/src/app/app.ts (285 bytes)
+CREATE apps/fo/src/app/app.html (20144 bytes)
+CREATE apps/fo/src/main.ts (222 bytes)
+CREATE apps/fo/src/app/app.config.ts (312 bytes)
+CREATE apps/fo/src/app/app.routes.ts (77 bytes)
+...
+UPDATE angular.json (2509 bytes)
+UPDATE tsconfig.json (866 bytes)
+UPDATE package.json (732 bytes)</code></pre>
+<p>Mettre le chemin dans le nom, au lieu d'utiliser <code>--project-root</code>, est refusé : le nom doit rester un identifiant simple
+(ou un nom scopé, voir plus bas).</p>
+<pre><code>$ npx ng generate application apps/hp --dry-run
+Schematic input does not validate against the Schema: {"name":"apps/hp"}
+Errors:
+
+  Data path "/name" must match pattern "^(?:@[a-zA-Z0-9-*~][a-zA-Z0-9-*._~]*/)?[a-zA-Z0-9-~][a-zA-Z0-9-._~]*$".</code></pre>
+
+<h3>Générer une bibliothèque, et ce que le CLI ajoute au tsconfig</h3>
+<p>Une bibliothèque se génère de la même façon. Elle a son propre <code>package.json</code> (son nom de paquet), un
+<code>ng-package.json</code> (pour <code>ng-packagr</code>, l'outil qui la compile) et un fichier <code>public-api.ts</code>, sa façade :
+seul ce qui y est exporté est visible des applications.</p>
+<pre><code>npx ng generate library models --project-root libs/models</code></pre>
+<p>La sortie, raccourcie, montre ces trois fichiers, le composant d'exemple <code>models.ts</code> et les mises à jour du workspace.</p>
+<pre><code>CREATE libs/models/ng-package.json (155 bytes)
+CREATE libs/models/package.json (210 bytes)
+...
+CREATE libs/models/src/public-api.ts (70 bytes)
+CREATE libs/models/src/lib/models.spec.ts (532 bytes)
+CREATE libs/models/src/lib/models.ts (195 bytes)
+UPDATE angular.json (5501 bytes)
+UPDATE package.json (809 bytes)
+UPDATE tsconfig.json (1118 bytes)</code></pre>
+<p>La ligne <code>UPDATE tsconfig.json</code> est la plus intéressante : le CLI y ajoute un <strong>alias</strong> qui pointe vers le
+dossier de sortie de la bibliothèque compilée.</p>
+<div class="file">shop/tsconfig.json (ajouté par ng generate library)</div><pre><code><span class="str">"paths"</span>: {
+  <span class="str">"models"</span>: [<span class="str">"./dist/models"</span>]
+},</code></pre>
+
+<h3>Un nom scopé : @shop/models</h3>
+<p>Importer <code>from 'models'</code> marche, mais ce nom nu ressemble à un paquet npm public. L'usage est de le préfixer par un
+<em>scope</em>, le nom de l'organisation : <code>@shop/models</code>. Ce nom est écrit à deux endroits, qu'il faut modifier ensemble.</p>
+<table>
+<tr><th>Fichier</th><th>Rôle</th><th>Valeur</th></tr>
+<tr><td><code>libs/models/package.json</code>, champ <code>name</code></td><td>le nom du paquet produit par <code>ng build models</code></td><td><code>"name": "@shop/models"</code></td></tr>
+<tr><td><code>tsconfig.json</code>, champ <code>paths</code></td><td>l'alias que TypeScript résout dans le workspace</td><td><code>"@shop/models": ["./dist/models"]</code></td></tr>
+</table>
+<p>Pour <code>models</code>, on fait donc les deux modifications à la main : <code>"name": "models"</code> devient
+<code>"name": "@shop/models"</code> dans <code>libs/models/package.json</code>, et la clé <code>"models"</code> devient
+<code>"@shop/models"</code> dans les <code>paths</code> du tsconfig.</p>
+<p>Plus simple : donner directement un nom scopé au générateur. Le CLI remplit alors les deux endroits d'un coup, et le projet s'appelle
+<code>@shop/ui</code> dans <code>angular.json</code> (on le compile avec <code>ng build @shop/ui</code>).</p>
+<pre><code>npx ng generate library @shop/ui --project-root libs/ui</code></pre>
+<p>Le <code>package.json</code> de la bibliothèque reçoit <code>"name": "@shop/ui"</code>, et le tsconfig l'alias
+<code>"@shop/ui": ["./dist/shop/ui"]</code> : le scope devient un sous-dossier de <code>dist/</code>.</p>
+
+<h3>Importer la bibliothèque, et le piège de dist/</h3>
+<p>La bibliothèque générée contient un composant d'exemple inutile ici : on supprime <code>libs/models/src/lib/models.ts</code> et
+<code>libs/models/src/lib/models.spec.ts</code>, puis on crée le modèle <code>Product</code> dans un nouveau fichier.</p>
+<div class="file">shop/libs/models/src/lib/product.ts</div><pre><code><span class="kw">export</span> <span class="kw">interface</span> Product {
+  id: number;
+  title: string;
+  price: number;
+<span class="cm">// ...</span>
+}</code></pre>
+<p>La façade <code>public-api.ts</code> exporte désormais ce fichier à la place du composant supprimé.</p>
+<div class="file">shop/libs/models/src/public-api.ts</div><pre><code><span class="kw">export</span> * <span class="kw">from</span> <span class="str">'./lib/product'</span>;</code></pre>
+<p>Une application importe le modèle par son alias, jamais par un chemin relatif qui remonterait dans <code>libs/</code>. Dans
+<code>apps/fo/src/app/app.ts</code>, le composant racine affiche un produit typé par <code>Product</code> (son template, un simple
+paragraphe, n'est pas reproduit).</p>
+<div class="file">shop/apps/fo/src/app/app.ts</div><pre><code><span class="kw">import</span> { Component, signal } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { RouterOutlet } <span class="kw">from</span> <span class="str">'@angular/router'</span>;
+<span class="kw">import</span> { Product } <span class="kw">from</span> <span class="str">'@shop/models'</span>; <span class="cm">// un alias, pas un chemin relatif</span>
+<span class="cm">// ...</span>
+<span class="kw">export</span> <span class="kw">class</span> App {
+  <span class="kw">protected</span> <span class="kw">readonly</span> product = <span class="fn">signal</span>&lt;Product&gt;({ id: 1, title: <span class="str">'Clavier'</span>, price: 49 });
+}</code></pre>
+<p>Tant que l'alias pointe vers <code>./dist/models</code>, la bibliothèque doit être <strong>compilée avant</strong> l'application. Sans
+cela, <code>ng build fo</code> échoue.</p>
+<pre><code>$ npx ng build fo
+Application bundle generation failed. [2.155 seconds]
+
+✘ [ERROR] TS2307: Cannot find module '@shop/models' or its corresponding type declarations. [plugin angular-compiler]
+
+    .../shop/apps/fo/src/app/app.ts:3:24:
+      3 │ import { Product } from '@shop/models'; // un alias, pas un chemin ...
+        ╵                         ~~~~~~~~~~~~~~</code></pre>
+<p>Compiler la bibliothèque crée <code>dist/models/</code> ; l'application compile ensuite.</p>
+<pre><code>$ npx ng build models
+Building Angular Package
+------------------------------------------------------------------------------
+Building entry point '@shop/models'
+------------------------------------------------------------------------------
+...
+✔ Built @shop/models
+
+$ npx ng build fo
+Application bundle generation complete. [0.768 seconds]
+Output location: .../shop/dist/fo</code></pre>
+
+<h3>Pointer vers les sources plutôt que vers dist/</h3>
+<p>L'alias n'est qu'une ligne de tsconfig : on peut le faire pointer vers le <code>public-api.ts</code> de la bibliothèque. L'application
+compile alors les sources de la bibliothèque comme les siennes, sans étape <code>ng build models</code>. C'est ce que fait Nx par défaut.
+Le tsconfig ci-dessous montre les deux écritures côte à côte.</p>
+<div class="file">shop/tsconfig.json</div><pre><code><span class="str">"paths"</span>: {
+  <span class="str">"@shop/models"</span>: [<span class="str">"./libs/models/src/public-api.ts"</span>],
+  <span class="str">"@shop/ui"</span>: [<span class="str">"./dist/shop/ui"</span>]
+},</code></pre>
+<p>On l'a vérifié : après suppression de <code>dist/</code>, <code>ng build fo</code> réussit avec l'alias vers les sources ; et pendant un
+<code>ng serve fo</code>, modifier <code>libs/models/src/lib/product.ts</code> déclenche aussitôt une nouvelle
+<code>Application bundle generation complete</code>, sans watcher de bibliothèque à lancer à côté.</p>
+<table>
+<tr><th>Alias vers</th><th>Avantages</th><th>Inconvénients</th><th>Pour quoi</th></tr>
+<tr><td><code>./dist/models</code> (défaut du CLI)</td><td>l'app consomme exactement le paquet qui serait publié</td><td><code>ng build models</code> avant chaque build ; en dev, un <code>ng build models --watch</code> à part</td><td>une bibliothèque publiée sur un registre npm (privé), versionnée</td></tr>
+<tr><td><code>./libs/models/src/public-api.ts</code></td><td>pas d'étape de build, rechargement immédiat</td><td>la bibliothèque n'est plus compilée seule : une erreur propre au paquet se voit plus tard</td><td>une bibliothèque interne au workspace</td></tr>
+</table>
+
+<h3>Servir et compiler chaque application à part</h3>
+<p>Chaque application se sert sur son propre port et se compile dans son propre dossier de <code>dist/</code>. Le port par défaut est
+4200 ; la vérification a utilisé 4400, parce que 4200 était déjà occupé sur la machine. Chez vous, <code>--port 4200</code> pour
+<code>fo</code> et <code>--port 4201</code> pour <code>bo</code> conviennent très bien.</p>
+<pre><code>$ npx ng serve fo --port 4400
+...
+Application bundle generation complete. [0.467 seconds]
+
+Watch mode enabled. Watching for file changes...
+  ➜  Local:   http://localhost:4400/</code></pre>
+<p>Voici l'arborescence obtenue, sans <code>node_modules</code> ni les fichiers de configuration de l'éditeur.</p>
+<pre><code>shop/
+├── angular.json          <span class="cm"># 4 projets : fo, bo, models, @shop/ui</span>
+├── package.json          <span class="cm"># un seul, pour tout le workspace</span>
+├── tsconfig.json         <span class="cm"># les alias @shop/*</span>
+├── apps/
+│   ├── fo/src/{main.ts, app/app.ts, app/app.config.ts, app/app.routes.ts}
+│   └── bo/src/…
+└── libs/
+    ├── models/{package.json, ng-package.json, src/public-api.ts, src/lib/product.ts}
+    └── ui/…</code></pre>
+
+<div class="retenir"><strong>À retenir</strong> <code>ng new --no-create-application</code>, puis <code>ng generate application|library
+&lt;nom&gt; --project-root apps/…|libs/…</code>. Une bibliothèque s'importe par un alias <code>paths</code> du tsconfig, de préférence scopé
+(<code>@shop/models</code>). Le CLI fait pointer l'alias vers <code>dist/</code> : il faut alors compiler la bibliothèque d'abord ; un alias vers
+les sources supprime cette étape.</div>
+<p class="doc">📖 <a href="https://angular.dev/reference/configs/file-structure#multiple-projects">workspace multi-projets</a> ·
+<a href="https://angular.dev/cli/generate/application">ng generate application</a> ·
+<a href="https://angular.dev/tools/libraries/creating-libraries">créer une bibliothèque</a> ·
+<a href="https://www.typescriptlang.org/tsconfig/#paths">tsconfig paths</a></p>
+</section>
+
+<!-- ============================================================ 3 -->
+<section class="card" id="s3">
+<h2><span class="num">3</span>Ranger les bibliothèques</h2>
+<p>Une fois qu'on sait créer une bibliothèque, la question devient : combien, et lesquelles ? Une seule bibliothèque <code>shared</code>
+finit souvent en fourre-tout que tout le monde importe. La convention répandue, popularisée par Nx, classe chaque bibliothèque par
+<strong>type</strong>, et chaque type a le droit de dépendre de certains autres seulement.</p>
+<table>
+<tr><th>Type</th><th>Contient</th><th>Exemple dans la boutique</th><th>Peut dépendre de</th></tr>
+<tr><td><strong>feature</strong></td><td>des pages et composants « intelligents » d'un cas d'usage, souvent chargés en lazy</td><td><code>feature-products</code> : la liste et le filtre</td><td>feature, ui, data-access, util, models</td></tr>
+<tr><td><strong>ui</strong></td><td>des composants de présentation : ils reçoivent des données par <code>input()</code> et émettent par <code>output()</code></td><td><code>ui</code> : la carte produit, la grille</td><td>ui, util, models</td></tr>
+<tr><td><strong>data-access</strong></td><td>les services qui parlent à l'API, l'état (signals, store)</td><td><code>data-access</code> : <code>ProductsService</code></td><td>data-access, util, models</td></tr>
+<tr><td><strong>util</strong></td><td>des fonctions pures, des pipes, des validateurs</td><td><code>util-format</code> : formatage de prix</td><td>util, models</td></tr>
+<tr><td><strong>models</strong></td><td>des interfaces et des types, aucun code exécuté</td><td><code>models</code> : <code>Product</code></td><td>rien (ou models)</td></tr>
+</table>
+<p>Le schéma suivant dessine ces règles. Les dépendances descendent toujours : une application importe des features, qui importent les
+couches du dessous ; rien ne remonte.</p>
+<figure>
+<svg viewBox="0 0 680 330" role="img" aria-label="Graphe des dépendances autorisées : app vers feature, feature vers ui et data-access, ui et data-access vers util et models ; la flèche de ui vers data-access est interdite">
+  <rect class="svg-box alt" x="250" y="12" width="180" height="40" rx="8"/>
+  <text class="svg-t mono" x="340" y="37" text-anchor="middle">apps/fo</text>
+  <rect class="svg-box alt" x="250" y="88" width="180" height="40" rx="8"/>
+  <text class="svg-t mono" x="340" y="113" text-anchor="middle">feature-products</text>
+  <rect class="svg-box svc" x="70" y="170" width="180" height="40" rx="8"/>
+  <text class="svg-t mono" x="160" y="195" text-anchor="middle">ui</text>
+  <rect class="svg-box svc" x="430" y="170" width="180" height="40" rx="8"/>
+  <text class="svg-t mono" x="520" y="195" text-anchor="middle">data-access</text>
+  <rect class="svg-box" x="70" y="268" width="180" height="40" rx="8"/>
+  <text class="svg-t mono" x="160" y="293" text-anchor="middle">util</text>
+  <rect class="svg-box" x="430" y="268" width="180" height="40" rx="8"/>
+  <text class="svg-t mono" x="520" y="293" text-anchor="middle">models</text>
+  <path class="svg-arrow" d="M340,52 L340,86"/>
+  <path class="svg-arrow" d="M300,128 L190,168"/>
+  <path class="svg-arrow" d="M380,128 L490,168"/>
+  <path class="svg-arrow" d="M160,210 L160,266"/>
+  <path class="svg-arrow" d="M230,210 L450,266"/>
+  <path class="svg-arrow" d="M520,210 L520,266"/>
+  <path class="svg-arrow" d="M450,210 L230,266"/>
+  <path class="svg-arrow" d="M250,288 L428,288"/>
+  <path class="svg-arrow ko" d="M252,182 L428,182"/>
+  <text class="svg-t ko" x="340" y="174" text-anchor="middle">✗ interdit</text>
+</svg>
+<figcaption>La seule flèche rouge, de <code>ui</code> vers <code>data-access</code>, est celle qu'on voit le plus souvent dans un vrai projet,
+et celle qu'il faut refuser.</figcaption>
+</figure>
+<p>Pourquoi une bibliothèque <code>ui</code> ne doit-elle pas dépendre de <code>data-access</code> ? Prenons une carte produit qui
+injecterait <code>ProductsService</code> pour charger son produit elle-même.</p>
+<ul>
+<li><strong>Elle n'est plus réutilisable</strong> : le back-office affiche les mêmes produits depuis une autre API, ou depuis un brouillon
+non enregistré ; la carte, elle, va toujours chercher le sien.</li>
+<li><strong>Elle n'est plus testable simplement</strong> : pour afficher une carte dans un test, il faut maintenant simuler HTTP.</li>
+<li><strong>Elle tire toute la chaîne</strong> : importer un simple composant d'affichage embarque le client HTTP, l'URL de l'API, l'état.</li>
+</ul>
+<p>La bonne répartition : la <em>feature</em> injecte le service et passe les données ; la carte <em>ui</em> ne connaît que
+<code>input()</code> et <code>output()</code>. Les noms de dossiers rendent le type visible : <code>libs/shop/feature-products</code>,
+<code>libs/shop/ui</code>, <code>libs/shop/data-access</code>, <code>libs/shared/models</code>, le premier niveau donnant le domaine (le
+<em>scope</em>).</p>
+<p>Le CLI Angular, lui, ne vérifie rien de tout cela : un import de <code>data-access</code> dans <code>ui</code> compile sans un mot.
+C'est une convention à faire respecter en revue de code, ou par un outil ; c'est précisément ce qu'ajoute Nx, section suivante.</p>
+
+<div class="retenir"><strong>À retenir</strong> Cinq types de bibliothèques : feature, ui, data-access, util, models. Les dépendances
+descendent : feature => ui / data-access => util => models. Une <code>ui</code> reçoit ses données par <code>input()</code> et ne dépend jamais de
+<code>data-access</code>. Le CLI ne fait pas respecter ces règles ; Nx sait le faire.</div>
+<p class="doc">📖 <a href="https://nx.dev/docs/concepts/decisions/project-dependency-rules">Nx : règles de dépendance entre projets</a> ·
+<a href="https://nx.dev/docs/concepts/decisions/folder-structure">Nx : structure de dossiers</a></p>
+</section>
+
+<!-- ============================================================ 4 -->
+<section class="card" id="s4">
+<h2><span class="num">4</span>Nx, en comparaison</h2>
+<p>Nx est un outil de monorepo : il reprend le workspace qu'on vient de construire et ajoute ce qui manque quand il grossit. Il connaît
+le <strong>graphe</strong> des dépendances entre projets, il fait respecter les règles de la section 3, il ne recompile et ne reteste que ce qui
+est touché par un changement, et il met les résultats en cache. La dernière version publiée sur npm est Nx 23.3.0 (13 octobre 2026).
+Cette section ne monte pas un projet Nx complet ; elle montre le graphe, les règles, <code>affected</code> (avec le cache) et les
+générateurs sur un workspace réel, créé par la commande suivante.</p>
+<pre><code>npx create-nx-workspace@23.3.0 nxshop --preset=angular-monorepo --appName=fo --bundler=esbuild --style=css \
+  --e2eTestRunner=none --unitTestRunner=none --ssr=false --linter=eslint --formatter=none \
+  --aiAgents=none --nxCloud=skip --analytics=false --packageManager=npm --interactive=false</code></pre>
+<p><small>En 23.3.0, ce <em>preset</em> est redirigé vers un modèle tout fait (la sortie l'annonce : <code>Mapping legacy preset
+'angular-monorepo' to template 'nrwl/angular-template'</code>), qui installe <code>nx</code> 23.2.0 et Angular 22.1, et ignore une partie des
+options. Ce modèle est une boutique : une application <code>shop</code>, une API Node (<code>api</code>, <code>products</code>) et des
+bibliothèques rangées dans <code>packages/</code> plutôt que <code>libs/</code>, nommées <code>feature-products</code>, <code>shared-ui</code>,
+<code>data</code> et <code>models</code>, soit les types feature, ui, data-access et models de la section 3. Toutes les sorties de cette section
+viennent de ce workspace.</small></p>
+
+<h3>Le graphe de projets</h3>
+<p>Nx calcule le graphe en lisant les imports du code. <code>npx nx graph</code> l'ouvre dans le navigateur ; avec
+<code>--file</code>, il l'écrit en JSON. Voici les dépendances qu'il a trouvées, une ligne par projet.</p>
+<pre><code>$ npx nx graph --file=graph.json</code></pre>
+<table>
+<tr><th>Projet</th><th>dépend de</th></tr>
+<tr><td><code>shop</code> (l'application)</td><td><code>feature-products</code>, <code>feature-product-detail</code></td></tr>
+<tr><td><code>shop-e2e</code> (ses tests de bout en bout)</td><td><code>shop</code></td></tr>
+<tr><td><code>api</code> (le serveur Node du modèle)</td><td><code>products</code>, <code>models</code></td></tr>
+<tr><td><code>products</code> (bibliothèque côté serveur)</td><td><code>models</code></td></tr>
+<tr><td><code>feature-products</code>, <code>feature-product-detail</code></td><td><code>data</code>, <code>models</code>, <code>shared-ui</code></td></tr>
+<tr><td><code>shared-ui</code></td><td><code>models</code></td></tr>
+<tr><td><code>data</code></td><td><code>models</code></td></tr>
+<tr><td><code>models</code></td><td>rien</td></tr>
+</table>
+
+<h3>Tags et @nx/enforce-module-boundaries</h3>
+<p>Chaque projet porte des <strong>tags</strong> dans son <code>project.json</code> : un <code>scope</code> (le domaine) et un
+<code>type</code> (la couche). Dans le workspace de vérification, les types du modèle ont été renommés <code>type:data-access</code> et
+<code>type:models</code> pour suivre le vocabulaire de la section 3.</p>
+<div class="file">nxshop/packages/shop/shared-ui/project.json</div><pre><code><span class="str">"name"</span>: <span class="str">"shared-ui"</span>,
+<span class="cm">// ...</span>
+<span class="str">"tags"</span>: [<span class="str">"scope:shop"</span>, <span class="str">"type:ui"</span>],</code></pre>
+<p>La règle ESLint <code>@nx/enforce-module-boundaries</code> traduit ensuite le tableau de la section 3 en contraintes : un projet qui
+porte le tag de gauche (<code>sourceTag</code>) ne peut importer que des projets portant l'un des tags de droite.</p>
+<div class="file">nxshop/eslint.config.mjs</div><pre><code><span class="str">'@nx/enforce-module-boundaries'</span>: [
+  <span class="str">'error'</span>,
+  {
+    <span class="cm">// ...</span>
+    depConstraints: [
+      <span class="cm">// ...</span>
+      {
+        sourceTag: <span class="str">'type:ui'</span>,
+        onlyDependOnLibsWithTags: [<span class="str">'type:ui'</span>, <span class="str">'type:util'</span>, <span class="str">'type:models'</span>],
+      },
+      {
+        sourceTag: <span class="str">'type:data-access'</span>,
+        onlyDependOnLibsWithTags: [<span class="str">'type:data-access'</span>, <span class="str">'type:util'</span>, <span class="str">'type:models'</span>],
+      },</code></pre>
+<p>Pour vérifier, on ajoute dans la carte produit de <code>shared-ui</code> un import de <code>ProductsService</code>, qui vient de
+<code>data</code>, puis on lance le lint de <code>shared-ui</code>. Il refuse l'import et cite la règle enfreinte.</p>
+<pre><code>$ npx nx lint shared-ui
+packages/shop/shared-ui/src/lib/product-card/product-card.component.ts
+  9:1   error    A project tagged with "type:ui" can only depend on libs tagged with "type:ui", "type:util", "type:models"  @nx/enforce-module-boundaries
+  9:10  warning  'ProductsService' is defined but never used                                                                @typescript-eslint/no-unused-vars
+
+✖ 2 problems (1 error, 1 warning)
+
+ NX   Running target lint for project shared-ui failed</code></pre>
+<p>Avec ce même import, <code>npx nx build shop</code> réussit (<code>Successfully ran target build for project shop</code>) : seul le lint
+voit la violation. C'est pourquoi ce lint tourne en intégration continue, au même titre que les tests.</p>
+
+<h3>affected : ne traiter que ce qui a changé</h3>
+<p>Grâce au graphe, Nx sait quels projets sont touchés par un fichier modifié : le projet du fichier et tous ceux qui en dépendent.
+L'option <code>--files</code> simule un changement ; sans elle, Nx compare la branche courante à <code>main</code>.</p>
+<pre><code>$ npx nx show projects --affected --files=packages/shop/shared-ui/src/lib/product-card/product-card.component.ts
+["shared-ui","feature-product-detail","shop","shop-e2e","feature-products"]
+
+$ npx nx show projects --affected --files=packages/shared/models/src/index.ts
+["models","feature-product-detail","shop","shop-e2e","feature-products","shared-ui","products","api","data"]</code></pre>
+<p>Toucher <code>shared-ui</code> concerne 5 projets ; toucher <code>models</code>, dont tout le monde dépend, en concerne 9. La commande
+<code>nx affected -t &lt;cible&gt;</code> lance une cible (<code>lint</code>, <code>test</code>, <code>build</code>) sur ces projets seulement,
+et le cache évite de refaire un travail déjà fait. Au premier lancement, seul <code>shared-ui</code>, linté juste avant, vient du cache ;
+au second, rien n'est réexécuté.</p>
+<pre><code>$ npx nx affected -t lint --files=packages/shop/shared-ui/src/lib/product-card/product-card.component.ts
+ NX   Successfully ran target lint for 5 projects
+  Cache:             1/5 hit (20%)
+
+$ npx nx affected -t lint --files=packages/shop/shared-ui/src/lib/product-card/product-card.component.ts
+Nx read the output from the cache instead of running the command for 5 out of 5 tasks.
+  Cache:             5/5 hit (100%)</code></pre>
+
+<h3>Les générateurs</h3>
+<p>Comme le CLI, Nx génère les projets, mais il pose aussi les tags et l'alias. L'essai ci-dessous est fait en <code>--dry-run</code>, qui
+liste les fichiers sans les écrire. L'alias est ajouté à <code>tsconfig.base.json</code>, et il pointe vers les sources
+(<code>src/index.ts</code>), pas vers <code>dist/</code>.</p>
+<pre><code>$ npx nx g @nx/angular:library --directory=packages/shop/util-format --name=util-format --tags=scope:shop,type:util --unitTestRunner=none --dry-run
+ NX  Generating @nx/angular:library
+CREATE packages/shop/util-format/project.json
+CREATE packages/shop/util-format/src/index.ts
+UPDATE tsconfig.base.json
+CREATE packages/shop/util-format/src/lib/util-format/util-format.ts
+CREATE packages/shop/util-format/eslint.config.mjs
+...
+NOTE: The "dryRun" flag means no changes were made.</code></pre>
+
+<h3>Workspace CLI ou Nx</h3>
+<p>Le tableau compare les deux sur les besoins qui apparaissent quand un workspace grossit.</p>
+<table>
+<tr><th>Besoin</th><th>Workspace Angular CLI</th><th>Nx</th></tr>
+<tr><td>Déclarer les projets</td><td><code>angular.json</code></td><td>un <code>project.json</code> par projet (ou déduit des fichiers par des plugins)</td></tr>
+<tr><td>Alias des bibliothèques</td><td><code>tsconfig.json</code>, vers <code>dist/</code> par défaut</td><td><code>tsconfig.base.json</code>, vers les sources</td></tr>
+<tr><td>Graphe de dépendances</td><td>aucun</td><td><code>nx graph</code></td></tr>
+<tr><td>Règles entre bibliothèques</td><td>convention, revue de code</td><td>tags + <code>@nx/enforce-module-boundaries</code></td></tr>
+<tr><td>Ne recompiler / retester que ce qui change</td><td>non : on relance tout, ou on choisit à la main</td><td><code>nx affected -t build,test</code></td></tr>
+<tr><td>Cache des tâches</td><td>cache de compilation par projet (<code>.angular/cache</code>)</td><td>cache de tâches local, partageable entre machines de CI avec Nx Cloud (le service hébergé de Nx)</td></tr>
+<tr><td>Ordre des builds</td><td>à la main : la bibliothèque avant l'application</td><td>automatique : dans <code>nx.json</code>, <code>dependsOn: ["^build"]</code> signifie « compiler d'abord les projets dont je dépends »</td></tr>
+<tr><td>Micro-frontends</td><td>par un paquet tiers (section 6)</td><td>générateurs <code>@nx/angular:host</code> / <code>remote</code>, compilés avec webpack ou rspack (un équivalent de webpack plus rapide)</td></tr>
+<tr><td>Coût d'entrée</td><td>nul, c'est le CLI</td><td>un outil et une configuration de plus à maîtriser</td></tr>
+</table>
+<p>En pratique : quelques applications et bibliothèques dans une équipe, le CLI suffit. Beaucoup de projets, plusieurs équipes et une CI qui
+devient lente, Nx rentabilise vite son coût d'entrée.</p>
+
+<div class="retenir"><strong>À retenir</strong> Nx ajoute au workspace : le graphe des projets (<code>nx graph</code>), des règles de
+dépendance vérifiées par le lint (tags + <code>@nx/enforce-module-boundaries</code>), <code>nx affected</code> pour ne traiter que ce qui a changé,
+un cache de tâches et des générateurs. Le build ne voit pas les violations de règles : c'est le lint qui les arrête.</div>
+<p class="doc">📖 <a href="https://nx.dev/docs/features/explore-graph">nx graph</a> ·
+<a href="https://nx.dev/docs/features/enforce-module-boundaries">enforce module boundaries</a> ·
+<a href="https://nx.dev/docs/features/ci-features/affected">affected</a> ·
+<a href="https://nx.dev/docs/technologies/angular/introduction">Nx et Angular</a></p>
+</section>
+
+<!-- ============================================================ 5 -->
+<section class="card" id="s5">
+<h2><span class="num">5</span>Micro-frontends : quand, et à quel prix</h2>
+<p>Au palier 2, toutes les applications d'un workspace sont compilées avec les bibliothèques qu'elles importent ; publier une
+modification du catalogue, c'est recompiler et redéployer l'application qui l'affiche. Les micro-frontends retirent cette contrainte : le
+catalogue devient une application à part, déployée par son équipe quand elle le veut, et l'application hôte va le chercher
+<strong>dans le navigateur</strong>, au moment où l'utilisateur ouvre la page.</p>
+
+<h3>Quand ça vaut le coup, et ce que ça coûte</h3>
+<p>Le gain est organisationnel, les coûts sont techniques. Le tableau met les deux en face.</p>
+<table>
+<tr><th>Ce qu'on gagne</th><th>Ce que ça coûte</th></tr>
+<tr><td>Des équipes qui livrent <strong>sans se synchroniser</strong> : chaque remote a son dépôt ou son dossier, sa CI, son rythme</td><td><strong>Les versions partagées</strong> : Angular, RxJS et les bibliothèques communes doivent rester compatibles entre le shell et tous les remotes</td></tr>
+<tr><td>Un déploiement plus petit et moins risqué : on ne redéploie que le remote modifié</td><td><strong>Des pannes à l'exécution</strong> : un remote arrêté ou incompatible ne se voit pas à la compilation, mais dans le navigateur de l'utilisateur</td></tr>
+<tr><td>Une migration progressive : une partie de l'écran peut changer de version, voire de framework</td><td><strong>La cohérence de l'UX</strong> : styles, composants et comportements doivent rester alignés entre équipes</td></tr>
+<tr><td>Des applications autonomes, lançables seules pour le développement</td><td><strong>La session en double</strong> : si le service de session n'est pas partagé, chaque remote a la sienne (démontré en section 6)</td></tr>
+</table>
+<p>Si une seule équipe livre tout en même temps, ces coûts n'achètent rien : un workspace avec des routes lazy fait le même travail.</p>
+
+<h3>Le vocabulaire</h3>
+<p>Module Federation et Native Federation partagent le même modèle et presque les mêmes mots, résumés ici avec l'exemple de la section 6.</p>
+<table>
+<tr><th>Terme</th><th>Sens</th><th>Dans l'exemple</th></tr>
+<tr><td><strong>host</strong> (hôte, ou <em>shell</em>)</td><td>l'application que l'utilisateur ouvre ; elle charge les remotes</td><td><code>shell</code>, sur le port 4400</td></tr>
+<tr><td><strong>remote</strong></td><td>une application compilée et déployée à part, qui expose des morceaux</td><td><code>mfe1</code>, sur le port 4401</td></tr>
+<tr><td><strong>exposed module</strong></td><td>un fichier qu'un remote rend chargeable, sous une clé</td><td><code>'./Component'</code> => le composant <code>Catalog</code></td></tr>
+<tr><td><strong>remoteEntry</strong></td><td>la carte d'identité d'un remote : ce qu'il expose, ce qu'il partage, en quelles versions ; un <code>remoteEntry.json</code> en Native Federation, un <code>remoteEntry.js</code> en Module Federation</td><td><code>http://localhost:4401/remoteEntry.json</code></td></tr>
+<tr><td><strong>import map</strong></td><td>un standard du navigateur : une table JSON « nom de module => URL du fichier », qui permet d'écrire <code>import … from '@angular/core'</code> sans bundler</td><td>construite par le shell au démarrage</td></tr>
+<tr><td><strong>shared</strong></td><td>une dépendance chargée une seule fois et utilisée par tous</td><td><code>@angular/core</code>, <code>rxjs</code>, <code>@mf/session</code></td></tr>
+<tr><td><strong>singleton</strong></td><td>pour une dépendance partagée : une seule instance de la bibliothèque dans la page, même si les versions diffèrent</td><td><code>singleton: true</code> : indispensable pour <code>@angular/core</code></td></tr>
+<tr><td><strong>strictVersion</strong></td><td>si la version fournie ne satisfait pas <code>requiredVersion</code>, échouer au lieu de seulement avertir</td><td><code>strictVersion: true</code> ; <code>requiredVersion: 'auto'</code> dans la configuration devient <code>'^22.2.0'</code>, lu dans le <code>package.json</code></td></tr>
+</table>
+<p>Le schéma suit ce qui se passe quand l'utilisateur ouvre <code>/catalog</code> dans le shell. Les numéros donnent l'ordre des
+requêtes, observées dans l'onglet réseau du navigateur.</p>
+<figure>
+<svg viewBox="0 0 900 300" role="img" aria-label="Le shell lit federation.manifest.json, puis le remoteEntry.json de mfe1, construit une import map, puis charge Component.js depuis mfe1 en réutilisant les dépendances partagées du shell">
+  <rect class="svg-box soft" x="10" y="10" width="420" height="280" rx="10"/>
+  <text class="svg-t small" x="25" y="29">navigateur, http://localhost:4400 (shell)</text>
+  <rect class="svg-box alt" x="30" y="42" width="380" height="44" rx="8"/>
+  <text class="svg-t mono" x="220" y="69" text-anchor="middle">main.ts : initFederation('federation.manifest.json')</text>
+  <rect class="svg-box" x="30" y="112" width="380" height="64" rx="8"/>
+  <text class="svg-t b" x="220" y="134" text-anchor="middle">import map</text>
+  <text class="svg-t mono" x="220" y="153" text-anchor="middle">@mf/session => ./_mf_session.js (shell)</text>
+  <text class="svg-t mono" x="220" y="169" text-anchor="middle">mfe1/./Component => :4401/Component.js</text>
+  <rect class="svg-box alt" x="30" y="204" width="380" height="64" rx="8"/>
+  <text class="svg-t mono" x="220" y="228" text-anchor="middle">route /catalog : loadRemoteModule(</text>
+  <text class="svg-t mono" x="220" y="246" text-anchor="middle">'mfe1', './Component')</text>
+  <path class="svg-arrow" d="M220,86 L220,110"/>
+  <path class="svg-arrow" d="M390,202 L390,178"/>
+  <rect class="svg-box soft" x="520" y="10" width="370" height="280" rx="10"/>
+  <text class="svg-t small" x="535" y="29">serveur de mfe1, http://localhost:4401</text>
+  <rect class="svg-box svc" x="540" y="42" width="330" height="44" rx="8"/>
+  <text class="svg-t mono" x="705" y="69" text-anchor="middle">remoteEntry.json</text>
+  <rect class="svg-box svc" x="540" y="204" width="330" height="64" rx="8"/>
+  <text class="svg-t mono" x="705" y="230" text-anchor="middle">Component.js</text>
+  <text class="svg-t small" x="705" y="250" text-anchor="middle">le composant Catalog (1 Ko), sans Angular</text>
+  <path class="svg-arrow up" d="M412,58 L538,58"/>
+  <text class="svg-t small" x="475" y="50" text-anchor="middle">1. GET</text>
+  <path class="svg-arrow up" d="M412,236 L538,236"/>
+  <text class="svg-t small" x="475" y="228" text-anchor="middle">2. GET</text>
+  <text class="svg-t small" x="705" y="125" text-anchor="middle">exposes : ./Component</text>
+  <text class="svg-t small" x="705" y="143" text-anchor="middle">shared : @angular/core 22.2.2, @mf/session 0.0.1…</text>
+  <text class="svg-t small" x="705" y="161" text-anchor="middle">(singleton, strictVersion)</text>
+</svg>
+<figcaption>Le shell lit d'abord le manifeste puis le <code>remoteEntry.json</code> de chaque remote, et construit une <em>import map</em>. À
+l'ouverture de <code>/catalog</code>, seul <code>Component.js</code> vient de mfe1 : Angular et <code>@mf/session</code> sont ceux du shell.</figcaption>
+</figure>
+
+<div class="retenir"><strong>À retenir</strong> Les micro-frontends se justifient par des équipes qui doivent livrer indépendamment. Ils
+coûtent : versions partagées à garder compatibles, pannes visibles seulement à l'exécution, cohérence de l'UX, état (session) à partager
+explicitement. Un host charge des modules exposés par des remotes ; les dépendances communes sont partagées en <code>singleton</code>.</div>
+<p class="doc">📖 <a href="https://native-federation.com/docs/v4/mental-model/">Native Federation : le modèle mental</a> ·
+<a href="https://module-federation.io/guide/start/index.html">module-federation.io</a> ·
+<a href="https://martinfowler.com/articles/micro-frontends.html">Micro Frontends (martinfowler.com)</a></p>
+</section>
+
+<!-- ============================================================ 6 -->
+<section class="card" id="s6">
+<h2><span class="num">6</span>Native Federation, pas à pas</h2>
+<p>Deux paquets d'Angular Architects mettent en place la fédération avec le CLI Angular. Ils partagent le modèle de la section 5, mais pas
+la façon de compiler : c'est ce qui décide lequel choisir.</p>
+<table>
+<tr><th></th><th>Native Federation</th><th>Module Federation</th></tr>
+<tr><td>Paquet, version pour Angular 22</td><td><code>@angular-architects/native-federation</code> 22.2.2 (3 octobre 2026)</td><td><code>@angular-architects/module-federation</code> 22.0.0 (11 septembre 2026)</td></tr>
+<tr><td>Compilation</td><td>le builder par défaut du CLI, esbuild (<code>@angular/build:application</code>), que le builder de fédération appelle</td><td>webpack ; depuis la 22, injecté par <code>@angular-builders/custom-webpack</code> (jusqu'à la 21 : <code>ngx-build-plus</code>)</td></tr>
+<tr><td>Chargement dans le navigateur</td><td>des modules ES standard et une <em>import map</em> (avec le polyfill <code>es-module-shims</code>)</td><td>le runtime de webpack</td></tr>
+<tr><td>Configuration</td><td><code>federation.config.mjs</code> : <code>withNativeFederation</code>, <code>fromPackageJson</code></td><td><code>webpack.config.js</code> : <code>withModuleFederationPlugin</code>, <code>shareAll</code></td></tr>
+<tr><td>Versions</td><td>suit la version mineure d'Angular (22.2.x pour Angular 22.2) ; pour Angular 20 et 21, le paquet passerelle <code>@angular-architects/native-federation-v4</code> (d'après le README)</td><td>une version majeure par version majeure d'Angular</td></tr>
+<tr><td>Pour quoi</td><td>un nouveau projet, ou un projet qui veut garder le builder esbuild du CLI</td><td>un projet existant déjà en webpack, comme beaucoup de micro-frontends Angular 20</td></tr>
+</table>
+<p><small>Les lignes « Compilation » et « Chargement » côté Native Federation sont vérifiées dans le projet ci-dessous (<code>angular.json</code>
+généré, import map lue dans la page). Côté Module Federation, elles viennent du README de la 22.0.0, qui précise que
+<code>ng update @angular-architects/module-federation</code> migre de <code>ngx-build-plus</code> vers <code>@angular-builders/custom-webpack</code> ;
+cette migration n'a pas été exécutée ici. Nx a sa propre intégration Module Federation : les générateurs <code>@nx/angular:host</code> et
+<code>@nx/angular:remote</code>, avec webpack (par défaut) ou rspack.</small></p>
+<p>La suite construit un exemple complet avec Native Federation : un shell, un remote <code>mfe1</code> qui expose un catalogue, et une
+bibliothèque de session partagée entre les deux.</p>
+
+<h3>1. Le workspace et les deux applications</h3>
+<p>On part d'un workspace vide, comme en section 2, avec deux applications.</p>
+<pre><code>npx @angular/cli@22.2.2 new mf --no-create-application --package-manager=npm --skip-git
+cd mf
+npx ng generate application shell --project-root apps/shell --routing --style=css --ssr=false --skip-tests
+npx ng generate application mfe1 --project-root apps/mfe1 --routing --style=css --ssr=false --skip-tests</code></pre>
+
+<h3>2. Faire de mfe1 un remote</h3>
+<p>On installe d'abord le paquet, en dépendance de développement comme le fait son README, puis son schematic transforme une application
+existante. Ses options sont <code>--project</code>, <code>--port</code>, <code>--type</code> (<code>remote</code>, <code>host</code> ou
+<code>dynamic-host</code>) et <code>--webcomponent</code> (démarrer l'application comme un élément HTML personnalisé, non utilisé ici) ;
+<code>--skip-confirmation</code> est une option de <code>ng add</code> qui évite la question « installer ce paquet ? ». On commence par le
+remote : le shell, configuré ensuite, pourra ainsi le trouver.</p>
+<pre><code>npm i -D @angular-architects/native-federation@22.2.2
+npx ng add @angular-architects/native-federation@22.2.2 --project mfe1 --port 4401 --type remote --skip-confirmation</code></pre>
+<p>Le paquet étant déjà installé, <code>ng add</code> passe directement au schematic, qui annonce le passage au builder esbuild et liste les
+fichiers touchés.</p>
+<pre><code>Switching project to the application builder using esbuild ...
+CREATE apps/mfe1/tsconfig.federation.json (78 bytes)
+CREATE apps/mfe1/federation.config.mjs (966 bytes)
+CREATE apps/mfe1/src/bootstrap.ts (219 bytes)
+UPDATE angular.json (4854 bytes)
+UPDATE apps/mfe1/src/main.ts (255 bytes)
+UPDATE package.json (876 bytes)
+- Installing packages (npm)...</code></pre>
+<p>Le fichier généré se nomme <code>federation.config.mjs</code> (et non <code>.js</code>). Il dit ce que le remote <strong>expose</strong>
+et ce qu'il <strong>partage</strong>. <code>fromPackageJson</code> partage toutes les dépendances du <code>package.json</code>, en
+<code>singleton</code> et <code>strictVersion</code> ; les dépendances que le code n'importe pas sont retirées au build
+(<code>INFO Removed unused dependencies.</code>). Le commentaire en anglais vient du schematic. On a seulement remplacé le fichier exposé :
+le schematic exposait <code>app.ts</code>, on expose un composant <code>Catalog</code> dédié, écrit plus bas.</p>
+<div class="file">mf/apps/mfe1/federation.config.mjs</div><pre><code><span class="kw">export</span> <span class="kw">default</span> <span class="fn">withNativeFederation</span>({
+  name: <span class="str">'mfe1'</span>,
+
+  exposes: {
+    <span class="str">'./Component'</span>: <span class="str">'./apps/mfe1/src/app/catalog/catalog.ts'</span>,
+  },
+
+  shared: <span class="fn">fromPackageJson</span>({
+    singleton: <span class="kw">true</span>,
+    strictVersion: <span class="kw">true</span>,
+    requiredVersion: <span class="str">'auto'</span>,
+    build: <span class="str">'package'</span>,
+  })
+    <span class="cm">// includeSecondaries is an opt-out of ignoreUnusedDeps, so all of</span>
+    <span class="cm">// @angular/core is shared to prevent mismatches.</span>
+    .<span class="fn">patch</span>([<span class="str">'@angular/core'</span>], { includeSecondaries: { keepAll: <span class="kw">true</span> } }),</code></pre>
+<p>Le schematic a aussi modifié <code>angular.json</code> : la cible <code>build</code> passe au builder de fédération, qui appelle le builder
+esbuild d'origine, renommé. (esbuild est le compilateur utilisé par défaut par le CLI depuis Angular 17 ; webpack est celui d'avant.)</p>
+<table>
+<tr><th>Cible de mfe1</th><th>Builder</th><th>Rôle</th></tr>
+<tr><td><code>build</code></td><td><code>@angular-architects/native-federation:build</code></td><td>produit <code>remoteEntry.json</code> et les dépendances partagées, puis délègue</td></tr>
+<tr><td><code>esbuild</code></td><td><code>@angular/build:application</code></td><td>le build Angular d'origine, avec le polyfill <code>es-module-shims</code> ajouté (il apporte les import maps aux navigateurs qui les gèrent mal)</td></tr>
+<tr><td><code>serve</code></td><td><code>@angular-architects/native-federation:build</code></td><td>le serveur de dev, en mode fédération</td></tr>
+<tr><td><code>serve-original</code></td><td><code>@angular/build:dev-server</code></td><td>l'ancien <code>serve</code>, qui reçoit <code>"port": 4401</code></td></tr>
+</table>
+<p>Enfin, le démarrage est coupé en deux : <code>main.ts</code> initialise la fédération, puis importe dynamiquement
+<code>bootstrap.ts</code>, qui contient l'ancien <code>bootstrapApplication</code>. Ce délai laisse le temps de charger les dépendances partagées
+avant qu'Angular ne démarre.</p>
+<div class="file">mf/apps/mfe1/src/main.ts</div><pre><code><span class="kw">import</span> { initFederation } <span class="kw">from</span> <span class="str">'@angular-architects/native-federation'</span>;
+
+<span class="fn">initFederation</span>(
+  {},
+  {
+    hostRemoteEntry: { url: <span class="str">'./remoteEntry.json'</span> },
+  },
+)
+  .<span class="fn">catch</span>((err) =&gt; console.<span class="fn">error</span>(err))
+  .<span class="fn">then</span>((_) =&gt; <span class="kw">import</span>(<span class="str">'./bootstrap'</span>))
+  .<span class="fn">catch</span>((err) =&gt; console.<span class="fn">error</span>(err));</code></pre>
+
+<h3>3. Une bibliothèque de session, commune aux deux</h3>
+<p>Le shell connectera l'utilisateur et le remote affichera son nom : les deux doivent lire le <strong>même</strong> signal. La session vit donc
+dans une bibliothèque du workspace, générée comme en section 2.</p>
+<pre><code>npx ng generate library @mf/session --project-root libs/session</code></pre>
+<p>Comme pour <code>models</code>, on supprime le composant d'exemple (<code>libs/session/src/lib/session.ts</code> et son
+<code>session.spec.ts</code>) et on fait pointer l'alias vers les sources, dans le <code>tsconfig.json</code> du workspace :
+<code>"@mf/session": ["./libs/session/src/public-api.ts"]</code>. Le service, dans un nouveau fichier, affiche en plus un identifiant tiré au
+hasard, pour compter les instances.</p>
+<div class="file">mf/libs/session/src/lib/session.service.ts</div><pre><code><span class="kw">import</span> { Injectable, signal } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+<span class="cm">// L'utilisateur connecté, lu par le shell ET par le remote.</span>
+<span class="fn">@Injectable</span>({ providedIn: <span class="str">'root'</span> })
+<span class="kw">export</span> <span class="kw">class</span> SessionService {
+  <span class="kw">readonly</span> id = Math.<span class="fn">random</span>().<span class="fn">toString</span>(36).<span class="fn">slice</span>(2, 6); <span class="cm">// pour voir combien d'instances existent</span>
+  <span class="kw">readonly</span> user = signal&lt;string | <span class="kw">null</span>&gt;(<span class="kw">null</span>);
+
+  <span class="fn">login</span>(name: string) {
+    <span class="kw">this</span>.user.<span class="fn">set</span>(name);
+  }
+  <span class="fn">logout</span>() {
+    <span class="kw">this</span>.user.<span class="fn">set</span>(<span class="kw">null</span>);
+  }
+}</code></pre>
+<p>La façade de la bibliothèque l'exporte.</p>
+<div class="file">mf/libs/session/src/public-api.ts</div><pre><code><span class="kw">export</span> * <span class="kw">from</span> <span class="str">'./lib/session.service'</span>;</code></pre>
+
+<h3>4. Le composant exposé</h3>
+<p>Le remote expose un composant autonome qui lit cette session et propose de se déconnecter.</p>
+<div class="file">mf/apps/mfe1/src/app/catalog/catalog.ts</div><pre><code><span class="kw">import</span> { Component, inject } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { SessionService } <span class="kw">from</span> <span class="str">'@mf/session'</span>;
+
+<span class="cm">// Le composant que le remote expose au shell.</span>
+<span class="fn">@Component</span>({
+  selector: <span class="str">'mfe1-catalog'</span>,
+  template: `
+    &lt;section <span class="kw">class</span>=<span class="str">"remote"</span>&gt;
+      &lt;h2&gt;Catalogue (servi par mfe1)&lt;/h2&gt;
+      &lt;p&gt;Session vue par le remote : {{ session.<span class="fn">user</span>() ?? <span class="str">'anonyme'</span> }} (instance {{ session.id }})&lt;/p&gt;
+      &lt;button (click)=<span class="str">"session.logout()"</span>&gt;Se déconnecter depuis le remote&lt;/button&gt;
+    &lt;/section&gt;
+  `,
+  styles: <span class="str">`.remote { border: 2px dashed #0369a1; padding: 8px 12px; }`</span>,
+})
+<span class="kw">export</span> <span class="kw">class</span> Catalog {
+  <span class="kw">protected</span> <span class="kw">readonly</span> session = <span class="fn">inject</span>(SessionService);
+}</code></pre>
+<p>mfe1 doit rester lançable seul pendant le développement : son composant racine affiche le même catalogue (le <code>app.html</code> et le
+<code>app.css</code> générés sont supprimés).</p>
+<div class="file">mf/apps/mfe1/src/app/app.ts</div><pre><code><span class="kw">import</span> { Component } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { Catalog } <span class="kw">from</span> <span class="str">'./catalog/catalog'</span>;
+
+<span class="cm">// mfe1 reste une application qui démarre seule (sur son propre port).</span>
+<span class="fn">@Component</span>({
+  imports: [Catalog],
+  selector: <span class="str">'app-root'</span>,
+  template: <span class="str">`&lt;h1&gt;mfe1 en autonome&lt;/h1&gt;&lt;mfe1-catalog /&gt;`</span>,
+})
+<span class="kw">export</span> <span class="kw">class</span> App {}</code></pre>
+
+<h3>5. Faire du shell un hôte dynamique</h3>
+<p>Un <code>host</code> liste ses remotes dans sa configuration de build ; un <code>dynamic-host</code> les lit à l'exécution dans un
+manifeste JSON. Le second est plus souple : on change l'adresse d'un remote, par environnement, sans recompiler le shell.</p>
+<pre><code>npx ng add @angular-architects/native-federation@22.2.2 --project shell --port 4400 --type dynamic-host --skip-confirmation</code></pre>
+<p>La sortie liste un fichier de plus que pour le remote : le manifeste.</p>
+<pre><code>CREATE apps/shell/public/federation.manifest.json (53 bytes)
+CREATE apps/shell/tsconfig.federation.json (78 bytes)
+CREATE apps/shell/federation.config.mjs (898 bytes)
+CREATE apps/shell/src/bootstrap.ts (219 bytes)
+UPDATE angular.json (5764 bytes)
+UPDATE apps/shell/src/main.ts (279 bytes)
+UPDATE package.json (876 bytes)</code></pre>
+<p>Le schematic a trouvé le remote déjà configuré et l'a inscrit dans le manifeste. Le fichier est dans <code>public/</code> : il est copié
+tel quel dans <code>dist/</code>, donc modifiable après le build.</p>
+<div class="file">mf/apps/shell/public/federation.manifest.json</div><pre><code>{
+  <span class="str">"mfe1"</span>: <span class="str">"http://localhost:4401/remoteEntry.json"</span>
+}</code></pre>
+<p>Le <code>main.ts</code> généré passe ce manifeste à <code>initFederation</code>.</p>
+<div class="file">mf/apps/shell/src/main.ts (généré)</div><pre><code><span class="kw">import</span> { initFederation } <span class="kw">from</span> <span class="str">'@angular-architects/native-federation'</span>;
+
+<span class="fn">initFederation</span>(<span class="str">'federation.manifest.json'</span>, {
+  hostRemoteEntry: { url: <span class="str">'./remoteEntry.json'</span> },
+})
+  .<span class="fn">catch</span>((err) =&gt; console.<span class="fn">error</span>(err))
+  .<span class="fn">then</span>((_) =&gt; <span class="kw">import</span>(<span class="str">'./bootstrap'</span>))
+  .<span class="fn">catch</span>((err) =&gt; console.<span class="fn">error</span>(err));</code></pre>
+
+<h3>6. Charger le remote dans une route</h3>
+<p>Côté shell, le remote se charge comme une route lazy, mais avec <code>loadRemoteModule(nomDuRemote, cléExposée)</code> à la place de
+<code>import()</code>. En 22.2.2, la fonction à utiliser est celle que <strong>renvoie</strong> <code>initFederation</code> : la fonction
+<code>loadRemoteModule</code> importée directement du paquet existe encore, mais ses types la marquent <code>@deprecated</code> (« Prefer the
+<code>loadRemoteModule</code> returned by the <code>initFederation</code> promise »). Ce résultat n'existe qu'une fois <code>initFederation</code>
+terminé, alors que les routes sont construites au démarrage : il faut donc le faire passer jusqu'aux routes, en trois petites modifications
+du code généré. D'abord, <code>main.ts</code> transmet le résultat à <code>bootstrap</code>.</p>
+<div class="file">mf/apps/shell/src/main.ts</div><pre><code><span class="kw">import</span> { initFederation } <span class="kw">from</span> <span class="str">'@angular-architects/native-federation'</span>;
+
+<span class="cm">// 1. lire le manifeste (où sont les remotes), 2. démarrer l'app en lui passant le résultat</span>
+<span class="fn">initFederation</span>(<span class="str">'federation.manifest.json'</span>, {
+  hostRemoteEntry: { url: <span class="str">'./remoteEntry.json'</span> },
+})
+  .<span class="fn">then</span>((nf) =&gt; <span class="kw">import</span>(<span class="str">'./bootstrap'</span>).<span class="fn">then</span>((m) =&gt; m.<span class="fn">bootstrap</span>(nf)))
+  .<span class="fn">catch</span>((err) =&gt; console.<span class="fn">error</span>(err));</code></pre>
+<p>Ensuite, <code>bootstrap.ts</code> et <code>app.config.ts</code> le passent jusqu'à <code>provideRouter</code> : la configuration devient une
+fonction qui reçoit ce résultat. Le type <code>NativeFederationResult</code> s'importe du paquet lui-même.</p>
+<div class="file">mf/apps/shell/src/bootstrap.ts</div><pre><code><span class="kw">import</span> { bootstrapApplication } <span class="kw">from</span> <span class="str">'@angular/platform-browser'</span>;
+<span class="kw">import</span> { NativeFederationResult } <span class="kw">from</span> <span class="str">'@angular-architects/native-federation'</span>;
+<span class="kw">import</span> { appConfig } <span class="kw">from</span> <span class="str">'./app/app.config'</span>;
+<span class="kw">import</span> { App } <span class="kw">from</span> <span class="str">'./app/app'</span>;
+
+<span class="kw">export</span> <span class="kw">const</span> bootstrap = (nf: NativeFederationResult) =&gt;
+  <span class="fn">bootstrapApplication</span>(App, <span class="fn">appConfig</span>(nf));</code></pre>
+<div class="file">mf/apps/shell/src/app/app.config.ts</div><pre><code><span class="kw">import</span> { NativeFederationResult } <span class="kw">from</span> <span class="str">'@angular-architects/native-federation'</span>;
+<span class="cm">// ...</span>
+<span class="cm">// la config devient une fonction : les routes ont besoin du résultat de initFederation</span>
+<span class="kw">export</span> <span class="kw">const</span> appConfig = (nf: NativeFederationResult): ApplicationConfig =&gt; ({
+  providers: [<span class="fn">provideBrowserGlobalErrorListeners</span>(), <span class="fn">provideRouter</span>(<span class="fn">routes</span>(nf))],
+});</code></pre>
+<p>Enfin, les routes reçoivent ce résultat et en tirent <code>loadRemoteModule</code>. Le <code>.catch</code> affiche un composant de repli si
+le remote ne répond pas ; on le vérifie plus bas en arrêtant mfe1.</p>
+<div class="file">mf/apps/shell/src/app/app.routes.ts</div><pre><code><span class="kw">import</span> { Type } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { Routes } <span class="kw">from</span> <span class="str">'@angular/router'</span>;
+<span class="kw">import</span> { NativeFederationResult } <span class="kw">from</span> <span class="str">'@angular-architects/native-federation'</span>;
+<span class="kw">import</span> { Home } <span class="kw">from</span> <span class="str">'./home'</span>;
+<span class="kw">import</span> { RemoteUnavailable } <span class="kw">from</span> <span class="str">'./remote-unavailable'</span>;
+
+<span class="kw">export</span> <span class="kw">const</span> routes = ({ loadRemoteModule }: NativeFederationResult): Routes =&gt; [
+  { path: <span class="str">''</span>, component: Home },
+  {
+    path: <span class="str">'catalog'</span>,
+    <span class="cm">// chargé à l'exécution depuis mfe1 (http://localhost:4401), comme une route lazy</span>
+    loadComponent: () =&gt;
+      <span class="fn">loadRemoteModule</span>&lt;{ Catalog: <span class="fn">Type</span>&lt;unknown&gt; }&gt;(<span class="str">'mfe1'</span>, <span class="str">'./Component'</span>)
+        .<span class="fn">then</span>((m) =&gt; m.Catalog)
+        .<span class="fn">catch</span>(() =&gt; RemoteUnavailable), <span class="cm">// le remote est arrêté ou en erreur</span>
+  },
+];</code></pre>
+<p>Les deux composants locaux de ces routes sont minimes : <code>Home</code> affiche « Accueil du shell. », <code>RemoteUnavailable</code> le
+message de repli.</p>
+<div class="file">mf/apps/shell/src/app/remote-unavailable.ts</div><pre><code><span class="kw">import</span> { Component } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+<span class="fn">@Component</span>({
+  selector: <span class="str">'app-remote-unavailable'</span>,
+  template: <span class="str">`&lt;p&gt;Le catalogue est momentanément indisponible.&lt;/p&gt;`</span>,
+})
+<span class="kw">export</span> <span class="kw">class</span> RemoteUnavailable {}</code></pre>
+<p>Le composant racine du shell (son <code>app.html</code> et son <code>app.css</code> générés sont supprimés) ajoute un en-tête : deux liens,
+la session vue par le shell et un bouton de connexion.</p>
+<div class="file">mf/apps/shell/src/app/app.ts</div><pre><code><span class="kw">import</span> { Component, inject } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { RouterLink, RouterOutlet } <span class="kw">from</span> <span class="str">'@angular/router'</span>;
+<span class="kw">import</span> { SessionService } <span class="kw">from</span> <span class="str">'@mf/session'</span>;
+
+<span class="fn">@Component</span>({
+  imports: [RouterOutlet, RouterLink],
+  selector: <span class="str">'app-root'</span>,
+  template: `
+    &lt;header&gt;
+      &lt;strong&gt;Shell&lt;/strong&gt; · &lt;a routerLink=<span class="str">"/"</span>&gt;Accueil&lt;/a&gt; · &lt;a routerLink=<span class="str">"/catalog"</span>&gt;Catalogue (mfe1)&lt;/a&gt;
+      &lt;p&gt;Session vue par le shell : {{ session.<span class="fn">user</span>() ?? <span class="str">'anonyme'</span> }} (instance {{ session.id }})&lt;/p&gt;
+      &lt;button (click)=<span class="str">"session.login('Alice')"</span>&gt;Se connecter (Alice)&lt;/button&gt;
+    &lt;/header&gt;
+    &lt;router-outlet /&gt;
+  `,
+})
+<span class="kw">export</span> <span class="kw">class</span> App {
+  <span class="kw">protected</span> <span class="kw">readonly</span> session = <span class="fn">inject</span>(SessionService);
+}</code></pre>
+<p><small>L'ancienne écriture, <code>import { loadRemoteModule } from '@angular-architects/native-federation'</code> puis
+<code>loadRemoteModule({ remoteName: 'mfe1', exposedModule: './Component' })</code>, a aussi été essayée sur une route de test : elle
+compile et affiche le catalogue. On la rencontre dans le code écrit pour les versions précédentes du paquet.</small></p>
+
+<h3>7. Lancer les deux applications</h3>
+<p>Chaque application démarre dans son terminal, sur le port enregistré par <code>ng add</code>. On lance le remote d'abord, pour que le shell
+trouve son <code>remoteEntry.json</code> dès le premier chargement.</p>
+<pre><code>$ npx ng serve mfe1
+ INFO  Building federation artifacts
+ INFO  Bundling shared mappings with bundle type 'mapping-bundle'
+ INFO  Bundling exposed modules
+Application bundle generation complete. [0.282 seconds]
+  ➜  Local:   http://localhost:4401/
+
+$ npx ng serve shell
+ INFO  Building federation artifacts
+Application bundle generation complete. [0.323 seconds]
+  ➜  Local:   http://localhost:4400/</code></pre>
+<p>Dans le navigateur, sur <code>http://localhost:4400</code>, on clique « Se connecter (Alice) » puis « Catalogue (mfe1) ». Le catalogue
+s'affiche dans le shell, dans son cadre pointillé, et l'onglet réseau montre ce qui vient de mfe1 : deux fichiers seulement.</p>
+<pre><code>GET http://localhost:4401/remoteEntry.json => 200 OK
+GET http://localhost:4401/Component.js     => 200 OK</code></pre>
+<p>L'import map construite par le shell, lue dans la page, explique pourquoi : <code>Component.js</code> (1 Ko une fois compilé) importe
+<code>@angular/core</code> et <code>@mf/session</code> par leur nom, et l'import map fait pointer ces noms vers les fichiers <strong>du shell</strong>.</p>
+<pre><code>{"imports":{
+  "@angular/core":"./_angular_core.C5orQEzpfC-dev.js",
+  ...
+  "@mf/session":"./_mf_session.js",
+  "@angular/router":"./_angular_router.Zspf_g-L6H-dev.js",
+  "mfe1/./Component":"http://localhost:4401/Component.js"
+}, ...}</code></pre>
+
+<h3>8. La session partagée : singleton ou pas</h3>
+<p>Native Federation partage par défaut les alias du tsconfig (ses <em>shared mappings</em>), comme des dépendances npm, en singleton. Le
+<code>remoteEntry.json</code> du build de mfe1 le montre, à côté d'Angular ; la version de <code>@mf/session</code> vient du
+<code>package.json</code> de la bibliothèque.</p>
+<div class="file">mf/dist/mfe1/browser/remoteEntry.json</div><pre><code><span class="str">"$version"</span>: <span class="str">"v4"</span>,
+<span class="str">"name"</span>: <span class="str">"mfe1"</span>,
+<span class="str">"shared"</span>: [
+  {
+    <span class="str">"packageName"</span>: <span class="str">"@angular/core"</span>,
+    <span class="str">"outFileName"</span>: <span class="str">"_angular_core.3ZbNlBnnMw.js"</span>,
+    <span class="str">"requiredVersion"</span>: <span class="str">"^22.2.0"</span>,
+    <span class="str">"singleton"</span>: <span class="kw">true</span>,
+    <span class="str">"strictVersion"</span>: <span class="kw">true</span>,
+    <span class="str">"version"</span>: <span class="str">"22.2.2"</span>,
+    <span class="str">"bundle"</span>: <span class="str">"browser-angular_core"</span>
+  },
+  <span class="cm">// ...</span>
+  {
+    <span class="str">"packageName"</span>: <span class="str">"@mf/session"</span>,
+    <span class="str">"outFileName"</span>: <span class="str">"_mf_session-CI2GQ7ZM.js"</span>,
+    <span class="str">"requiredVersion"</span>: <span class="str">"~0.0.1"</span>,
+    <span class="str">"singleton"</span>: <span class="kw">true</span>,
+    <span class="str">"strictVersion"</span>: <span class="kw">true</span>,
+    <span class="str">"version"</span>: <span class="str">"0.0.1"</span>,
+    <span class="str">"bundle"</span>: <span class="str">"mapping-bundle"</span>
+  }</code></pre>
+<p>Pour voir ce que ce partage apporte, on refait l'essai en désactivant le partage des alias dans mfe1 : l'option
+<code>sharedMappings</code> liste les alias à partager, et une liste vide n'en partage aucun. On relance <code>ng serve mfe1</code>, puis on
+remet la configuration d'origine.</p>
+<div class="file">mf/apps/mfe1/federation.config.mjs (expérience)</div><pre><code><span class="cm">// EXPÉRIENCE : ne pas partager les libs du workspace (@mf/session)</span>
+sharedMappings: [],</code></pre>
+<p>Voici ce qu'affiche la page dans les deux cas, après « Se connecter (Alice) » dans le shell puis ouverture du catalogue.</p>
+<table>
+<tr><th></th><th>Partagée (configuration générée)</th><th>Non partagée (<code>sharedMappings: []</code>)</th></tr>
+<tr><td>Le shell affiche</td><td>Alice (instance quh9)</td><td>Alice (instance 8keg)</td></tr>
+<tr><td>Le remote affiche</td><td class="ok">Alice (instance quh9)</td><td class="ko">anonyme (instance y1jk)</td></tr>
+<tr><td>« Se déconnecter depuis le remote »</td><td>le shell repasse aussi à « anonyme »</td><td>sans effet sur le shell</td></tr>
+<tr><td>Pourquoi</td><td>un seul fichier <code>_mf_session.js</code>, celui du shell ; une seule classe <code>SessionService</code>, donc une seule instance dans l'injecteur racine</td><td><code>remoteEntry.json</code> ne mentionne plus <code>@mf/session</code> : le remote embarque sa propre copie de la classe. L'injecteur range chaque service sous sa classe : deux classes, donc deux instances</td></tr>
+</table>
+<p>C'est la « session en double » de la section 5 : chaque copie de la bibliothèque a son propre signal. La même chose arriverait avec
+deux copies de <code>@angular/core</code>, en pire, d'où le <code>singleton: true</code> sur Angular.</p>
+<p><small><code>strictVersion</code> n'a pas été mis à l'épreuve : dans un seul workspace, le shell et le remote ont forcément les mêmes versions.
+Le conflit apparaît quand le remote est compilé ailleurs, avec un <code>@angular/core</code> qui ne satisfait pas le <code>requiredVersion</code>
+du shell ; c'est l'erreur à surveiller lors d'une montée de version non coordonnée.</small></p>
+
+<h3>9. Quand le remote est arrêté</h3>
+<p>Dernier essai : arrêter <code>ng serve mfe1</code> et recharger le shell. Le shell démarre quand même (la console note
+<code>net::ERR_CONNECTION_REFUSED</code>) ; c'est l'ouverture du catalogue qui échoue, avec cette erreur dans la console.</p>
+<pre><code>ERROR NFError: Failed to load module mfe1/./Component
+    at loadRemoteModule (...)
+    at Object.loadComponent (...)</code></pre>
+<p>Sans le <code>.catch</code> de la route, la navigation est simplement annulée : l'utilisateur clique, et rien ne se passe. Avec, la page
+affiche « Le catalogue est momentanément indisponible. » C'est la panne à l'exécution de la section 5, qu'aucune compilation ne détecte.</p>
+
+<div class="retenir"><strong>À retenir</strong> <code>ng add @angular-architects/native-federation --project &lt;app&gt; --port &lt;n&gt; --type
+remote|dynamic-host</code> génère <code>federation.config.mjs</code>, coupe le démarrage en <code>main.ts</code> + <code>bootstrap.ts</code> et, pour
+un hôte dynamique, crée <code>public/federation.manifest.json</code>. En 22.2, on utilise le <code>loadRemoteModule</code> renvoyé par
+<code>initFederation</code>, avec un repli en cas d'échec. Ce qui doit être unique (Angular, la session) se partage en singleton ; une bibliothèque
+non partagée est dupliquée, et son état avec.</div>
+<p class="doc">📖 <a href="https://native-federation.com/docs/v4/angular-adapter/getting-started/">Native Federation : démarrer</a> ·
+<a href="https://native-federation.com/docs/v4/angular-adapter/schematics/">schematics</a> ·
+<a href="https://native-federation.com/docs/v4/angular-adapter/runtime/">runtime : initFederation, loadRemoteModule</a> ·
+<a href="https://native-federation.com/docs/v4/angular-adapter/configuration/">configuration</a> ·
+<a href="https://www.npmjs.com/package/@angular-architects/module-federation">module-federation sur npm</a></p>
+</section>
+
+<!-- ============================================================ 7 -->
+<section class="card" id="s7">
+<h2><span class="num">7</span>Récap : choisir son palier</h2>
+<p>Le tableau donne un choix par défaut pour les situations les plus courantes.</p>
+<table>
+<tr><th>Situation</th><th>Choix par défaut</th><th>Pourquoi</th></tr>
+<tr><td>Une application, une équipe, même grosse</td><td>palier 1 : une route lazy par feature</td><td>rien à synchroniser ; le lazy loading suffit pour la performance</td></tr>
+<tr><td>Plusieurs applications (vitrine, back-office) qui partagent modèles et composants</td><td>palier 2 : workspace CLI, <code>apps/</code> + <code>libs/</code>, alias <code>@scope/…</code></td><td>code commun écrit une fois, chaque application déployée à part</td></tr>
+<tr><td>Le workspace grossit, la CI devient lente, les règles entre libs ne sont plus respectées</td><td>palier 2 avec Nx</td><td><code>affected</code>, cache, <code>enforce-module-boundaries</code></td></tr>
+<tr><td>Plusieurs équipes qui doivent livrer sans se synchroniser, nouveau projet Angular 22</td><td>palier 3 : Native Federation</td><td>garde le builder esbuild du CLI, standards du navigateur</td></tr>
+<tr><td>Micro-frontends existants en webpack (Angular 20)</td><td>rester en Module Federation, monter de version avec <code>ng update</code></td><td>pas de réécriture ; Native Federation reste une option pour plus tard (paquet <code>-v4</code> pour Angular 20 et 21)</td></tr>
+</table>
+<p>Quel que soit le palier, les mêmes règles valent : des bibliothèques rangées par type, une <code>ui</code> qui ne parle pas à l'API, et ce qui
+doit être unique (la session, Angular lui-même) partagé explicitement.</p>
+<p>Pour pratiquer : le lab <a href="https://github.com/bngams/2610-ng/tree/main/03-minishop/">Minishop</a> (en cours d'écriture). Les autres
+synthèses du jour 3 : <a href="../03-intro-auth/index.html">authentification</a> et <a href="../03-intro-store/index.html">gestion d'état</a>.</p>
+
+<div class="retenir"><strong>À retenir</strong> On monte de palier pour des raisons d'équipes et de déploiement. Workspace CLI d'abord ; Nx
+quand il faut un graphe, des règles et <code>affected</code> ; micro-frontends seulement si des équipes doivent livrer indépendamment, avec
+Native Federation sur un projet Angular 22 neuf et Module Federation sur un existant webpack.</div>
+<p class="doc">📖 <a href="https://angular.dev/tools/libraries">bibliothèques Angular</a> ·
+<a href="https://nx.dev/docs/technologies/angular/introduction">Nx et Angular</a> ·
+<a href="https://native-federation.com">Native Federation</a></p>
+</section>
+
+<footer>
+Workspace, bibliothèques et micro-frontends en Angular 22, formation AELION, jour 3. Voir aussi les synthèses
+<a href="../03-intro-auth/index.html">authentification</a> et <a href="../03-intro-store/index.html">gestion d'état</a>, et le lab
+<a href="https://github.com/bngams/2610-ng/tree/main/03-minishop/">Minishop</a>. Documentation de référence :
+<a href="https://angular.dev/reference/configs/file-structure">angular.dev, structure d'un workspace</a> ·
+<a href="https://native-federation.com">native-federation.com</a> · <a href="https://nx.dev">nx.dev</a>.
+</footer>
+</div>
+</body>
+</html>

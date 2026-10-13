@@ -1,0 +1,960 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Angular 22 — Authentification et autorisation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f8fafc; --s1:#ffffff; --s2:#eef2f6; --tx:#0f172a; --tx2:#475569; --mu:#64748b; --bd:#e2e8f0; --bd2:#cbd5e1;
+  --brand:#d9472b; --acc:#c2391f; --soft:#ffe4dc; --softfg:#b33a1f; --ok:#047857; --okbg:#ecfdf5; --ko:#be123c;
+  --code:#0f172a; --codefg:#e2e8f0; --bar:#0f172a; --barfg:#e2e8f0; --u:#fb8f6f; --info:#475569; --infobg:#f1f5f9;
+  --blue:#0369a1; --bluebg:#e0f2fe;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--tx);background:var(--bg);margin:0;padding:0 0 60px}
+.bar{background:var(--bar);color:var(--barfg);padding:12px 24px;display:flex;align-items:center;gap:12px;font-size:13px}
+.bar .wm{font-weight:800;letter-spacing:-.02em;font-size:15px}.bar .wm .u{color:var(--u)}
+.bar .r{margin-left:auto;color:#94a3b8}
+.wrap{max-width:1000px;margin:0 auto;padding:28px 24px 0}
+h1{font-size:2rem;font-weight:800;letter-spacing:-.02em;margin:0 0 .25rem}
+h2{margin:0 0 .6rem;font-size:1.3rem;font-weight:800;letter-spacing:-.015em;display:flex;align-items:center;gap:.55rem}
+h3{margin:1.1rem 0 .4rem;font-size:.98rem;font-weight:700}
+.lead{color:var(--tx2);font-size:1.02rem;margin:0 0 .4rem}
+a{color:var(--acc)}
+nav.toc{border:1px solid var(--bd);border-radius:10px;padding:14px 18px;margin:18px 0 26px;background:var(--s1)}
+nav.toc .cap{font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin-bottom:6px}
+nav.toc ol{margin:0;padding-left:1.3rem;columns:2;column-gap:28px}
+nav.toc li{break-inside:avoid;margin:.15rem 0}
+nav.toc a{color:var(--tx);text-decoration:none}
+nav.toc a:hover{color:var(--acc);text-decoration:underline}
+section.card{border:1px solid var(--bd);border-radius:10px;padding:20px 24px 18px;margin:20px 0;background:var(--s1);break-inside:avoid;page-break-inside:avoid}
+.num{display:inline-flex;align-items:center;justify-content:center;min-width:1.7em;height:1.7em;background:var(--soft);color:var(--softfg);border-radius:7px;font:700 .85rem var(--mono);padding:0 .4em}
+code{font-family:var(--mono);font-size:.86em;background:var(--s2);color:var(--tx);padding:.1em .3em;border-radius:4px}
+pre{background:var(--code);color:var(--codefg);padding:13px 15px;border-radius:8px;overflow:auto;font:12.5px/1.5 var(--mono);margin:.6rem 0}
+pre code{background:none;padding:0;color:inherit;font-size:inherit}
+.cm{color:#94a3b8}.kw{color:var(--u)}.str{color:#86efac}.fn{color:#79c0ff}
+table{border-collapse:collapse;width:100%;margin:.6rem 0;font-size:.92rem;background:var(--s1)}
+th,td{border-bottom:1px solid var(--bd);padding:6px 10px;text-align:left;vertical-align:top}
+th{font-size:12px;color:var(--tx2);font-weight:600;background:var(--bg)}
+.retenir{background:var(--infobg);border-left:3px solid var(--brand);padding:9px 14px;border-radius:0 8px 8px 0;margin:.9rem 0 .4rem;font-size:.95rem;color:var(--tx)}
+.retenir strong{display:block;font:600 10.5px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--softfg);margin-bottom:3px}
+.doc{font-size:.88rem;color:var(--mu);margin:.5rem 0 0}
+.doc a{color:var(--acc);text-decoration:none}.doc a:hover{text-decoration:underline}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}nav.toc ol{columns:1}}
+figure{margin:.6rem 0}
+figure svg{width:100%;height:auto;display:block}
+figcaption{font-size:.84rem;color:var(--mu);margin-top:.3rem}
+small{color:var(--mu)}
+kbd{font:600 11px var(--mono);background:var(--s2);border:1px solid var(--bd2);border-radius:4px;padding:1px 5px}
+.svg-box{fill:#fff;stroke:#94a3b8;stroke-width:1.4}
+.svg-box.alt{fill:var(--soft);stroke:var(--brand)}
+.svg-box.svc{fill:var(--bluebg);stroke:var(--blue)}
+.svg-box.soft{fill:var(--s2);stroke:var(--bd2)}
+.svg-t{font-family:Inter,system-ui,sans-serif;font-size:13px;fill:var(--tx)}
+.svg-t.small{font-size:11px;fill:var(--tx2)}
+.svg-t.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11.5px}
+.svg-t.b{font-weight:700}
+.svg-arrow{stroke:#475569;stroke-width:1.6;fill:none;marker-end:url(#arr)}
+.svg-arrow.down{stroke:var(--acc);marker-end:url(#arr-brand)}
+.svg-arrow.up{stroke:var(--blue);marker-end:url(#arr-blue)}
+footer{color:var(--mu);font-size:.88rem;margin:40px 0 0;border-top:1px solid var(--bd);padding-top:12px}
+@media print{
+  html,body{background:#fff}
+  body{font-size:11pt;padding:0}
+  .bar,nav.toc,.noprint{display:none}
+  .wrap{max-width:none;padding:0 8mm}
+  section.card{border:none;padding:0;margin:0 0 14pt;page-break-inside:avoid;background:none}
+  section.card+section.card{border-top:1px solid #ccc;padding-top:12pt}
+  pre{font-size:9pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .retenir,.num,.svg-box{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  a{color:inherit;text-decoration:none}
+}
+.file{font:600 11px var(--mono);color:var(--mu);margin:.8rem 0 -.3rem}
+.file a{color:var(--mu)}
+.grid2>*{min-width:0}
+h2{flex-wrap:wrap}
+body,code,pre,svg text{font-variant-ligatures:none} /* => reste => (pas de ligature) */
+@media (max-width:760px){table{display:block;overflow-x:auto}}
+p code,li code,figcaption code{overflow-wrap:anywhere}
+@media (max-width:760px){figure{overflow-x:auto}figure svg{min-width:600px}}
+@media print{pre{white-space:pre-wrap;overflow-wrap:anywhere}}
+</style>
+</head>
+<body>
+<div class="bar"><span class="wm">Angular 22 <span class="u">_</span> auth</span><span class="r">Formation AELION · J3</span></div>
+<div class="wrap">
+
+<h1>Angular 22 — Authentification et autorisation</h1>
+<p class="lead">Se connecter, rester connecté après un rechargement, protéger des routes, afficher ou masquer selon le rôle : cette page
+reprend ces besoins dans l'ordre où ils se posent. Elle commence par la question qu'on se pose trop tard, où garder le jeton, et
+défend une position simple : <strong>on arrête les jetons dans <code>localStorage</code></strong>. Chaque extrait de code est copié d'un
+projet Angular 22 qui compile (<code>ng build</code>), branché sur une petite API json-server ; le comportement décrit a été vérifié dans
+le navigateur. Ce projet de vérification n'est pas livré.</p>
+<p class="noprint"><small>Imprimable : <kbd>Ctrl/Cmd + P</kbd> puis « Enregistrer en PDF ». Les autres synthèses :
+<a href="../00-intro-syntax-recap/index.html">jour 1</a>, <a href="../02-demo-http/index.html">démo HTTP</a>,
+<a href="../02-intro-forms/index.html">formulaires</a>. Pour pratiquer : le lab du jour 3,
+<a href="https://github.com/bngams/2610-ng/tree/main/03-minishop/">MiniShop</a> (en cours d'écriture).</small></p>
+<p><small>Le fil rouge est une petite boutique : une liste de produits que tout client connecté peut lire, et que seul un administrateur peut
+modifier ou supprimer. Les deux comptes utilisés, <code>alice</code> (rôle <code>customer</code>) et <code>admin</code> (rôle
+<code>admin</code>), sont des <strong>données de démonstration</strong>, avec des mots de passe factices écrits en clair dans le serveur de test.</small></p>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+    <marker id="arr-brand" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c2391f"/></marker>
+    <marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0369a1"/></marker>
+  </defs>
+</svg>
+
+<nav class="toc" aria-label="Sommaire">
+<div class="cap">Sommaire</div>
+<ol>
+<li><a href="#s1">Authentification ou autorisation</a></li>
+<li><a href="#s2">Le jeton : anatomie d'un JWT</a></li>
+<li><a href="#s3">Où garder le jeton</a></li>
+<li><a href="#s4">OIDC, OAuth2 et PKCE : les fournisseurs d'identité</a></li>
+<li><a href="#s5">Côté Angular : session, intercepteur, XSRF</a></li>
+<li><a href="#s6">Les guards</a></li>
+<li><a href="#s7">Autorisation : rôles, permissions, CASL</a></li>
+<li><a href="#s8">Récapitulatif et choix</a></li>
+</ol>
+</nav>
+
+<!-- ============================================================ 1 -->
+<section class="card" id="s1">
+<h2><span class="num">1</span>Authentification ou autorisation</h2>
+<p>Les deux mots se ressemblent, mais ils répondent à deux questions différentes, posées à deux moments différents.</p>
+<table>
+<tr><th></th><th>Authentification</th><th>Autorisation</th></tr>
+<tr><td>La question</td><td><strong>Qui êtes-vous ?</strong></td><td><strong>Qu'avez-vous le droit de faire ?</strong></td></tr>
+<tr><td>Quand</td><td>une fois, à la connexion (puis on garde une preuve : session ou jeton)</td><td>à <strong>chaque</strong> requête, pour chaque action</td></tr>
+<tr><td>Comment</td><td>mot de passe, fournisseur d'identité (Keycloak, Entra ID, Google…), clé d'accès</td><td>rôles (<code>admin</code>, <code>customer</code>), permissions (<code>delete:Product</code>), règles sur la ressource</td></tr>
+<tr><td>Échec côté HTTP</td><td><code>401 Unauthorized</code> : pas (ou plus) authentifié, malgré son nom</td><td><code>403 Forbidden</code> : authentifié, mais pas autorisé</td></tr>
+<tr><td>Dans cette page</td><td>sections 2 à 5</td><td>sections 6 et 7</td></tr>
+</table>
+
+<p>Les deux statuts ont été observés sur l'API de démonstration. Connectée en <code>alice</code>, une suppression de produit répond
+<code>403</code> avec <code>{"error": "Réservé au rôle admin"}</code>. Après un redémarrage du serveur, qui efface les sessions en mémoire,
+un clic sur « Supprimer » en <code>admin</code> reçoit <code>401</code>, et l'application renvoie vers la page de connexion.</p>
+
+<h3>La règle d'or : c'est le serveur qui décide</h3>
+<p>Tout le code Angular s'exécute dans le navigateur de l'utilisateur. Il peut le lire, le modifier dans les outils de développement, ou
+ignorer l'application et appeler l'API directement avec <code>curl</code>. Un guard qui bloque une route, un bouton masqué pour un rôle :
+ce sont des choix d'<strong>ergonomie</strong>, pour ne pas montrer ce qui échouerait. La <strong>sécurité</strong> est ailleurs : le
+serveur vérifie l'identité et les droits à chaque requête, comme s'il n'y avait pas de front-end.</p>
+<p>L'expérience le montre. Dans l'application, <code>alice</code> ne voit aucun bouton « Supprimer ». Depuis la console du navigateur, elle
+envoie quand même la requête, avec le bon en-tête XSRF (expliqué en section 5) :</p>
+<pre><code><span class="kw">const</span> x = document.cookie.<span class="fn">split</span>(<span class="str">'='</span>)[1];
+<span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/products/1'</span>, { method: <span class="str">'DELETE'</span>, headers: { <span class="str">'X-XSRF-TOKEN'</span>: x } });
+<span class="cm">// -> 403 { "error": "Réservé au rôle admin" }</span></code></pre>
+<p>Le produit n'est pas supprimé, parce que le serveur applique lui-même la règle « écriture réservée au rôle admin » (section 7).
+Sans cette vérification côté serveur, masquer le bouton n'aurait rien protégé.</p>
+
+<div class="retenir"><strong>À retenir</strong> Authentification = qui vous êtes (401 si inconnu) ; autorisation = ce que vous pouvez faire
+(403 si interdit). Le serveur vérifie les deux à chaque requête. Guards et boutons masqués côté Angular servent l'ergonomie, pas la sécurité.</div>
+<p class="doc">📖 <a href="https://angular.dev/best-practices/security">Angular : sécurité</a> ·
+<a href="https://developer.mozilla.org/fr/docs/Web/HTTP/Status/401">MDN : 401</a> ·
+<a href="https://developer.mozilla.org/fr/docs/Web/HTTP/Status/403">MDN : 403</a> ·
+<a href="https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html">OWASP : autorisation</a></p>
+</section>
+
+<!-- ============================================================ 2 -->
+<section class="card" id="s2">
+<h2><span class="num">2</span>Le jeton : anatomie d'un JWT</h2>
+<p>Après l'authentification, le client garde une preuve qu'il renvoie à chaque requête. Cette preuve prend deux formes : un
+<strong>identifiant de session opaque</strong> (une chaîne aléatoire, qui ne veut rien dire hors du serveur qui l'a créée), ou un
+<strong>JWT</strong> (JSON Web Token), qui contient lui-même les informations. Le JWT est le format qu'on rencontre partout, en particulier avec
+les fournisseurs d'identité de la section 4 ; il faut savoir le lire.</p>
+
+<h3>Trois parties séparées par des points</h3>
+<p>Un JWT s'écrit <code>header.payload.signature</code>. Les deux premières parties sont du JSON encodé en <strong>base64url</strong> (une
+variante de base64 sans <code>+</code>, <code>/</code> ni <code>=</code>, sûre dans une URL). Le jeton ci-dessous a été produit par un petit
+script Node de démonstration, signé avec une clé de test.</p>
+<figure>
+<svg viewBox="0 0 680 200" role="img" aria-label="Un JWT en trois parties : header, payload et signature, chacune décodée en dessous">
+  <rect class="svg-box svc" x="10" y="10" width="200" height="44" rx="8"/>
+  <text class="svg-t mono" x="110" y="37" text-anchor="middle">eyJhbGciOiJIUzI1…</text>
+  <text class="svg-t b" x="218" y="40">.</text>
+  <rect class="svg-box alt" x="228" y="10" width="220" height="44" rx="8"/>
+  <text class="svg-t mono" x="338" y="37" text-anchor="middle">eyJzdWIiOiJhbGlj…</text>
+  <text class="svg-t b" x="456" y="40">.</text>
+  <rect class="svg-box soft" x="466" y="10" width="204" height="44" rx="8"/>
+  <text class="svg-t mono" x="568" y="37" text-anchor="middle">BQbnqhnh-PoGcZ8u…</text>
+  <path class="svg-arrow" d="M110,56 L110,82"/>
+  <path class="svg-arrow" d="M338,56 L338,82"/>
+  <path class="svg-arrow" d="M568,56 L568,82"/>
+  <rect class="svg-box" x="10" y="84" width="200" height="104" rx="8"/>
+  <text class="svg-t b" x="110" y="104" text-anchor="middle">header</text>
+  <text class="svg-t mono" x="22" y="128">{ "alg": "HS256",</text>
+  <text class="svg-t mono" x="34" y="146">"typ": "JWT" }</text>
+  <text class="svg-t small" x="110" y="176" text-anchor="middle">l'algorithme de signature</text>
+  <rect class="svg-box" x="228" y="84" width="220" height="104" rx="8"/>
+  <text class="svg-t b" x="338" y="104" text-anchor="middle">payload (les claims)</text>
+  <text class="svg-t mono" x="240" y="124">{ "sub": "alice",</text>
+  <text class="svg-t mono" x="252" y="140">"roles": ["customer"],</text>
+  <text class="svg-t mono" x="252" y="156">"iat": 1792000000,</text>
+  <text class="svg-t mono" x="252" y="172">"exp": 1792000900 }</text>
+  <rect class="svg-box" x="466" y="84" width="204" height="104" rx="8"/>
+  <text class="svg-t b" x="568" y="104" text-anchor="middle">signature</text>
+  <text class="svg-t mono" x="568" y="128" text-anchor="middle">HMAC-SHA256(</text>
+  <text class="svg-t mono" x="568" y="146" text-anchor="middle">header.payload, clé)</text>
+  <text class="svg-t small" x="568" y="176" text-anchor="middle">seul le serveur sait la produire</text>
+</svg>
+<figcaption>Le jeton complet : <code style="word-break:break-all">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGljZSIsInJvbGVzIjpbImN1c3RvbWVyIl0sImlhdCI6MTc5MjAwMDAwMCwiZXhwIjoxNzkyMDAwOTAwfQ.BQbnqhnh-PoGcZ8uTiPYtgxiZoLtCbX_AP8oTw_B-ZU</code></figcaption>
+</figure>
+
+<h3>Lisible par tout le monde : signé, pas chiffré</h3>
+<p>Le base64url est un <em>encodage</em>, pas un chiffrement : n'importe qui lit le contenu, sans aucune clé. Dans la console du navigateur,
+une ligne suffit.</p>
+<pre><code>JSON.<span class="fn">parse</span>(<span class="fn">atob</span>(jwt.<span class="fn">split</span>(<span class="str">'.'</span>)[1]))
+<span class="cm">// -> { sub: "alice", roles: ["customer"], iat: 1792000000, exp: 1792000900 }</span></code></pre>
+<p><small><code>atob</code> décode du base64 classique : il suffit ici parce que ce payload ne contient ni <code>-</code> ni <code>_</code>.
+Dans le cas général, on remplace d'abord <code>-</code> par <code>+</code> et <code>_</code> par <code>/</code>.</small></p>
+<p>Ce que garantit la signature, c'est l'<strong>intégrité</strong> : si quelqu'un remplace <code>"customer"</code> par <code>"admin"</code>
+dans le payload, la signature ne correspond plus et le serveur rejette le jeton. Le script de démonstration fait l'essai et affiche
+<code>original valide : true / falsifié valide : false</code>. On en tire une règle : <strong>on ne met jamais de secret dans un payload</strong>
+(mot de passe, numéro de carte, donnée personnelle sensible).</p>
+
+<h3>Les claims à connaître</h3>
+<p>Les champs du payload s'appellent des <em>claims</em>. Quelques noms courts sont standardisés ; les autres, comme <code>roles</code>, sont
+propres à chaque fournisseur.</p>
+<table>
+<tr><th>Claim</th><th>Sens</th><th>Dans l'exemple</th></tr>
+<tr><td><code>sub</code></td><td><em>subject</em> : l'identifiant de l'utilisateur</td><td><code>"alice"</code></td></tr>
+<tr><td><code>exp</code></td><td>date d'expiration, en secondes depuis 1970 ; au-delà, le jeton est refusé</td><td><code>1792000900</code> = 2026-10-14 18:01:40 UTC</td></tr>
+<tr><td><code>iat</code></td><td><em>issued at</em> : date d'émission</td><td><code>1792000000</code>, soit 15 minutes avant <code>exp</code></td></tr>
+<tr><td><code>iss</code>, <code>aud</code></td><td>qui a émis le jeton, et pour quelle API il est fait ; le serveur doit les vérifier</td><td>absents ici</td></tr>
+<tr><td><code>roles</code></td><td>claim non standard : chaque fournisseur a le sien (Keycloak : <code>realm_access.roles</code>)</td><td><code>["customer"]</code></td></tr>
+</table>
+
+<h3>Access token et refresh token</h3>
+<p>Un JWT ne se révoque pas facilement : le serveur le croit tant que la signature est bonne et que <code>exp</code> n'est pas passé. On lui
+donne donc une vie courte, et on en distribue deux sortes.</p>
+<table>
+<tr><th></th><th>Access token</th><th>Refresh token</th></tr>
+<tr><td>Rôle</td><td>accéder à l'API</td><td>obtenir un nouvel access token sans redemander le mot de passe</td></tr>
+<tr><td>Durée de vie</td><td>courte : 5 à 15 minutes</td><td>longue : heures ou jours, souvent à usage unique (rotation)</td></tr>
+<tr><td>Envoyé à</td><td>l'API, à chaque requête</td><td>uniquement au point d'entrée de renouvellement</td></tr>
+<tr><td>Révocation</td><td>en pratique, on attend <code>exp</code></td><td>possible côté serveur (il est enregistré)</td></tr>
+<tr><td>Où le garder dans une SPA</td><td>en mémoire</td><td>dans un cookie <code>httpOnly</code> (section 3)</td></tr>
+</table>
+<p>Le format du jeton (JWT ou identifiant opaque) et l'endroit où on le garde sont deux questions distinctes. L'API de démonstration
+utilise un identifiant opaque dans un cookie : le navigateur ne voit jamais de JWT, et pourtant tout fonctionne.</p>
+
+<div class="retenir"><strong>À retenir</strong> Un JWT = <code>header.payload.signature</code> en base64url. Tout le monde peut le lire,
+seul le serveur peut le signer : signé, pas chiffré, donc aucun secret dedans. <code>sub</code> = qui, <code>exp</code> = jusqu'à quand.
+Access token court + refresh token long et révocable.</div>
+<p class="doc">📖 <a href="https://datatracker.ietf.org/doc/html/rfc7519">RFC 7519 (JWT)</a> ·
+<a href="https://jwt.io/introduction">jwt.io : introduction</a> ·
+<a href="https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_Cheat_Sheet.html">OWASP : JWT</a></p>
+</section>
+
+<!-- ============================================================ 3 -->
+<section class="card" id="s3">
+<h2><span class="num">3</span>Où garder le jeton</h2>
+<p>C'est la décision qui pèse le plus sur la sécurité d'une application front, et beaucoup de projets v20 l'ont prise par défaut :
+<code>localStorage.setItem('token', …)</code>, puis un intercepteur qui recopie le jeton dans <code>Authorization: Bearer</code>. Le problème
+tient en une phrase : <strong>tout script qui s'exécute dans la page peut lire <code>localStorage</code></strong>. Une seule faille XSS
+(<em>cross-site scripting</em> : un script étranger qui s'exécute dans votre page, via une dépendance npm compromise, un HTML injecté ou un
+script tiers) et le jeton part sur le serveur de l'attaquant, qui l'utilise ensuite depuis
+n'importe où, jusqu'à son expiration. Le message de cette section : <strong>on arrête les jetons dans <code>localStorage</code></strong>.</p>
+
+<h3>Les cinq options, comparées</h3>
+<p>Le tableau compare les emplacements possibles selon cinq critères. « Vol par XSS » veut dire : un script injecté peut-il <em>lire</em> le
+jeton et l'emporter ? « Exposition CSRF » (<em>cross-site request forgery</em>, qu'Angular appelle XSRF) : un autre site peut-il faire envoyer
+une requête authentifiée par le navigateur, à l'insu de l'utilisateur ? « Autre origine » : l'API est-elle appelable si elle n'a pas le même
+protocole, domaine et port que l'application ?</p>
+<table>
+<tr><th>Emplacement</th><th>Vol par XSS</th><th>Exposition CSRF</th><th>Survit à F5</th><th>API sur une autre origine</th><th>Complexité</th></tr>
+<tr><td><code>localStorage</code></td><td><strong>oui</strong>, lisible par tout script</td><td>non (rien n'est envoyé automatiquement)</td><td>oui, et entre onglets</td><td>oui, en-tête <code>Authorization</code></td><td>faible</td></tr>
+<tr><td><code>sessionStorage</code></td><td><strong>oui</strong>, idem</td><td>non</td><td>oui, mais perdu à la fermeture de l'onglet</td><td>oui</td><td>faible</td></tr>
+<tr><td>en mémoire (un signal, une variable)</td><td>difficile : rien à lire dans un stockage</td><td>non</td><td><strong>non</strong> : il faut le récupérer au démarrage</td><td>oui</td><td>moyenne</td></tr>
+<tr><td>cookie <code>httpOnly</code> + <code>Secure</code> + <code>SameSite</code></td><td><strong>non</strong> : invisible pour JavaScript</td><td>oui en principe, d'où <code>SameSite</code> + jeton XSRF</td><td>oui</td><td>même site (<code>app.example.com</code> et <code>api.example.com</code>) : oui, avec CORS et <code>withCredentials</code> ; autre site : il faut <code>SameSite=None</code>, et les navigateurs bloquent de plus en plus ces cookies tiers</td><td>moyenne, côté serveur</td></tr>
+<tr><td>BFF (backend-for-frontend)</td><td><strong>non</strong> : les jetons restent sur le serveur</td><td>comme le cookie : mêmes protections</td><td>oui</td><td>sans objet : le BFF est sur la même origine</td><td>un serveur de plus</td></tr>
+</table>
+<p><small>Une nuance honnête : un cookie <code>httpOnly</code> empêche le <em>vol</em> du jeton, pas l'exécution d'un script XSS. Pendant que la
+page est ouverte, ce script peut encore appeler l'API au nom de l'utilisateur. Il ne peut simplement plus emporter le jeton pour s'en servir
+ailleurs et plus tard. La défense contre la XSS elle-même reste l'échappement automatique d'Angular, une CSP (<em>Content Security Policy</em>,
+l'en-tête qui dit au navigateur quels scripts il a le droit d'exécuter) et des dépendances surveillées.</small></p>
+
+<h3>La recommandation</h3>
+<ul>
+<li><strong>Par défaut : un cookie <code>httpOnly</code>, <code>Secure</code>, <code>SameSite=Strict</code></strong> (ou <code>Lax</code>), posé par
+le serveur, avec une protection CSRF par jeton XSRF en <em>double submit</em> (section 5). Angular n'a rien à stocker.</li>
+<li><strong>Avec un fournisseur d'identité (section 4) : un BFF</strong>. Le BFF mène le dialogue OAuth avec le fournisseur, garde les jetons côté
+serveur et ne donne au navigateur qu'un cookie de session <code>httpOnly</code>. Le front-end Angular est alors exactement celui de cette page.</li>
+<li><strong>Si l'architecture impose une SPA qui tient elle-même ses jetons</strong> : l'access token <strong>en mémoire</strong>, à durée courte,
+et le refresh token dans un cookie <code>httpOnly</code> limité au chemin de renouvellement. Au démarrage (ou après F5), un appel au point de
+renouvellement redonne un access token. C'est le compromis acceptable ; <code>localStorage</code> ne l'est pas.</li>
+</ul>
+
+<h3>Le parcours, avec un cookie httpOnly</h3>
+<p>Le schéma suit les échanges observés sur l'application de démonstration. Le navigateur et l'API sont sur la <strong>même origine</strong>
+(<code>http://localhost:4380</code>), grâce au proxy de développement d'Angular présenté plus bas : c'est ce qui permet <code>SameSite=Strict</code>.</p>
+<figure>
+<svg viewBox="0 0 680 340" role="img" aria-label="Connexion : POST /auth/login, réponse avec Set-Cookie httpOnly ; ensuite le navigateur joint le cookie automatiquement à chaque requête ; après F5, GET /auth/me reconstruit la session">
+  <rect class="svg-box alt" x="10" y="10" width="200" height="46" rx="8"/>
+  <text class="svg-t b" x="110" y="30" text-anchor="middle">Navigateur (Angular)</text>
+  <text class="svg-t small" x="110" y="47" text-anchor="middle">localhost:4380</text>
+  <rect class="svg-box svc" x="470" y="10" width="200" height="46" rx="8"/>
+  <text class="svg-t b" x="570" y="30" text-anchor="middle">API (via le proxy)</text>
+  <text class="svg-t small" x="570" y="47" text-anchor="middle">même origine</text>
+  <path d="M110,58 L110,330" stroke="#cbd5e1" stroke-width="1.4" stroke-dasharray="4 4"/>
+  <path d="M570,58 L570,330" stroke="#cbd5e1" stroke-width="1.4" stroke-dasharray="4 4"/>
+  <text class="svg-t mono" x="340" y="80" text-anchor="middle">1. POST /auth/login { username, password }</text>
+  <path class="svg-arrow down" d="M112,88 L566,88"/>
+  <text class="svg-t mono" x="340" y="112" text-anchor="middle">2. 200 { username, roles }  (aucun jeton dans le corps)</text>
+  <text class="svg-t mono" x="340" y="128" text-anchor="middle">Set-Cookie: sid=…; HttpOnly; Secure; SameSite=Strict</text>
+  <path class="svg-arrow up" d="M568,136 L114,136"/>
+  <text class="svg-t mono" x="340" y="170" text-anchor="middle">3. GET /api/products   Cookie: sid=…</text>
+  <text class="svg-t small" x="340" y="185" text-anchor="middle">le navigateur joint le cookie tout seul : aucun code Angular</text>
+  <path class="svg-arrow down" d="M112,192 L566,192"/>
+  <path class="svg-arrow up" d="M568,210 L114,210"/>
+  <text class="svg-t small" x="340" y="226" text-anchor="middle">200 [ produits ]</text>
+  <rect class="svg-box soft" x="20" y="242" width="180" height="26" rx="6"/>
+  <text class="svg-t small" x="110" y="259" text-anchor="middle">F5 : la mémoire est vidée</text>
+  <text class="svg-t mono" x="340" y="268" text-anchor="middle">4. GET /auth/me   Cookie: sid=…</text>
+  <path class="svg-arrow down" d="M212,276 L566,276"/>
+  <path class="svg-arrow up" d="M568,300 L114,300"/>
+  <text class="svg-t mono" x="340" y="318" text-anchor="middle">200 { username: "alice", roles: ["customer"] }</text>
+</svg>
+<figcaption>Angular ne lit jamais le cookie de session : il ne connaît que la réponse de <code>/auth/me</code>. Après F5, la session est reconstruite par le serveur, pas par le navigateur.</figcaption>
+</figure>
+
+<h3>Côté serveur : poser le cookie</h3>
+<p>L'API de démonstration est json-server 0.17.4 utilisé comme un module Express : on garde son routeur pour <code>/api/products</code> et on
+ajoute nos propres routes <code>/auth</code>. Un petit middleware, placé avant toutes les routes, lit l'en-tête <code>Cookie</code> dans
+<code>req.cookies</code> et retrouve la session correspondant au cookie <code>sid</code> dans <code>req.session</code> (une <code>Map</code> en
+mémoire). La connexion vérifie les identifiants de démonstration, crée un identifiant de session aléatoire, et le confie au navigateur avec
+<code>res.cookie</code>. Trois options de sécurité font le travail : <code>httpOnly</code> le cache à JavaScript, <code>secure</code> le réserve à HTTPS (le navigateur
+considère <code>localhost</code> comme sûr, ce qui permet de tester en HTTP), <code>sameSite: 'strict'</code> interdit de l'envoyer depuis un autre site.</p>
+<div class="file">api/server.cjs</div><pre><code>server.<span class="fn">post</span>(<span class="str">'/auth/login'</span>, (req, res) =&gt; {
+  <span class="kw">const</span> { username, password } = req.body ?? {};
+  <span class="kw">const</span> user = DEMO_USERS[username];
+  <span class="kw">if</span> (!user || user.password !== password) {
+    <span class="kw">return</span> res.<span class="fn">status</span>(401).<span class="fn">json</span>({ error: <span class="str">'Identifiants invalides'</span> });
+  }
+  <span class="kw">const</span> sid = crypto.<span class="fn">randomBytes</span>(24).<span class="fn">toString</span>(<span class="str">'hex'</span>);
+  sessions.<span class="fn">set</span>(sid, { username, roles: user.roles });
+  <span class="cm">// le cookie de session : illisible en JavaScript, jamais envoyé depuis un autre site</span>
+  res.<span class="fn">cookie</span>(<span class="str">'sid'</span>, sid, { httpOnly: <span class="kw">true</span>, secure: <span class="kw">true</span>, sameSite: <span class="str">'strict'</span>, path: <span class="str">'/'</span>, maxAge: 30 * 60 * 1000 });
+  <span class="cm">// le jeton XSRF : lisible en JavaScript, exprès, pour qu'Angular le recopie dans un en-tête</span>
+  res.<span class="fn">cookie</span>(<span class="str">'XSRF-TOKEN'</span>, crypto.<span class="fn">randomBytes</span>(16).<span class="fn">toString</span>(<span class="str">'hex'</span>), { secure: <span class="kw">true</span>, sameSite: <span class="str">'strict'</span>, path: <span class="str">'/'</span> });
+  res.<span class="fn">json</span>({ username, roles: user.roles });
+});
+
+server.<span class="kw">get</span>(<span class="str">'/auth/me'</span>, (req, res) =&gt; {
+  <span class="kw">if</span> (!req.session) <span class="kw">return</span> res.<span class="fn">status</span>(401).<span class="fn">json</span>({ error: <span class="str">'Non authentifié'</span> });
+  res.<span class="fn">json</span>(req.session);
+});</code></pre>
+
+<p>En développement, Angular et l'API tournent sur deux ports, donc deux origines. Le proxy du serveur de développement d'Angular les réunit :
+le navigateur ne parle qu'à <code>localhost:4380</code>, qui transmet <code>/auth</code> et <code>/api</code> à l'API. Le fichier est déclaré dans
+<code>angular.json</code>, option <code>proxyConfig</code> de la cible <code>serve</code>. En production, un reverse proxy (ou le BFF) joue le même rôle.</p>
+<div class="file">proxy.conf.json</div><pre><code>{
+  <span class="str">"/auth"</span>: { <span class="str">"target"</span>: <span class="str">"http://localhost:3101"</span>, <span class="str">"secure"</span>: false },
+  <span class="str">"/api"</span>: { <span class="str">"target"</span>: <span class="str">"http://localhost:3101"</span>, <span class="str">"secure"</span>: false }
+}</code></pre>
+
+<h3>Ce qu'on observe</h3>
+<p>La réponse de connexion, demandée avec <code>curl -i</code> à travers le proxy, porte bien les deux cookies.</p>
+<pre><code>HTTP/1.1 200 OK
+set-cookie: sid=a1bad82b…; Max-Age=1800; Path=/; Expires=…; HttpOnly; Secure; SameSite=Strict
+set-cookie: XSRF-TOKEN=00d3bd61…; Path=/; Secure; SameSite=Strict</code></pre>
+<p>Dans le navigateur, après une connexion en <code>alice</code>, la console montre que le cookie de session est invisible pour JavaScript,
+et qu'aucun jeton n'a été rangé dans un stockage.</p>
+<table>
+<tr><th>Commande dans la console</th><th>Résultat</th></tr>
+<tr><td><code>document.cookie</code></td><td><code>"XSRF-TOKEN=1cbaf52b…"</code> : le cookie <code>sid</code> n'apparaît pas</td></tr>
+<tr><td><code>(await cookieStore.getAll()).map(c =&gt; c.name)</code></td><td><code>["XSRF-TOKEN"]</code></td></tr>
+<tr><td><code>Object.keys(localStorage)</code></td><td><code>[]</code></td></tr>
+<tr><td>corps de la réponse <code>POST /auth/login</code></td><td><code>{ "username": "alice", "roles": ["customer"] }</code></td></tr>
+<tr><td>F5 sur <code>/account</code></td><td><code>GET /auth/me</code> répond 200, la page « Mon compte » s'affiche toujours</td></tr>
+</table>
+
+<div class="retenir"><strong>À retenir</strong> On arrête les jetons dans <code>localStorage</code> : tout script de la page peut les lire.
+Par défaut, un cookie <code>httpOnly</code> + <code>Secure</code> + <code>SameSite</code> posé par le serveur, avec un jeton XSRF ; avec un
+fournisseur d'identité, un BFF ; à défaut, access token en mémoire + refresh token en cookie <code>httpOnly</code>. Front et API sur la même
+origine (proxy) simplifient tout.</div>
+<p class="doc">📖 <a href="https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html#local-storage">OWASP : stockage local</a> ·
+<a href="https://developer.mozilla.org/fr/docs/Web/HTTP/Cookies">MDN : cookies</a> ·
+<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-browser-based-apps">IETF : OAuth pour les applications navigateur (BFF)</a> ·
+<a href="https://developer.mozilla.org/fr/docs/Web/HTTP/CORS">MDN : CORS</a> ·
+<a href="https://angular.dev/tools/cli/serve#proxying-to-a-backend-server">Angular : proxy de développement</a> ·
+<a href="https://expressjs.com/en/4x/api.html#res.cookie">Express : res.cookie</a></p>
+</section>
+
+<!-- ============================================================ 4 -->
+<section class="card" id="s4">
+<h2><span class="num">4</span>OIDC, OAuth2 et PKCE : les fournisseurs d'identité</h2>
+<p>Dans une entreprise, l'application n'a souvent pas sa propre table de mots de passe : elle délègue la connexion à un <strong>fournisseur
+d'identité</strong> (Keycloak, Microsoft Entra ID, Auth0, Okta, Google…). Deux standards encadrent ce dialogue. <strong>OAuth 2</strong> sert à
+obtenir un <em>access token</em> pour appeler une API. <strong>OpenID Connect (OIDC)</strong> ajoute par-dessus la question « qui est
+l'utilisateur ? », avec un <em>ID token</em> (un JWT) qui le décrit.</p>
+
+<h3>Le flux Authorization Code avec PKCE</h3>
+<p>Pour une application qui tourne dans le navigateur, le seul flux recommandé aujourd'hui est <em>Authorization Code</em> avec
+<strong>PKCE</strong> (<em>Proof Key for Code Exchange</em>). L'ancien flux <em>implicit</em>, qui renvoyait le jeton directement dans l'URL, est
+abandonné. Le principe de PKCE : l'application invente un secret à usage unique avant de partir, et devra le présenter pour échanger le code.</p>
+<ol>
+<li>L'application génère un <code>code_verifier</code> aléatoire et en calcule l'empreinte, le <code>code_challenge</code> (SHA-256).</li>
+<li>Elle redirige l'utilisateur vers la page de connexion du fournisseur, avec le <code>code_challenge</code>.</li>
+<li>L'utilisateur se connecte <strong>chez le fournisseur</strong> : l'application ne voit jamais son mot de passe.</li>
+<li>Le fournisseur redirige vers l'application avec un <code>code</code> à usage unique dans l'URL.</li>
+<li>L'application échange <code>code</code> + <code>code_verifier</code> contre les jetons. Un code intercepté ne sert à rien sans le <code>code_verifier</code>.</li>
+</ol>
+<p>Qui mène ce dialogue ? Soit la SPA elle-même, avec une des bibliothèques ci-dessous, et les jetons vivent dans le navigateur ; soit un
+BFF, qui fait l'échange côté serveur et ne rend qu'un cookie <code>httpOnly</code> : c'est l'option la plus sûre, et côté Angular on retrouve
+alors exactement le code de la section 5.</p>
+
+<h3>Les bibliothèques maintenues</h3>
+<p>Les trois bibliothèques suivantes ont été vérifiées sur npm le 2026-10-13 : version, plage de compatibilité Angular déclarée
+(<code>peerDependencies</code>) et date de publication. Les noms d'API cités viennent de leur README publié ; ils n'ont pas été exercés dans
+le projet de vérification.</p>
+<table>
+<tr><th>Paquet</th><th>Version</th><th>Angular accepté</th><th>Quand la choisir</th></tr>
+<tr><td><code>angular-auth-oidc-client</code></td><td>22.0.1 (2026-09-21)</td><td><code>&gt;=20.0.0</code></td><td>n'importe quel fournisseur OIDC ; même version pour un projet v20 et v22</td></tr>
+<tr><td><code>keycloak-angular</code></td><td>22.0.0</td><td><code>^22</code> (et <code>keycloak-js</code> 18 à 26)</td><td>le fournisseur est Keycloak ; en v20, rester sur <code>keycloak-angular</code> 20.x</td></tr>
+<tr><td><code>angular-oauth2-oidc</code></td><td>22.0.2</td><td><code>&gt;=22.0.0</code></td><td>projets qui l'utilisent déjà ; en v20, la branche 20.x (<code>&gt;=20.0.0</code>)</td></tr>
+</table>
+<p><strong><code>angular-auth-oidc-client</code></strong> est certifiée par l'OpenID Foundation et gère tous les fournisseurs OIDC modernes :
+code flow + PKCE, renouvellement des jetons, plusieurs configurations. Son point d'entrée est le service <code>OidcSecurityService</code>
+(<code>authorize()</code>, <code>checkAuth()</code>, <code>logoff()</code>). Sa plage <code>&gt;=20</code> en fait le choix naturel d'un parc
+mélangé v20 / v22.</p>
+<p><strong><code>keycloak-angular</code></strong> enveloppe la bibliothèque officielle <code>keycloak-js</code>. Si le fournisseur est Keycloak,
+elle évite de réinventer l'intégration : <code>provideKeycloak</code> l'initialise (via <code>provideAppInitializer</code>),
+<code>withAutoRefreshToken</code> renouvelle les jetons, <code>createAuthGuard</code> fabrique des guards et
+<code>includeBearerTokenInterceptor</code> ajoute le jeton aux requêtes. Elle suit les versions d'Angular une à une (<code>^22</code>).</p>
+<p><strong><code>angular-oauth2-oidc</code></strong> est la plus ancienne des trois, très répandue dans le code existant. Elle se configure avec
+<code>provideOAuthClient()</code> et le service <code>OAuthService</code>, supporte code flow + PKCE, et, d'après son README, range les jetons par
+défaut dans <code>sessionStorage</code> : à remplacer par un stockage en mémoire si l'on suit la section 3.</p>
+
+<div class="retenir"><strong>À retenir</strong> OAuth 2 = obtenir un jeton pour une API ; OIDC = savoir qui est l'utilisateur (ID token).
+Dans le navigateur : Authorization Code + PKCE, jamais <em>implicit</em>. Le plus sûr : un BFF qui garde les jetons. Sinon,
+<code>angular-auth-oidc-client</code> (tout fournisseur, v20 et v22) ou <code>keycloak-angular</code> (Keycloak).</div>
+<p class="doc">📖 <a href="https://oauth.net/2/pkce/">oauth.net : PKCE</a> ·
+<a href="https://openid.net/developers/how-connect-works/">OpenID : comment fonctionne OIDC</a> ·
+<a href="https://www.npmjs.com/package/angular-auth-oidc-client">angular-auth-oidc-client</a> ·
+<a href="https://www.npmjs.com/package/keycloak-angular">keycloak-angular</a> ·
+<a href="https://www.npmjs.com/package/angular-oauth2-oidc">angular-oauth2-oidc</a></p>
+</section>
+
+<!-- ============================================================ 5 -->
+<section class="card" id="s5">
+<h2><span class="num">5</span>Côté Angular : session, intercepteur, XSRF</h2>
+<p>Avec un cookie <code>httpOnly</code>, le travail d'Angular change de nature : il n'a plus de jeton à stocker ni à recopier. Il lui reste
+quatre tâches, traitées dans l'ordre : savoir qui est connecté, retrouver cette information au démarrage, réagir quand le serveur dit
+« session expirée », et envoyer le jeton XSRF sur les requêtes qui modifient.</p>
+
+<h3>La session dans un signal</h3>
+<p>Ce que l'application doit savoir de l'utilisateur tient dans une interface : son nom et ses rôles, tels que le serveur les renvoie.
+Le même fichier déclare les actions et les sujets que l'autorisation manipulera en section 7.</p>
+<div class="file">src/app/auth/session.ts</div><pre><code><span class="cm">// Ce que le serveur renvoie sur GET /auth/me : QUI est connecté, et avec quels rôles.</span>
+<span class="kw">export</span> <span class="kw">interface</span> Session {
+  username: string;
+  roles: string[];
+}
+
+<span class="kw">export</span> <span class="kw">type</span> Action = <span class="str">'read'</span> | <span class="str">'edit'</span> | <span class="str">'delete'</span>;
+<span class="kw">export</span> <span class="kw">type</span> Subject = <span class="str">'Product'</span>;</code></pre>
+
+<p>Le service <code>AuthService</code> garde cette session dans un <code>signal</code> privé et n'expose qu'une version en lecture seule, plus
+un <code>computed</code> <code>isLoggedIn</code>. Le point important est la <strong>source</strong> de la session : la réponse de
+<code>GET /auth/me</code> ou de <code>POST /auth/login</code>, jamais la lecture d'un jeton côté client. Un JWT décodé dans le navigateur
+peut être périmé, révoqué ou modifié ; la réponse du serveur, elle, reflète la session réelle.</p>
+<div class="file">src/app/auth/auth.service.ts</div><pre><code><span class="fn">@Injectable</span>({ providedIn: <span class="str">'root'</span> })
+<span class="kw">export</span> <span class="kw">class</span> AuthService {
+  <span class="kw">private</span> <span class="kw">readonly</span> http = <span class="fn">inject</span>(HttpClient);
+  <span class="kw">private</span> <span class="kw">readonly</span> router = <span class="fn">inject</span>(Router);
+  <span class="cm">// ...</span>
+  <span class="cm">// la session vient du SERVEUR (GET /auth/me), jamais de la lecture d'un jeton</span>
+  <span class="kw">private</span> <span class="kw">readonly</span> _session = signal&lt;Session | <span class="kw">null</span>&gt;(<span class="kw">null</span>);
+  <span class="kw">readonly</span> session = <span class="kw">this</span>._session.<span class="fn">asReadonly</span>();
+  <span class="kw">readonly</span> isLoggedIn = <span class="fn">computed</span>(() =&gt; <span class="kw">this</span>.<span class="fn">_session</span>() !== <span class="kw">null</span>);
+
+  <span class="cm">// appelé au démarrage (provideAppInitializer) : le cookie httpOnly suffit à retrouver la session après F5</span>
+  <span class="kw">async</span> <span class="fn">loadSession</span>(): Promise&lt;void&gt; {
+    <span class="kw">try</span> {
+      <span class="kw">this</span>.<span class="fn">setSession</span>(<span class="kw">await</span> <span class="fn">firstValueFrom</span>(<span class="kw">this</span>.http.<span class="kw">get</span>&lt;Session&gt;(<span class="str">'/auth/me'</span>)));
+    } <span class="kw">catch</span> {
+      <span class="kw">this</span>.<span class="fn">setSession</span>(<span class="kw">null</span>); <span class="cm">// 401 : personne n'est connecté</span>
+    }
+  }
+
+  <span class="kw">async</span> <span class="fn">login</span>(username: string, password: string): Promise&lt;void&gt; {
+    <span class="cm">// la réponse pose le cookie httpOnly ; le corps ne contient AUCUN jeton</span>
+    <span class="kw">this</span>.<span class="fn">setSession</span>(<span class="kw">await</span> <span class="fn">firstValueFrom</span>(<span class="kw">this</span>.http.<span class="fn">post</span>&lt;Session&gt;(<span class="str">'/auth/login'</span>, { username, password })));
+  }
+
+  <span class="kw">async</span> <span class="fn">logout</span>(): Promise&lt;void&gt; {
+    <span class="kw">await</span> <span class="fn">firstValueFrom</span>(<span class="kw">this</span>.http.<span class="fn">post</span>(<span class="str">'/auth/logout'</span>, {}));
+    <span class="kw">this</span>.<span class="fn">setSession</span>(<span class="kw">null</span>);
+    <span class="kw">await</span> <span class="kw">this</span>.router.<span class="fn">navigateByUrl</span>(<span class="str">'/login'</span>);
+  }
+
+  <span class="cm">// appelé par l'intercepteur quand le serveur répond 401</span>
+  <span class="fn">clear</span>(): void {
+    <span class="kw">this</span>.<span class="fn">setSession</span>(<span class="kw">null</span>);
+  }</code></pre>
+
+<h3>Retrouver la session au démarrage</h3>
+<p>Après F5, le signal repart à <code>null</code>, mais le cookie est toujours là. <code>provideAppInitializer</code> appelle
+<code>loadSession()</code> et Angular <strong>attend</strong> la promesse avant la première navigation : les guards de la section 6 connaissent
+donc déjà la session quand ils s'exécutent. Sans cette attente, un F5 sur une page protégée renverrait vers la connexion alors que
+l'utilisateur est connecté.</p>
+<div class="file">src/app/app.config.ts</div><pre><code><span class="kw">export</span> <span class="kw">const</span> appConfig: ApplicationConfig = {
+  providers: [
+    <span class="fn">provideBrowserGlobalErrorListeners</span>(),
+    <span class="fn">provideRouter</span>(routes),
+    <span class="fn">provideHttpClient</span>(
+      <span class="fn">withInterceptors</span>([authInterceptor]),
+      <span class="cm">// valeurs par défaut, écrites ici pour les voir : le cookie lu, l'en-tête envoyé</span>
+      <span class="fn">withXsrfConfiguration</span>({ cookieName: <span class="str">'XSRF-TOKEN'</span>, headerName: <span class="str">'X-XSRF-TOKEN'</span> }),
+    ),
+    <span class="cm">// ...</span>
+    <span class="cm">// avant la première navigation : GET /auth/me, pour que les guards connaissent déjà la session</span>
+    <span class="fn">provideAppInitializer</span>(() =&gt; <span class="fn">inject</span>(AuthService).<span class="fn">loadSession</span>()),
+  ],
+};</code></pre>
+
+<h3>L'intercepteur : cookies et 401</h3>
+<p>L'intercepteur fonctionnel a deux rôles. Il pose <code>withCredentials: true</code> sur chaque requête : derrière le proxy, ce n'est pas
+nécessaire (même origine), mais si l'API est sur une autre origine, c'est ce qui demande au navigateur de joindre les cookies. Le serveur doit
+alors répondre avec CORS (<em>Cross-Origin Resource Sharing</em>, les en-têtes par lesquels une API autorise une autre origine) :
+<code>Access-Control-Allow-Credentials: true</code> et une origine explicite dans <code>Access-Control-Allow-Origin</code>, jamais
+<code>*</code>. Et <code>SameSite</code> continue de s'appliquer : un cookie <code>Strict</code> ne part pas vers un autre site. Et il traite le <code>401</code> d'un appel métier comme
+une session expirée : il vide la session et renvoie vers <code>/login</code> en gardant la page courante dans <code>returnUrl</code>. Les appels
+à <code>/auth/</code> sont exclus, sinon un mauvais mot de passe (401 aussi) déclencherait une redirection.</p>
+<div class="file">src/app/auth/auth.interceptor.ts</div><pre><code><span class="kw">export</span> <span class="kw">const</span> authInterceptor: HttpInterceptorFn = (req, next) =&gt; {
+  <span class="kw">const</span> router = <span class="fn">inject</span>(Router);
+  <span class="kw">const</span> auth = <span class="fn">inject</span>(AuthService);
+
+  <span class="cm">// withCredentials : le navigateur joint les cookies même si l'API est sur une autre origine</span>
+  <span class="cm">// (inutile derrière le proxy de dev, indispensable si l'API est sur api.example.com)</span>
+  <span class="kw">return</span> <span class="fn">next</span>(req.<span class="fn">clone</span>({ withCredentials: <span class="kw">true</span> })).<span class="fn">pipe</span>(
+    <span class="fn">catchError</span>((err: unknown) =&gt; {
+      <span class="cm">// 401 sur un appel métier = session expirée : on vide la session et on renvoie vers /login</span>
+      <span class="kw">if</span> (err instanceof HttpErrorResponse &amp;&amp; err.status === 401 &amp;&amp; !req.url.<span class="fn">startsWith</span>(<span class="str">'/auth/'</span>)) {
+        auth.<span class="fn">clear</span>();
+        router.<span class="fn">navigate</span>([<span class="str">'/login'</span>], { queryParams: { returnUrl: router.url } });
+      }
+      <span class="kw">return</span> <span class="fn">throwError</span>(() =&gt; err);
+    }),
+  );
+};</code></pre>
+<p><small>L'intercepteur injecte <code>AuthService</code>, qui injecte lui-même <code>HttpClient</code> : il n'y a pas de dépendance circulaire,
+car un intercepteur fonctionnel n'est exécuté (et ses <code>inject()</code> résolus) qu'au moment d'une requête.</small></p>
+
+<h3>XSRF : le double submit</h3>
+<p>Un cookie part automatiquement, y compris sur une requête déclenchée par un autre site : c'est le risque CSRF (Angular dit XSRF, c'est la même chose). <code>SameSite=Strict</code>
+le bloque déjà dans les navigateurs récents ; le jeton XSRF ajoute une seconde barrière. Le serveur pose un deuxième cookie,
+<code>XSRF-TOKEN</code>, volontairement <strong>lisible</strong> par JavaScript. Sur chaque requête qui modifie (<code>POST</code>,
+<code>PUT</code>, <code>DELETE</code>…), Angular recopie sa valeur dans l'en-tête <code>X-XSRF-TOKEN</code>, et le serveur vérifie que les deux
+sont égaux. Un autre site peut faire partir le cookie, mais il ne peut pas le lire, donc pas écrire l'en-tête.</p>
+<p>Angular fait la recopie tout seul, avec les noms par défaut <code>XSRF-TOKEN</code> et <code>X-XSRF-TOKEN</code> ;
+<code>withXsrfConfiguration</code>, vu plus haut dans <code>app.config.ts</code>, permet de les changer. Côté serveur, la vérification tient en
+quelques lignes, appliquée à la déconnexion et aux écritures sur <code>/api</code>.</p>
+<div class="file">api/server.cjs</div><pre><code><span class="cm">// double submit : sur toute requête qui modifie, l'en-tête X-XSRF-TOKEN doit recopier le cookie XSRF-TOKEN</span>
+<span class="kw">function</span> <span class="fn">checkXsrf</span>(req, res, next) {
+  <span class="kw">if</span> ([<span class="str">'GET'</span>, <span class="str">'HEAD'</span>, <span class="str">'OPTIONS'</span>].<span class="fn">includes</span>(req.method)) <span class="kw">return</span> <span class="fn">next</span>();
+  <span class="kw">const</span> cookie = req.cookies[<span class="str">'XSRF-TOKEN'</span>];
+  <span class="kw">if</span> (!cookie || req.<span class="kw">get</span>(<span class="str">'X-XSRF-TOKEN'</span>) !== cookie) {
+    <span class="kw">return</span> res.<span class="fn">status</span>(403).<span class="fn">json</span>({ error: <span class="str">'XSRF token manquant ou invalide'</span> });
+  }
+  <span class="fn">next</span>();
+}
+<span class="cm">// ...</span>
+server.<span class="fn">post</span>(<span class="str">'/auth/logout'</span>, checkXsrf, (req, res) =&gt; {
+  sessions.<span class="fn">delete</span>(req.cookies.sid);
+  res.<span class="fn">clearCookie</span>(<span class="str">'sid'</span>, { path: <span class="str">'/'</span> });
+  res.<span class="fn">clearCookie</span>(<span class="str">'XSRF-TOKEN'</span>, { path: <span class="str">'/'</span> });
+  res.<span class="fn">status</span>(204).<span class="fn">end</span>();
+});</code></pre>
+<p><small>Le jeton de la démonstration est une simple valeur aléatoire. L'OWASP recommande d'aller plus loin en production : un jeton signé
+par le serveur, ou lié à la session, pour qu'un sous-domaine compromis ne puisse pas poser son propre cookie <code>XSRF-TOKEN</code>.</small></p>
+<p><small>Une limite à connaître, lue dans le code d'Angular 22.2 (<code>xsrfInterceptorFn</code>) : l'en-tête n'est ajouté que pour une
+requête qui n'est ni <code>GET</code> ni <code>HEAD</code>, <strong>et</strong> dont l'origine est celle de la page. Vers une API sur un autre
+domaine, Angular n'envoie pas l'en-tête : il faut alors un intercepteur maison, ou, plus simple, remettre l'API sur la même origine (proxy, BFF).</small></p>
+
+<h3>Connexion et déconnexion</h3>
+<p>La page de connexion reprend Signal Forms, vu au jour 2. L'action d'envoi appelle <code>auth.login()</code>, puis revient à la page
+demandée avant la redirection du guard, lue dans <code>returnUrl</code>.</p>
+<div class="file">src/app/pages/login.ts</div><pre><code><span class="kw">readonly</span> credentials = <span class="fn">signal</span>({ username: <span class="str">''</span>, password: <span class="str">''</span> });
+<span class="kw">readonly</span> f = <span class="fn">form</span>(
+  <span class="kw">this</span>.credentials,
+  (p) =&gt; {
+    <span class="fn">required</span>(p.username);
+    <span class="fn">required</span>(p.password);
+  },
+  {
+    submission: {
+      action: <span class="kw">async</span> (field) =&gt; {
+        <span class="kw">const</span> { username, password } = <span class="fn">field</span>().<span class="fn">value</span>();
+        <span class="kw">try</span> {
+          <span class="kw">await</span> <span class="kw">this</span>.auth.<span class="fn">login</span>(username, password);
+          <span class="cm">// retour à la page demandée avant la redirection du guard</span>
+          <span class="kw">await</span> <span class="kw">this</span>.router.<span class="fn">navigateByUrl</span>(<span class="kw">this</span>.route.snapshot.queryParamMap.<span class="kw">get</span>(<span class="str">'returnUrl'</span>) ?? <span class="str">'/'</span>);
+        } <span class="kw">catch</span> {
+          <span class="kw">this</span>.error.<span class="fn">set</span>(<span class="str">'Identifiants invalides'</span>);
+        }
+      },
+    },
+  },
+);</code></pre>
+<p>La déconnexion, déjà vue dans le service, appelle <code>POST /auth/logout</code> : le serveur supprime la session et efface les deux
+cookies. Vider le signal côté client ne suffirait pas, puisque le cookie <code>httpOnly</code> resterait valable.</p>
+
+<h3>Ce qu'on observe</h3>
+<p>Voici ce que montre le navigateur pour chacun des mécanismes de cette section, avec les deux comptes de démonstration.</p>
+<table>
+<tr><th>Action dans le navigateur</th><th>Observé</th></tr>
+<tr><td><code>alice</code> avec un mauvais mot de passe</td><td><code>POST /auth/login</code> 401, message « Identifiants invalides », pas de redirection</td></tr>
+<tr><td><code>alice</code> / <code>alice</code></td><td>retour à <code>/account</code> (la page demandée), qui affiche <code>{ "username": "alice", "roles": ["customer"] }</code></td></tr>
+<tr><td><code>fetch('/auth/logout', { method: 'POST' })</code>, sans en-tête</td><td>403 <code>{ "error": "XSRF token manquant ou invalide" }</code></td></tr>
+<tr><td>bouton « Se déconnecter » (<code>HttpClient</code> ajoute l'en-tête)</td><td>204, page <code>/login</code>, <code>document.cookie</code> vaut <code>""</code>, puis <code>/auth/me</code> répond 401</td></tr>
+<tr><td>en <code>admin</code>, « Supprimer » sur un produit</td><td>le <code>DELETE</code> passe (en-tête XSRF ajouté automatiquement), la liste passe de 3 à 2 produits</td></tr>
+<tr><td>API redémarrée (sessions perdues), puis « Supprimer »</td><td><code>DELETE /api/products/2</code> 401, l'intercepteur renvoie vers <code>/login?returnUrl=%2F</code>, le bouton « Se déconnecter » disparaît</td></tr>
+</table>
+
+<div class="retenir"><strong>À retenir</strong> La session vit dans un <code>signal</code>, remplie par <code>GET /auth/me</code> (au
+démarrage, via <code>provideAppInitializer</code>) ou par la réponse du login. L'intercepteur pose <code>withCredentials</code> et transforme
+un 401 en retour vers <code>/login</code>. Le jeton XSRF (cookie lisible + en-tête recopié) protège les écritures, et Angular ne l'envoie qu'à
+sa propre origine.</div>
+<p class="doc">📖 <a href="https://angular.dev/guide/http/interceptors">intercepteurs</a> ·
+<a href="https://angular.dev/best-practices/security#httpclient-xsrf-csrf-security">HttpClient et XSRF</a> ·
+<a href="https://angular.dev/api/common/http/withXsrfConfiguration">withXsrfConfiguration</a> ·
+<a href="https://angular.dev/api/core/provideAppInitializer">provideAppInitializer</a> ·
+<a href="https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html">OWASP : CSRF</a></p>
+</section>
+
+<!-- ============================================================ 6 -->
+<section class="card" id="s6">
+<h2><span class="num">6</span>Les guards</h2>
+<p>Un guard est une fonction que le routeur appelle avant une navigation. Elle répond <code>true</code> (on continue), <code>false</code> (on
+reste), ou une <strong>redirection</strong>. Rappel de la section 1 : c'est de l'ergonomie, le serveur reste le seul juge. Le type de retour
+dans Angular 22 est <code>MaybeAsync&lt;GuardResult&gt;</code>, avec <code>GuardResult = boolean | UrlTree | RedirectCommand</code> : une valeur
+directe, une promesse ou un Observable.</p>
+<p>Angular propose trois types de guards fonctionnels, un par question.</p>
+<table>
+<tr><th>Type</th><th>Posé dans la route</th><th>Question posée</th></tr>
+<tr><td><code>CanActivateFn</code></td><td><code>canActivate</code></td><td>peut-on afficher cette route ?</td></tr>
+<tr><td><code>CanMatchFn</code></td><td><code>canMatch</code></td><td>cette route doit-elle même être <em>retenue</em> ? Si non, le routeur essaie la suivante, et un <code>loadComponent</code> n'est pas téléchargé</td></tr>
+<tr><td><code>CanDeactivateFn&lt;T&gt;</code></td><td><code>canDeactivate</code></td><td>peut-on quitter le composant <code>T</code> ?</td></tr>
+</table>
+
+<h3>CanActivateFn : connecté, sinon /login</h3>
+<p>Le premier guard lit <code>isLoggedIn()</code>. S'il n'y a personne, il renvoie un <code>UrlTree</code> vers <code>/login</code>, en gardant
+l'URL demandée : c'est ce <code>returnUrl</code> que relit la page de connexion.</p>
+<div class="file">src/app/auth/auth.guards.ts</div><pre><code><span class="cm">// 1. connecté ou pas : sinon, redirection vers /login en gardant l'URL demandée</span>
+<span class="kw">export</span> <span class="kw">const</span> authGuard: CanActivateFn = (_route, state) =&gt; {
+  <span class="kw">const</span> auth = <span class="fn">inject</span>(AuthService);
+  <span class="kw">const</span> router = <span class="fn">inject</span>(Router);
+  <span class="kw">return</span> auth.<span class="fn">isLoggedIn</span>() ? <span class="kw">true</span> : router.<span class="fn">createUrlTree</span>([<span class="str">'/login'</span>], { queryParams: { returnUrl: state.url } });
+};</code></pre>
+<p>On l'a vérifié dans le navigateur : sans être connecté, ouvrir <code>/account</code> mène à <code>/login?returnUrl=%2Faccount</code> ; après la connexion, on arrive
+sur <code>/account</code>.</p>
+
+<h3>Une fabrique de guards, CanMatchFn et RedirectCommand</h3>
+<p>Pour un guard qui dépend d'un paramètre (un rôle), on écrit une <strong>fabrique</strong> : une fonction qui reçoit le paramètre et
+renvoie le guard. <code>roleGuard('admin')</code> renvoie un <code>CanMatchFn</code>. Pour rediriger, il utilise <code>RedirectCommand</code>
+plutôt qu'un simple <code>UrlTree</code> : la classe existe dans les types de <code>@angular/router</code> 22.2.2
+(<code>constructor(redirectTo: UrlTree, navigationBehaviorOptions?: NavigationBehaviorOptions)</code>) et permet de passer des options de
+navigation, ici <code>skipLocationChange</code> pour ne pas changer l'URL affichée.</p>
+<div class="file">src/app/auth/auth.guards.ts</div><pre><code><span class="cm">// 2. une FABRIQUE de guard : roleGuard('admin') renvoie un CanMatchFn paramétré</span>
+<span class="kw">export</span> <span class="kw">function</span> <span class="fn">roleGuard</span>(role: string): CanMatchFn {
+  <span class="kw">return</span> () =&gt; {
+    <span class="kw">const</span> auth = <span class="fn">inject</span>(AuthService);
+    <span class="kw">const</span> router = <span class="fn">inject</span>(Router);
+    <span class="kw">if</span> (auth.<span class="fn">hasRole</span>(role)) <span class="kw">return</span> <span class="kw">true</span>;
+    <span class="cm">// RedirectCommand : une redirection AVEC options de navigation (ici, l'URL affichée ne change pas)</span>
+    <span class="kw">return</span> <span class="kw">new</span> <span class="fn">RedirectCommand</span>(router.<span class="fn">parseUrl</span>(<span class="str">'/forbidden'</span>), { skipLocationChange: <span class="kw">true</span> });
+  };
+}</code></pre>
+<p>Dans la configuration des routes, chaque guard se place sous sa clé. Pour <code>/admin</code>, <code>canMatch</code> est évalué
+<strong>avant</strong> <code>loadComponent</code> : sans le rôle, le fichier JavaScript de la page d'administration n'est jamais demandé au serveur.</p>
+<div class="file">src/app/app.routes.ts</div><pre><code><span class="kw">export</span> <span class="kw">const</span> routes: Routes = [
+  { path: <span class="str">''</span>, component: Home },
+  { path: <span class="str">'login'</span>, component: Login },
+  { path: <span class="str">'account'</span>, component: Account, canActivate: [authGuard] },
+  {
+    path: <span class="str">'profile'</span>,
+    component: ProfileEdit,
+    canActivate: [authGuard],
+    canDeactivate: [unsavedChangesGuard],
+  },
+  {
+    path: <span class="str">'admin'</span>,
+    <span class="cm">// canMatch AVANT loadComponent : sans le rôle, le chunk n'est même pas téléchargé</span>
+    canMatch: [<span class="fn">roleGuard</span>(<span class="str">'admin'</span>)],
+    loadComponent: () =&gt; <span class="kw">import</span>(<span class="str">'./pages/admin-page'</span>).<span class="fn">then</span>((m) =&gt; m.AdminPage),
+  },
+  { path: <span class="str">'forbidden'</span>, component: Forbidden },
+<span class="cm">// ...</span>
+];</code></pre>
+
+<p>Le navigateur confirme la différence entre les deux comptes. Le menu de l'application contient un lien « Admin » visible de tous ; on compare
+les fichiers JavaScript chargés avant et après un clic dessus.</p>
+<table>
+<tr><th>Compte</th><th>Affiché</th><th>URL</th><th>Nouveau fichier JS</th></tr>
+<tr><td><code>alice</code> (customer)</td><td>« Accès refusé »</td><td>reste <code>/</code> (<code>skipLocationChange</code>)</td><td><strong>aucun</strong></td></tr>
+<tr><td><code>admin</code></td><td>« Administration »</td><td><code>/admin</code></td><td><code>/chunk-FRAMWST6.js</code> (le composant <code>AdminPage</code>)</td></tr>
+</table>
+<p><small>Nouveauté de la v22 : dans le type <code>CanMatchFn</code>, le troisième paramètre <code>currentSnapshot</code> devient obligatoire
+(changelog 22.0.0, avec une migration automatique). Un guard qui n'utilise pas ses paramètres, comme celui-ci, compile sans changement.</small></p>
+
+<h3>CanDeactivateFn : ne pas perdre une saisie</h3>
+<p>Le dernier guard regarde le composant qu'on quitte. On lui donne un contrat, l'interface <code>HasUnsavedChanges</code>, que le composant
+implémente : le guard ne connaît pas le composant, seulement la question qu'il sait poser.</p>
+<div class="file">src/app/auth/auth.guards.ts</div><pre><code><span class="cm">// 3. quitter une page avec des modifications non enregistrées</span>
+<span class="kw">export</span> <span class="kw">interface</span> HasUnsavedChanges {
+  <span class="fn">hasUnsavedChanges</span>(): boolean;
+}
+<span class="kw">export</span> <span class="kw">const</span> unsavedChangesGuard: CanDeactivateFn&lt;HasUnsavedChanges&gt; = (component) =&gt;
+  component.<span class="fn">hasUnsavedChanges</span>() ? <span class="fn">confirm</span>(<span class="str">'Des modifications ne sont pas enregistrées. Quitter quand même ?'</span>) : <span class="kw">true</span>;</code></pre>
+<p>Le composant, lui, implémente ce contrat : il compare la saisie en cours à la dernière valeur enregistrée.</p>
+<div class="file">src/app/pages/profile-edit.ts</div><pre><code><span class="kw">export</span> <span class="kw">class</span> ProfileEdit <span class="kw">implements</span> HasUnsavedChanges {
+  <span class="kw">readonly</span> bio = <span class="fn">signal</span>(<span class="str">''</span>);
+  <span class="kw">private</span> <span class="kw">readonly</span> saved = <span class="fn">signal</span>(<span class="str">''</span>);
+
+  <span class="fn">save</span>() {
+    <span class="kw">this</span>.saved.<span class="fn">set</span>(<span class="kw">this</span>.<span class="fn">bio</span>());
+  }
+
+  <span class="cm">// lu par unsavedChangesGuard avant de quitter la route</span>
+  <span class="fn">hasUnsavedChanges</span>(): boolean {
+    <span class="kw">return</span> <span class="kw">this</span>.<span class="fn">bio</span>() !== <span class="kw">this</span>.<span class="fn">saved</span>();
+  }
+}</code></pre>
+<p>On l'a vérifié dans le navigateur, avec <code>window.confirm</code> remplacé dans la console pour répondre à la place de l'utilisateur : sur <code>/profile</code>,
+après la saisie « Bonjour », un clic sur « Accueil » affiche le message « Des modifications ne sont pas enregistrées. Quitter quand même ? » ;
+la réponse <em>non</em> laisse sur <code>/profile</code>, la réponse <em>oui</em> mène à <code>/</code>.</p>
+
+<h3>Reconnaître les anciens guards en classe</h3>
+<p>Dans un projet v20, on croise encore des guards écrits comme des <strong>classes</strong> qui implémentent <code>CanActivate</code> et que la
+route désigne par leur nom. Passer une classe (ou un <code>InjectionToken</code>) dans <code>canActivate</code> est déprécié depuis la v15.2 au
+profit des fonctions ; dans les types v22, ce cas porte le nom <code>DeprecatedGuard</code>, marqué <code>@deprecated</code>. Les interfaces
+<code>CanActivate</code>, <code>CanMatch</code>… restent exportées sans être dépréciées elles-mêmes : c'est la façon de les brancher qui l'est.
+Le code compile encore, ce qui explique qu'il survive.</p>
+<div class="file">src/app/auth/legacy-auth.guard.ts</div><pre><code><span class="cm">// Le style d'avant la v15.2, encore courant dans le code v20 : une CLASSE qui implémente CanActivate,</span>
+<span class="cm">// déclarée dans la route par son nom : canActivate: [LegacyAuthGuard]</span>
+<span class="fn">@Injectable</span>({ providedIn: <span class="str">'root'</span> })
+<span class="kw">export</span> <span class="kw">class</span> LegacyAuthGuard <span class="kw">implements</span> CanActivate {
+  <span class="kw">private</span> <span class="kw">readonly</span> auth = <span class="fn">inject</span>(AuthService);
+  <span class="kw">private</span> <span class="kw">readonly</span> router = <span class="fn">inject</span>(Router);
+
+  <span class="fn">canActivate</span>(): boolean | UrlTree {
+    <span class="kw">return</span> <span class="kw">this</span>.auth.<span class="fn">isLoggedIn</span>() || <span class="kw">this</span>.router.<span class="fn">parseUrl</span>(<span class="str">'/login'</span>);
+  }
+}</code></pre>
+<p>Pour migrer, on garde la logique et on la met dans une fonction <code>CanActivateFn</code> avec <code>inject()</code>, comme
+<code>authGuard</code> plus haut. De même, <code>canLoad</code> est déprécié depuis la v15.1 : <code>canMatch</code> le remplace.</p>
+
+<div class="retenir"><strong>À retenir</strong> Guards fonctionnels : <code>CanActivateFn</code> (afficher ?), <code>CanMatchFn</code>
+(retenir la route, et ne pas télécharger un fichier chargé à la demande), <code>CanDeactivateFn</code> (quitter ?). Rediriger avec un <code>UrlTree</code>, ou
+<code>RedirectCommand</code> pour passer des options de navigation. Un paramètre = une fabrique, <code>roleGuard('admin')</code>. Les classes
+passées par leur nom dans la route sont l'ancien style, déprécié.</div>
+<p class="doc">📖 <a href="https://angular.dev/guide/routing/route-guards">guide : route guards</a> ·
+<a href="https://angular.dev/api/router/RedirectCommand">RedirectCommand</a> ·
+<a href="https://angular.dev/api/router/CanMatchFn">CanMatchFn</a> ·
+<a href="https://angular.dev/api/router/CanDeactivateFn">CanDeactivateFn</a></p>
+</section>
+
+<!-- ============================================================ 7 -->
+<section class="card" id="s7">
+<h2><span class="num">7</span>Autorisation : rôles, permissions, CASL</h2>
+<p>Une fois l'utilisateur connu, reste à décider ce qu'il peut faire. Deux modèles se rencontrent, souvent mélangés.</p>
+<table>
+<tr><th>Modèle</th><th>Principe</th><th>Exemple</th></tr>
+<tr><td><strong>RBAC</strong> (<em>role-based access control</em>)</td><td>les droits découlent du rôle</td><td><code>admin</code> peut supprimer un produit, <code>customer</code> peut le lire</td></tr>
+<tr><td><strong>ACL</strong> / règles par ressource</td><td>les droits dépendent aussi de la ressource</td><td>un client peut modifier <em>ses</em> commandes, pas celles des autres</td></tr>
+</table>
+<p>Dans les deux cas, les rôles viennent du serveur, dans la réponse de <code>/auth/me</code> : c'est le champ <code>roles</code> de la
+session de la section 5.</p>
+
+<h3>hasRole() et can() dans le service</h3>
+<p>La première étape est de donner au reste de l'application deux questions simples. <code>hasRole()</code> teste un rôle ;
+<code>can(action, sujet)</code> teste une <strong>permission</strong>, déduite des rôles par une table. Les composants demandent
+« peut-on supprimer un produit ? » plutôt que « est-ce un admin ? » : le jour où un rôle <code>editor</code> apparaît, seule la table change.</p>
+<div class="file">src/app/auth/auth.service.ts</div><pre><code><span class="cm">// RBAC écrit à la main : chaque rôle donne une liste de permissions "action:sujet"</span>
+<span class="kw">const</span> PERMISSIONS: Record&lt;string, <span class="kw">readonly</span> string[]&gt; = {
+  customer: [<span class="str">'read:Product'</span>],
+  admin: [<span class="str">'read:Product'</span>, <span class="str">'edit:Product'</span>, <span class="str">'delete:Product'</span>],
+};
+  <span class="cm">// ...</span>
+  <span class="fn">hasRole</span>(role: string): boolean {
+    <span class="kw">return</span> <span class="kw">this</span>.<span class="fn">_session</span>()?.roles.<span class="fn">includes</span>(role) ?? <span class="kw">false</span>;
+  }
+
+  <span class="fn">can</span>(action: Action, subject: Subject): boolean {
+    <span class="kw">const</span> roles = <span class="kw">this</span>.<span class="fn">_session</span>()?.roles ?? [];
+    <span class="kw">return</span> roles.<span class="fn">some</span>((role) =&gt; PERMISSIONS[role]?.<span class="fn">includes</span>(<span class="str">`${action}:${subject}`</span>));
+  }</code></pre>
+<p>Comme ces méthodes lisent le signal <code>_session</code>, un template qui les appelle se met à jour tout seul à la connexion et à la déconnexion.</p>
+
+<h3>Dans le template : @if plutôt qu'une directive</h3>
+<p>Deux écritures sont possibles. La première est une directive structurelle maison, <code>*appIfRole</code>, qui crée ou détruit le bloc
+selon le rôle ; un <code>effect</code> la relance quand la session change.</p>
+<div class="file">src/app/auth/if-role.directive.ts</div><pre><code><span class="cm">// *appIfRole="'admin'" : affiche le bloc seulement si la session a ce rôle</span>
+<span class="fn">@Directive</span>({ selector: <span class="str">'[appIfRole]'</span> })
+<span class="kw">export</span> <span class="kw">class</span> IfRole {
+  <span class="kw">private</span> <span class="kw">readonly</span> auth = <span class="fn">inject</span>(AuthService);
+  <span class="kw">private</span> <span class="kw">readonly</span> template = <span class="fn">inject</span>(TemplateRef);
+  <span class="kw">private</span> <span class="kw">readonly</span> container = <span class="fn">inject</span>(ViewContainerRef);
+  <span class="kw">readonly</span> appIfRole = input.<span class="fn">required</span>&lt;string&gt;();
+
+  <span class="fn">constructor</span>() {
+    <span class="cm">// effect : relancé quand la session (un signal) ou le rôle demandé changent</span>
+    <span class="fn">effect</span>(() =&gt; {
+      <span class="kw">this</span>.container.<span class="fn">clear</span>();
+      <span class="kw">if</span> (<span class="kw">this</span>.auth.<span class="fn">hasRole</span>(<span class="kw">this</span>.<span class="fn">appIfRole</span>())) {
+        <span class="kw">this</span>.container.<span class="fn">createEmbeddedView</span>(<span class="kw">this</span>.template);
+      }
+    });
+  }
+}</code></pre>
+<p>La seconde n'ajoute rien : le contrôle de flux <code>@if</code> et une méthode du service. La page d'accueil montre les deux, plus une
+troisième forme, <code>@if (can(...))</code>, qui vient de CASL et sera présentée juste après.</p>
+<div class="file">src/app/pages/home.ts</div><pre><code><span class="cm">&lt;!-- 1. la directive structurelle maison --&gt;</span>
+&lt;p *appIfRole=<span class="str">"'admin'"</span>&gt;&lt;a routerLink=<span class="str">"/admin"</span>&gt;Administration&lt;/a&gt;&lt;/p&gt;
+        <span class="cm">&lt;!-- ... --&gt;</span>
+        <span class="cm">&lt;!-- 2. le contrôle de flux et une méthode du service : la forme à préférer --&gt;</span>
+        <span class="fn">@if</span> (auth.can('edit', 'Product')) { &lt;button type=<span class="str">"button"</span>&gt;Modifier&lt;/button&gt; }
+        <span class="cm">&lt;!-- 3. CASL, version signal --&gt;</span>
+        <span class="fn">@if</span> (can('delete', 'Product')) { &lt;button type=<span class="str">"button"</span> (click)=<span class="str">"remove(p.id)"</span>&gt;Supprimer&lt;/button&gt; }</code></pre>
+<p>On préfère la forme <code>@if (auth.can(...))</code>. Elle n'a pas de directive à écrire, importer et tester ; elle accepte un
+<code>@else</code> ; elle parle de permission (<code>can</code>) plutôt que de rôle ; et la même expression sert ailleurs qu'en structure, par
+exemple <code>[disabled]="!auth.can('edit', 'Product')"</code>, ce qu'une directive structurelle ne sait pas faire. La directive garde un
+intérêt si la même condition se répète partout et qu'on veut la nommer.</p>
+<p>On l'a vérifié dans le navigateur : connectée en <code>alice</code>, la page d'accueil affiche les trois produits, sans lien « Administration » ni bouton
+« Modifier » ou « Supprimer ». En <code>admin</code>, le lien apparaît, et chaque produit porte les deux boutons.</p>
+
+<h3>CASL : les règles définies une fois</h3>
+<p>Quand les règles se multiplient, et surtout quand elles dépendent de la ressource (« ses propres commandes »), une table maison devient
+fragile. <strong>CASL</strong> est la bibliothèque de référence : on décrit les capacités une fois, puis on pose partout la même question,
+<code>can(action, sujet)</code>. Deux paquets, vérifiés sur npm le 2026-10-13 et installés dans le projet de vérification :</p>
+<table>
+<tr><th>Paquet</th><th>Version</th><th>Compatibilité</th><th>Exports utiles</th></tr>
+<tr><td><code>@casl/ability</code></td><td>7.0.1 (2026-07-06)</td><td>sans dépendance Angular</td><td><code>AbilityBuilder</code>, <code>createMongoAbility</code>, <code>MongoAbility</code>, <code>Ability</code></td></tr>
+<tr><td><code>@casl/angular</code></td><td>10.0.3 (2026-08-08)</td><td><code>@angular/core</code> 16 à <code>^22.0.0</code>, <code>@casl/ability</code> <code>^7</code></td><td><code>AbilityServiceSignal</code>, <code>AbilityService</code>, <code>AblePipe</code> : ce sont les trois seuls exports, il n'y a pas de directive</td></tr>
+</table>
+<p>Les règles s'écrivent avec <code>AbilityBuilder</code>, à partir de la session. <code>manage</code> et <code>all</code> sont deux mots réservés
+de CASL : toutes les actions, sur tous les sujets.</p>
+<div class="file">src/app/auth/ability.ts</div><pre><code><span class="kw">import</span> { AbilityBuilder, createMongoAbility, MongoAbility } <span class="kw">from</span> <span class="str">'@casl/ability'</span>;
+<span class="kw">import</span> { Action, Session, Subject } <span class="kw">from</span> <span class="str">'./session'</span>;
+
+<span class="cm">// le type des capacités de l'application : [action, sujet]</span>
+<span class="kw">export</span> <span class="kw">type</span> AppAbility = MongoAbility&lt;[Action | <span class="str">'manage'</span>, Subject | <span class="str">'all'</span>]&gt;;
+
+<span class="cm">// les règles, définies UNE fois, à partir des rôles renvoyés par /auth/me</span>
+<span class="kw">export</span> <span class="kw">function</span> <span class="fn">rulesFor</span>(session: Session | <span class="kw">null</span>) {
+  <span class="kw">const</span> { can, rules } = <span class="kw">new</span> <span class="fn">AbilityBuilder</span>&lt;AppAbility&gt;(createMongoAbility);
+  <span class="kw">if</span> (session?.roles.<span class="fn">includes</span>(<span class="str">'admin'</span>)) {
+    <span class="fn">can</span>(<span class="str">'manage'</span>, <span class="str">'all'</span>); <span class="cm">// 'manage' + 'all' : tous les droits</span>
+  } <span class="kw">else</span> <span class="kw">if</span> (session?.roles.<span class="fn">includes</span>(<span class="str">'customer'</span>)) {
+    <span class="fn">can</span>(<span class="str">'read'</span>, <span class="str">'Product'</span>);
+  }
+  <span class="kw">return</span> rules;
+}</code></pre>
+<p>L'instance CASL est fournie une fois pour toute l'application, et le service d'authentification la met à jour à chaque changement de
+session. Le jeton d'injection est la classe <code>Ability</code> : dans la version 7, c'est elle que lit <code>@casl/angular</code> (le code
+compilé de <code>AbilityServiceSignal</code> fait <code>inject(Ability)</code>).</p>
+<div class="file">src/app/app.config.ts</div><pre><code><span class="cm">// l'instance CASL que lit AbilityServiceSignal (le jeton d'injection est la classe Ability)</span>
+{ provide: Ability, useValue: <span class="fn">createMongoAbility</span>() },</code></pre>
+<p>Dans <code>AuthService</code>, cette instance est injectée par la même classe, et chaque changement de session lui passe les nouvelles règles.</p>
+<div class="file">src/app/auth/auth.service.ts</div><pre><code><span class="kw">private</span> <span class="kw">readonly</span> ability = <span class="fn">inject</span>(Ability);
+<span class="cm">// ...</span>
+<span class="kw">private</span> <span class="fn">setSession</span>(session: Session | <span class="kw">null</span>): void {
+  <span class="kw">this</span>._session.<span class="fn">set</span>(session);
+  <span class="kw">this</span>.ability.<span class="fn">update</span>(<span class="fn">rulesFor</span>(session)); <span class="cm">// CASL : mêmes règles, recalculées à chaque changement de session</span>
+}</code></pre>
+<p>Dans un composant, <code>AbilityServiceSignal</code> expose une fonction <code>can</code> qui lit un signal interne, mis à jour à chaque
+<code>update()</code> des règles : le template réagit comme avec un signal ordinaire.</p>
+<div class="file">src/app/pages/home.ts</div><pre><code><span class="kw">export</span> <span class="kw">class</span> Home {
+  <span class="kw">protected</span> <span class="kw">readonly</span> auth = <span class="fn">inject</span>(AuthService);
+  <span class="kw">private</span> <span class="kw">readonly</span> http = <span class="fn">inject</span>(HttpClient);
+  <span class="kw">private</span> <span class="kw">readonly</span> abilityService = inject&lt;AbilityServiceSignal&lt;AppAbility&gt;&gt;(AbilityServiceSignal);
+  <span class="kw">protected</span> <span class="kw">readonly</span> can = <span class="kw">this</span>.abilityService.can;</code></pre>
+<p>Le template l'utilise avec <code>@if (can('delete', 'Product'))</code>, déjà visible plus haut. Le paquet installé appelle deux remarques.
+Le README de <code>@casl/angular</code> qualifie les pipes de <em>deprecated</em> et recommande <code>AbilityServiceSignal</code>. Et l'import du
+pipe <code>AblePipe</code> dans un composant standalone échoue à la compilation, avec
+<code>NG2012: Component imports must be standalone components, directives, pipes, or must be NgModules</code> : ses types publiés ne portent
+pas les métadonnées Angular. On s'en tient donc à <code>AbilityServiceSignal</code>.</p>
+
+<h3>Et ngx-permissions ?</h3>
+<p>On trouve souvent <code>ngx-permissions</code> dans les projets existants. Sa dernière version, 19.0.0, date du 2025-02-04 : aucune
+publication pour Angular 20, 21 ou 22. Sa plage déclarée, <code>&gt;=13 || &gt;25</code>, est ouverte et ne bloque pas l'installation, mais elle
+ne garantit rien : la bibliothèque n'a pas été publiée pour ces versions. À éviter pour un nouveau projet ; dans un projet v20 qui l'utilise,
+c'est un bon candidat au remplacement par <code>@if (auth.can(...))</code> ou CASL.</p>
+
+<h3>Le serveur applique les mêmes règles</h3>
+<p>Tout ce qui précède décide de ce qu'on <em>affiche</em>. Le serveur, lui, décide de ce qui est <em>permis</em>, avec la même règle écrite de
+son côté. C'est ce middleware qui a répondu <code>403</code> à la requête forcée d'<code>alice</code> en section 1.</p>
+<div class="file">api/server.cjs</div><pre><code><span class="cm">// le serveur applique LUI-MÊME les règles : session obligatoire, écriture réservée au rôle admin</span>
+server.<span class="fn">use</span>(<span class="str">'/api'</span>, (req, res, next) =&gt; {
+  <span class="kw">if</span> (!req.session) <span class="kw">return</span> res.<span class="fn">status</span>(401).<span class="fn">json</span>({ error: <span class="str">'Non authentifié'</span> });
+  <span class="kw">if</span> (req.method !== <span class="str">'GET'</span> &amp;&amp; !req.session.roles.<span class="fn">includes</span>(<span class="str">'admin'</span>)) {
+    <span class="kw">return</span> res.<span class="fn">status</span>(403).<span class="fn">json</span>({ error: <span class="str">'Réservé au rôle admin'</span> });
+  }
+  <span class="fn">next</span>();
+}, checkXsrf, router);</code></pre>
+<p><small>Avec CASL, la même définition de règles peut être partagée entre un back-end Node et Angular (<code>@casl/ability</code> ne dépend
+pas d'Angular) ; avec un back-end Java ou .NET, il faut écrire la règle deux fois, et garder la version serveur comme référence.</small></p>
+
+<div class="retenir"><strong>À retenir</strong> Les rôles viennent de <code>/auth/me</code>. Les composants demandent une permission
+(<code>can('delete', 'Product')</code>), pas un rôle. Dans le template, <code>@if (auth.can(...))</code> plutôt qu'une directive. Quand les
+règles grossissent : CASL 7 + <code>@casl/angular</code> 10 avec <code>AbilityServiceSignal</code>. <code>ngx-permissions</code> n'a rien publié
+depuis Angular 19. Et le serveur vérifie toujours.</div>
+<p class="doc">📖 <a href="https://casl.js.org/v7/en/guide/intro">CASL : introduction</a> ·
+<a href="https://casl.js.org/v7/en/package/casl-angular">CASL : intégration Angular</a> ·
+<a href="https://www.npmjs.com/package/@casl/angular">@casl/angular sur npm</a> ·
+<a href="https://angular.dev/guide/directives/structural-directives">directives structurelles</a> ·
+<a href="https://angular.dev/guide/templates/control-flow">contrôle de flux</a></p>
+</section>
+
+<!-- ============================================================ 8 -->
+<section class="card" id="s8">
+<h2><span class="num">8</span>Récapitulatif et choix</h2>
+<p>Le tableau reprend chaque décision de la page, avec le choix par défaut pour un nouveau projet v22 et ce qu'on rencontre, ou ce qu'on
+corrige, dans un projet v20 existant.</p>
+<table>
+<tr><th>Décision</th><th>Nouveau projet v22</th><th>Projet v20 existant</th></tr>
+<tr><td>Où garder le jeton</td><td>cookie <code>httpOnly</code> + <code>Secure</code> + <code>SameSite</code>, ou BFF</td><td>si <code>localStorage</code> : migrer, au minimum access token en mémoire + refresh en cookie <code>httpOnly</code></td></tr>
+<tr><td>Fournisseur d'identité</td><td>BFF ; sinon <code>angular-auth-oidc-client</code> ou <code>keycloak-angular</code> 22</td><td><code>angular-auth-oidc-client</code> 22 (accepte v20), <code>keycloak-angular</code> 20.x</td></tr>
+<tr><td>Savoir qui est connecté</td><td>un <code>signal</code> rempli par <code>GET /auth/me</code>, <code>provideAppInitializer</code></td><td>souvent un <code>BehaviorSubject</code> et un JWT décodé : passer à <code>/auth/me</code></td></tr>
+<tr><td>CSRF</td><td><code>SameSite</code> + jeton XSRF, <code>withXsrfConfiguration</code> si les noms changent</td><td>idem (l'intercepteur XSRF existe depuis longtemps)</td></tr>
+<tr><td>Session expirée</td><td>intercepteur fonctionnel : 401 => <code>/login?returnUrl=…</code></td><td>souvent un <code>HttpInterceptor</code> en classe : le convertir</td></tr>
+<tr><td>Protéger une route</td><td><code>CanActivateFn</code> ; <code>CanMatchFn</code> sur une route lazy</td><td>classes <code>implements CanActivate</code> passées par leur nom : dépréciées, à convertir</td></tr>
+<tr><td>Rediriger depuis un guard</td><td><code>UrlTree</code>, ou <code>RedirectCommand</code> pour des options</td><td><code>UrlTree</code></td></tr>
+<tr><td>Saisie non enregistrée</td><td><code>CanDeactivateFn&lt;HasUnsavedChanges&gt;</code></td><td>idem</td></tr>
+<tr><td>Afficher selon les droits</td><td><code>@if (auth.can(...))</code> ; CASL quand les règles grossissent</td><td><code>ngx-permissions</code> : à remplacer</td></tr>
+<tr><td>Sécurité réelle</td><td colspan="2"><strong>le serveur</strong> vérifie identité et droits à chaque requête, dans les deux cas</td></tr>
+</table>
+
+<p>Pour pratiquer, le lab du jour 3, <a href="https://github.com/bngams/2610-ng/tree/main/03-minishop/">MiniShop</a>, est en cours
+d'écriture. Pour revoir les bases utilisées ici : les signals et le contrôle de flux dans la <a href="../00-intro-syntax-recap/index.html">synthèse
+du jour 1</a>, <code>HttpClient</code>, <code>httpResource</code> et les intercepteurs dans la <a href="../02-demo-http/index.html">démo HTTP</a>,
+Signal Forms dans la <a href="../02-intro-forms/index.html">synthèse sur les formulaires</a>.</p>
+
+<div class="retenir"><strong>À retenir</strong> Le serveur décide ; Angular rend l'expérience fluide. Pas de jeton dans
+<code>localStorage</code> : un cookie <code>httpOnly</code> (ou un BFF), une session dans un signal remplie par <code>/auth/me</code>, des guards
+fonctionnels, et des permissions plutôt que des rôles dans les templates.</div>
+<p class="doc">📖 <a href="https://angular.dev/best-practices/security">Angular : sécurité</a> ·
+<a href="https://angular.dev/guide/routing/route-guards">route guards</a> ·
+<a href="https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html">OWASP : gestion de session</a></p>
+</section>
+
+<footer>
+Authentification et autorisation en Angular 22, formation AELION, jour 3. Les autres synthèses : <a href="../00-intro-syntax-recap/index.html">jour 1</a>,
+<a href="../02-demo-http/index.html">démo HTTP</a>, <a href="../02-intro-forms/index.html">formulaires</a> ; pratiquer avec
+<a href="https://github.com/bngams/2610-ng/tree/main/03-minishop/">MiniShop</a> (en cours d'écriture). Les comptes <code>alice</code> et
+<code>admin</code> sont des données de démonstration. Documentation de référence : <a href="https://angular.dev/best-practices/security">angular.dev, sécurité</a>.
+</footer>
+</div>
+</body>
+</html>

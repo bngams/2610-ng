@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Angular 22 — Un service comme store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f8fafc; --s1:#ffffff; --s2:#eef2f6; --tx:#0f172a; --tx2:#475569; --mu:#64748b; --bd:#e2e8f0; --bd2:#cbd5e1;
+  --brand:#d9472b; --acc:#c2391f; --soft:#ffe4dc; --softfg:#b33a1f; --ok:#047857; --okbg:#ecfdf5; --ko:#be123c;
+  --code:#0f172a; --codefg:#e2e8f0; --bar:#0f172a; --barfg:#e2e8f0; --u:#fb8f6f; --info:#475569; --infobg:#f1f5f9;
+  --blue:#0369a1; --bluebg:#e0f2fe;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--tx);background:var(--bg);margin:0;padding:0 0 60px}
+.bar{background:var(--bar);color:var(--barfg);padding:12px 24px;display:flex;align-items:center;gap:12px;font-size:13px}
+.bar .wm{font-weight:800;letter-spacing:-.02em;font-size:15px}.bar .wm .u{color:var(--u)}
+.bar .r{margin-left:auto;color:#94a3b8}
+.wrap{max-width:1000px;margin:0 auto;padding:28px 24px 0}
+h1{font-size:2rem;font-weight:800;letter-spacing:-.02em;margin:0 0 .25rem}
+h2{margin:0 0 .6rem;font-size:1.3rem;font-weight:800;letter-spacing:-.015em;display:flex;align-items:center;gap:.55rem}
+h3{margin:1.1rem 0 .4rem;font-size:.98rem;font-weight:700}
+.lead{color:var(--tx2);font-size:1.02rem;margin:0 0 .4rem}
+a{color:var(--acc)}
+nav.toc{border:1px solid var(--bd);border-radius:10px;padding:14px 18px;margin:18px 0 26px;background:var(--s1)}
+nav.toc .cap{font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin-bottom:6px}
+nav.toc ol{margin:0;padding-left:1.3rem;columns:2;column-gap:28px}
+nav.toc li{break-inside:avoid;margin:.15rem 0}
+nav.toc a{color:var(--tx);text-decoration:none}
+nav.toc a:hover{color:var(--acc);text-decoration:underline}
+section.card{border:1px solid var(--bd);border-radius:10px;padding:20px 24px 18px;margin:20px 0;background:var(--s1);break-inside:avoid;page-break-inside:avoid}
+.num{display:inline-flex;align-items:center;justify-content:center;min-width:1.7em;height:1.7em;background:var(--soft);color:var(--softfg);border-radius:7px;font:700 .85rem var(--mono);padding:0 .4em}
+code{font-family:var(--mono);font-size:.86em;background:var(--s2);color:var(--tx);padding:.1em .3em;border-radius:4px}
+pre{background:var(--code);color:var(--codefg);padding:13px 15px;border-radius:8px;overflow:auto;font:12.5px/1.5 var(--mono);margin:.6rem 0}
+pre code{background:none;padding:0;color:inherit;font-size:inherit}
+.cm{color:#94a3b8}.kw{color:var(--u)}.str{color:#86efac}.fn{color:#79c0ff}
+table{border-collapse:collapse;width:100%;margin:.6rem 0;font-size:.92rem;background:var(--s1)}
+th,td{border-bottom:1px solid var(--bd);padding:6px 10px;text-align:left;vertical-align:top}
+th{font-size:12px;color:var(--tx2);font-weight:600;background:var(--bg)}
+.retenir{background:var(--infobg);border-left:3px solid var(--brand);padding:9px 14px;border-radius:0 8px 8px 0;margin:.9rem 0 .4rem;font-size:.95rem;color:var(--tx)}
+.retenir strong{display:block;font:600 10.5px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--softfg);margin-bottom:3px}
+.doc{font-size:.88rem;color:var(--mu);margin:.5rem 0 0}
+.doc a{color:var(--acc);text-decoration:none}.doc a:hover{text-decoration:underline}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}nav.toc ol{columns:1}}
+figure{margin:.6rem 0}
+figure svg{width:100%;height:auto;display:block}
+figcaption{font-size:.84rem;color:var(--mu);margin-top:.3rem}
+small{color:var(--mu)}
+kbd{font:600 11px var(--mono);background:var(--s2);border:1px solid var(--bd2);border-radius:4px;padding:1px 5px}
+.svg-box{fill:#fff;stroke:#94a3b8;stroke-width:1.4}
+.svg-box.alt{fill:var(--soft);stroke:var(--brand)}
+.svg-box.svc{fill:var(--bluebg);stroke:var(--blue)}
+.svg-box.soft{fill:var(--s2);stroke:var(--bd2)}
+.svg-t{font-family:Inter,system-ui,sans-serif;font-size:13px;fill:var(--tx)}
+.svg-t.small{font-size:11px;fill:var(--tx2)}
+.svg-t.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11.5px}
+.svg-t.b{font-weight:700}
+.svg-arrow{stroke:#475569;stroke-width:1.6;fill:none;marker-end:url(#arr)}
+.svg-arrow.down{stroke:var(--acc);marker-end:url(#arr-brand)}
+.svg-arrow.up{stroke:var(--blue);marker-end:url(#arr-blue)}
+footer{color:var(--mu);font-size:.88rem;margin:40px 0 0;border-top:1px solid var(--bd);padding-top:12px}
+@media print{
+  html,body{background:#fff}
+  body{font-size:11pt;padding:0}
+  .bar,nav.toc,.noprint{display:none}
+  .wrap{max-width:none;padding:0 8mm}
+  section.card{border:none;padding:0;margin:0 0 14pt;page-break-inside:avoid;background:none}
+  section.card+section.card{border-top:1px solid #ccc;padding-top:12pt}
+  pre{font-size:9pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .retenir,.num,.svg-box{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  a{color:inherit;text-decoration:none}
+}
+.file{font:600 11px var(--mono);color:var(--mu);margin:.8rem 0 -.3rem}
+.file a{color:var(--mu)}
+.grid2>*{min-width:0}
+h2{flex-wrap:wrap}
+body,code,pre,svg text{font-variant-ligatures:none} /* => reste => (pas de ligature) */
+@media (max-width:760px){table{display:block;overflow-x:auto}}
+</style>
+</head>
+<body>
+<div class="bar"><span class="wm">Angular 22 <span class="u">_</span> store</span><span class="r">Formation AELION · J3</span></div>
+<div class="wrap">
+
+<h1>Angular 22 — Un service comme store</h1>
+<p class="lead">Dès que deux composants éloignés affichent la même donnée, il faut un endroit unique qui la garde : un <em>store</em>.
+En Angular 22, un service et quelques signals suffisent pour en écrire un propre. Cette page construit ce pattern sur deux exemples, le
+panier et la session, traite l'asynchrone, puis montre quand passer à NgRx SignalStore. Chaque extrait de code est copié d'un projet
+Angular 22 qui compile (<code>ng build</code>), dont les tests passent (<code>ng test</code>, 16 tests verts) et dont le comportement décrit
+ici a été vérifié dans le navigateur ; ce projet de vérification n'est pas livré.</p>
+<p class="noprint"><small>Imprimable : <kbd>Ctrl/Cmd + P</kbd> puis « Enregistrer en PDF ». Avant cette page, la
+<a href="../00-intro-syntax-recap/index.html">synthèse du jour 1</a> (signals, <code>computed</code>, <code>effect</code>) et la
+<a href="../02-demo-http/index.html">démo HTTP</a>. Pages voisines du jour 3 : l'<a href="../03-intro-auth/index.html">authentification</a>
+et le <a href="../03-intro-workspace/index.html">workspace multi-projets</a>. Pour pratiquer, suivez
+<a href="https://github.com/bngams/2610-ng/tree/main/03-minishop/">le lab MiniShop</a>.</small></p>
+<p><small>Le fil rouge est une petite boutique : un catalogue, un panier, un utilisateur connecté. Dans le projet de vérification, un faux
+back-end (un intercepteur HTTP) répondait aux URL <code>/api/...</code> et <code>/auth/...</code> ; il n'apparaît pas dans les extraits.</small></p>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+    <marker id="arr-brand" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c2391f"/></marker>
+    <marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0369a1"/></marker>
+  </defs>
+</svg>
+
+<nav class="toc" aria-label="Sommaire">
+<div class="cap">Sommaire</div>
+<ol>
+<li><a href="#s1">Pourquoi un store</a></li>
+<li><a href="#s2">Le pattern « service + signals »</a></li>
+<li><a href="#s3">Exemple 1 : le panier</a></li>
+<li><a href="#s4">Exemple 2 : la session</a></li>
+<li><a href="#s5">L'asynchrone dans un store</a></li>
+<li><a href="#s6">Quand passer à NgRx SignalStore</a></li>
+<li><a href="#s7">Tester un store</a></li>
+<li><a href="#s8">Récap et suite</a></li>
+</ol>
+</nav>
+
+<!-- ============================================================ 1 -->
+<section class="card" id="s1">
+<h2><span class="num">1</span>Pourquoi un store</h2>
+<p>Prenons le panier. Trois composants en ont besoin, et ils ne sont pas parents les uns des autres : le <strong>badge</strong> du header
+affiche le nombre d'articles, la <strong>page panier</strong> liste les lignes et permet de changer les quantités, la <strong>page de
+commande</strong> lit le total puis vide le panier. Faire remonter et redescendre ces données avec des <code>input()</code> et des
+<code>output()</code> à travers toute l'arborescence serait fragile ; garder une copie dans chaque composant serait pire, car les copies
+finiraient par diverger.</p>
+<p>Un store répond à trois questions à la fois :</p>
+<table>
+<tr><th>Question</th><th>Réponse du store</th></tr>
+<tr><td>Où est la donnée ?</td><td>À un seul endroit : c'est la <strong>source unique de vérité</strong>. Tout le monde lit la même valeur.</td></tr>
+<tr><td>Qui a le droit de la modifier ?</td><td>Le store seul. Les composants demandent une modification en appelant une méthode, ils n'écrivent jamais l'état eux-mêmes.</td></tr>
+<tr><td>Comment les lecteurs sont-ils prévenus ?</td><td>Par les signals : quand l'état change, tout ce qui le lit (template, <code>computed</code>) se met à jour.</td></tr>
+</table>
+<p>Le schéma suivant montre ces règles sur le panier. Les flèches bleues sont des lectures, les flèches orange des appels de méthode ; la
+flèche barrée est ce qu'un composant n'a pas le droit de faire.</p>
+<figure>
+<svg viewBox="0 0 680 300" role="img" aria-label="Trois composants autour du CartStore : le badge et la page panier lisent les sélecteurs, la page panier et la commande appellent les méthodes, l'écriture directe de l'état privé est impossible">
+  <rect class="svg-box" x="10" y="10" width="200" height="56" rx="8"/>
+  <text class="svg-t b" x="110" y="33" text-anchor="middle">Badge du header</text>
+  <text class="svg-t small" x="110" y="52" text-anchor="middle">« Panier (3) »</text>
+  <rect class="svg-box" x="240" y="10" width="200" height="56" rx="8"/>
+  <text class="svg-t b" x="340" y="33" text-anchor="middle">Page panier</text>
+  <text class="svg-t small" x="340" y="52" text-anchor="middle">lignes, quantités, total</text>
+  <rect class="svg-box" x="470" y="10" width="200" height="56" rx="8"/>
+  <text class="svg-t b" x="570" y="33" text-anchor="middle">Page commande</text>
+  <text class="svg-t small" x="570" y="52" text-anchor="middle">total, puis vider</text>
+  <rect class="svg-box soft" x="10" y="112" width="660" height="180" rx="10"/>
+  <text class="svg-t small b" x="25" y="131">CartStore (une instance)</text>
+  <rect class="svg-box svc" x="30" y="150" width="190" height="80" rx="8"/>
+  <text class="svg-t b" x="125" y="174" text-anchor="middle">Lectures</text>
+  <text class="svg-t mono" x="125" y="194" text-anchor="middle">lines · count · total</text>
+  <text class="svg-t small" x="125" y="214" text-anchor="middle">asReadonly() et computed</text>
+  <rect class="svg-box alt" x="250" y="150" width="180" height="80" rx="8"/>
+  <text class="svg-t b" x="340" y="174" text-anchor="middle">État</text>
+  <text class="svg-t mono" x="340" y="194" text-anchor="middle">_lines</text>
+  <text class="svg-t small" x="340" y="214" text-anchor="middle">signal PRIVÉ</text>
+  <rect class="svg-box" x="460" y="150" width="190" height="80" rx="8"/>
+  <text class="svg-t b" x="555" y="174" text-anchor="middle">Actions</text>
+  <text class="svg-t mono" x="555" y="194" text-anchor="middle">add() · remove()</text>
+  <text class="svg-t mono" x="555" y="212" text-anchor="middle">changeQty() · clear()</text>
+  <path class="svg-arrow" d="M458,190 L432,190"/>
+  <path class="svg-arrow" d="M248,190 L222,190"/>
+  <text class="svg-t small" x="340" y="262" text-anchor="middle">les actions modifient l'état ; les lectures en dérivent ; seul le store écrit _lines</text>
+  <path class="svg-arrow up" d="M110,148 L110,68"/>
+  <text class="svg-t small" x="102" y="100" text-anchor="end">lit count</text>
+  <path class="svg-arrow up" d="M180,148 L270,68"/>
+  <text class="svg-t small" x="250" y="92">lit lines, total</text>
+  <path class="svg-arrow down" d="M410,68 L500,148"/>
+  <text class="svg-t small" x="450" y="88">appelle</text>
+  <path class="svg-arrow down" d="M600,68 L600,148"/>
+  <text class="svg-t small" x="592" y="108" text-anchor="end">appelle clear()</text>
+  <path d="M340,68 L340,146" stroke="#be123c" stroke-width="1.6" stroke-dasharray="5 4" fill="none"/>
+  <text x="340" y="112" text-anchor="middle" style="font:700 18px Inter,sans-serif;fill:#be123c">✕</text>
+  <text class="svg-t small" x="332" y="141" text-anchor="end">écrire _lines : impossible</text>
+</svg>
+<figcaption>Les composants lisent la vue publique et les sélecteurs, appellent les méthodes du store ; aucun ne touche à l'état directement.</figcaption>
+</figure>
+
+<div class="retenir"><strong>À retenir</strong> Un store, c'est une donnée partagée à un seul endroit, qui seul a le droit de la modifier,
+et qui prévient ses lecteurs. Les composants lisent et demandent ; le store décide et écrit.</div>
+<p class="doc">📖 <a href="https://angular.dev/guide/signals">guide : signals</a> ·
+<a href="https://angular.dev/essentials/dependency-injection">partager du code avec l'injection de dépendances</a></p>
+</section>
+
+<!-- ============================================================ 2 -->
+<section class="card" id="s2">
+<h2><span class="num">2</span>Le pattern « service + signals »</h2>
+<p>Le pattern tient en cinq pièces, toutes déjà vues au jour 1. Le tableau les présente avant l'extrait, qui les montre dans l'ordre sur le panier.</p>
+<table>
+<tr><th>Pièce</th><th>Écriture</th><th>Rôle</th></tr>
+<tr><td>Le service, unique</td><td><code>@Injectable({ providedIn: 'root' })</code></td><td>une seule instance pour toute l'application, partagée par tous ceux qui l'injectent</td></tr>
+<tr><td>L'état</td><td><code>private readonly _lines = signal(...)</code></td><td>un <code>WritableSignal</code> <strong>privé</strong> : seul le store peut appeler <code>set</code> ou <code>update</code></td></tr>
+<tr><td>La vue publique</td><td><code>readonly lines = this._lines.asReadonly()</code></td><td>le même signal, sans <code>set</code> ni <code>update</code> : les composants lisent, c'est tout</td></tr>
+<tr><td>Les sélecteurs</td><td><code>computed(() => ...)</code></td><td>les valeurs <strong>dérivées</strong> (nombre d'articles, total), recalculées seulement quand l'état change</td></tr>
+<tr><td>Les actions</td><td>des méthodes : <code>add()</code>, <code>remove()</code>...</td><td>les seules portes d'entrée pour modifier l'état, avec une mise à jour <strong>immuable</strong> (la fonction passée à <code>update</code> renvoie un nouveau tableau)</td></tr>
+</table>
+<p>Voici le début du store du panier, qui pose ces pièces. L'état initial vient de <code>readSavedCart()</code>, qui relit le panier sauvegardé ; cette fonction, les actions et le constructeur
+avec son <code>effect</code> sont détaillés à la section 3.</p>
+<div class="file">src/app/cart/cart.store.ts</div><pre><code><span class="kw">import</span> { computed, effect, Injectable, signal } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { CartLine, Product } <span class="kw">from</span> <span class="str">'./cart.model'</span>;
+
+<span class="kw">const</span> STORAGE_KEY = <span class="str">'minishop.cart'</span>;
+
+<span class="fn">@Injectable</span>({ providedIn: <span class="str">'root'</span> }) <span class="cm">// UNE instance pour toute l'application</span>
+<span class="kw">export</span> <span class="kw">class</span> CartStore {
+  <span class="cm">// l'état : PRIVÉ, seul le store peut l'écrire</span>
+  <span class="kw">private</span> <span class="kw">readonly</span> _lines = signal&lt;CartLine[]&gt;(<span class="fn">readSavedCart</span>());
+
+  <span class="cm">// la vue publique : un Signal en lecture seule (pas de set / update)</span>
+  <span class="kw">readonly</span> lines = <span class="kw">this</span>._lines.<span class="fn">asReadonly</span>();
+
+  <span class="cm">// les sélecteurs : des computed, dérivés de l'état, jamais stockés</span>
+  <span class="kw">readonly</span> count = <span class="fn">computed</span>(() =&gt; <span class="kw">this</span>.<span class="fn">_lines</span>().<span class="fn">reduce</span>((n, line) =&gt; n + line.qty, 0));
+  <span class="kw">readonly</span> total = <span class="fn">computed</span>(() =&gt;
+    <span class="kw">this</span>.<span class="fn">_lines</span>().<span class="fn">reduce</span>((sum, line) =&gt; sum + line.qty * line.product.price, 0),
+  );
+  <span class="kw">readonly</span> isEmpty = <span class="fn">computed</span>(() =&gt; <span class="kw">this</span>.<span class="fn">_lines</span>().length === 0);</code></pre>
+
+<h3>Et <code>@Service()</code> ?</h3>
+<p>Angular 22.0 ajoute un décorateur <code>@Service()</code>, pensé pour ce cas : un service fourni automatiquement à la racine. Il n'a
+<strong>pas</strong> d'option <code>providedIn</code> ; ses seules options sont <code>autoProvided</code> (mettre <code>false</code> pour
+le fournir soi-même dans une liste de <code>providers</code>) et <code>factory</code>. Le projet de vérification l'a exercé dans un test,
+qui vérifie que deux <code>inject</code> renvoient la même instance.</p>
+<div class="file">src/app/pitfalls/pitfalls.spec.ts</div><pre><code><span class="fn">@Service</span>() <span class="cm">// Angular 22 : fourni à la racine par défaut, pas d'option providedIn</span>
+<span class="kw">class</span> Counter {
+  <span class="kw">readonly</span> value = <span class="fn">signal</span>(0);
+}
+  <span class="cm">// ...</span>
+  <span class="fn">it</span>(<span class="str">'@Service() est un singleton racine'</span>, () =&gt; {
+    <span class="fn">expect</span>(TestBed.<span class="fn">inject</span>(Counter)).<span class="fn">toBe</span>(TestBed.<span class="fn">inject</span>(Counter));
+  });</code></pre>
+<p><small>Les deux écritures sont valides en v22. Cette page garde <code>@Injectable({ providedIn: 'root' })</code>, que vous retrouverez
+dans tout le code existant, y compris vos projets v20 où <code>@Service()</code> n'existe pas.</small></p>
+
+<h3>Pas d'<code>effect</code> pour une valeur dérivée</h3>
+<p>Une valeur qui se calcule à partir de l'état (le nombre d'articles, le total, « est-ce un admin ? ») est un <code>computed</code>.
+On voit parfois la même chose écrite avec un second signal et un <code>effect</code> qui le recopie : c'est un état dupliqué, recalculé
+en retard, et une source de bugs. <code>effect</code> sert aux <strong>effets de bord</strong> vers l'extérieur du monde des signals :
+écrire dans <code>localStorage</code>, journaliser, piloter une API du navigateur.</p>
+
+<h3>Trois pièges, réunis dans un store à ne pas écrire</h3>
+<p>Pour voir les pièges en vrai, le projet de vérification contient un <code>BadCartStore</code> qui les cumule. Il compile sans
+erreur, ce qui est justement le problème : rien ne vous avertit.</p>
+<div class="file">src/app/pitfalls/bad-cart.store.ts</div><pre><code><span class="cm">// À NE PAS FAIRE : les trois pièges classiques, réunis dans un seul store</span>
+<span class="fn">@Injectable</span>({ providedIn: <span class="str">'root'</span> })
+<span class="kw">export</span> <span class="kw">class</span> BadCartStore {
+  <span class="kw">readonly</span> lines = signal&lt;CartLine[]&gt;([]); <span class="cm">// piège 1 : WritableSignal public, tout le monde peut écrire</span>
+  <span class="kw">readonly</span> count = <span class="fn">signal</span>(0); <span class="cm">// piège 2 : état dupliqué, recopié à la main</span>
+
+  <span class="fn">constructor</span>() {
+    <span class="cm">// piège 2 (suite) : un effect pour DÉRIVER une valeur, au lieu d'un computed</span>
+    <span class="fn">effect</span>(() =&gt; <span class="kw">this</span>.count.<span class="fn">set</span>(<span class="kw">this</span>.<span class="fn">lines</span>().<span class="fn">reduce</span>((n, line) =&gt; n + line.qty, 0)));
+  }
+
+  <span class="fn">add</span>(product: Product) {
+    <span class="kw">this</span>.<span class="fn">lines</span>().<span class="fn">push</span>({ product, qty: 1 }); <span class="cm">// piège 3 : mutation EN PLACE, personne n'est prévenu</span>
+  }
+}</code></pre>
+<p>Le test suivant montre l'effet combiné. L'application tourne (l'<code>effect</code> a déjà calculé <code>count = 0</code>), puis on
+ajoute un article par la méthode du store : la ligne est bien dans le tableau, mais <code>count</code> reste à 0, et n'importe qui peut
+ensuite vider le panier de l'extérieur.</p>
+<div class="file">src/app/pitfalls/pitfalls.spec.ts</div><pre><code><span class="fn">it</span>(<span class="str">'BadCartStore : count reste à 0 après add(), et on écrit l\'état de dehors'</span>, () =&gt; {
+  <span class="kw">const</span> bad = TestBed.<span class="fn">inject</span>(BadCartStore);
+  TestBed.<span class="fn">tick</span>(); <span class="cm">// l'application tourne : l'effect a déjà calculé count = 0</span>
+  bad.<span class="fn">add</span>({ id: 1, name: <span class="str">'Stylo'</span>, price: 1.5 });
+  TestBed.<span class="fn">tick</span>();
+  <span class="fn">expect</span>(bad.<span class="fn">lines</span>()).<span class="fn">toHaveLength</span>(1); <span class="cm">// la ligne est bien là...</span>
+  <span class="fn">expect</span>(bad.<span class="fn">count</span>()).<span class="fn">toBe</span>(0); <span class="cm">// ...mais personne n'a été prévenu</span>
+  bad.lines.<span class="fn">set</span>([]); <span class="cm">// et n'importe quel composant peut tout effacer</span>
+  <span class="fn">expect</span>(bad.<span class="fn">lines</span>()).<span class="fn">toHaveLength</span>(0);
+});</code></pre>
+<p>Le piège 3 tient à la façon dont un signal décide de prévenir ses lecteurs : il compare l'ancienne et la nouvelle valeur avec
+<code>Object.is</code>. Un tableau modifié en place reste <strong>le même</strong> tableau, donc même un <code>set()</code> explicite ne
+prévient personne ; seul un nouveau tableau le fait. Un second test isole ce mécanisme sur un signal nu.</p>
+<div class="file">src/app/pitfalls/pitfalls.spec.ts</div><pre><code><span class="fn">it</span>(<span class="str">'muter le tableau en place ne prévient personne'</span>, () =&gt; {
+  <span class="kw">const</span> lines = signal&lt;number[]&gt;([1]);
+  <span class="kw">const</span> count = <span class="fn">computed</span>(() =&gt; <span class="fn">lines</span>().length);
+  <span class="fn">expect</span>(<span class="fn">count</span>()).<span class="fn">toBe</span>(1);
+  <span class="fn">lines</span>().<span class="fn">push</span>(2); <span class="cm">// mutation EN PLACE : même référence</span>
+  lines.<span class="fn">set</span>(<span class="fn">lines</span>()); <span class="cm">// set() du MÊME tableau : Object.is(ancien, nouveau), pas de notification</span>
+  <span class="fn">expect</span>(<span class="fn">count</span>()).<span class="fn">toBe</span>(1); <span class="cm">// le computed n'a rien vu</span>
+  lines.<span class="fn">update</span>((l) =&gt; [...l, 3]); <span class="cm">// nouveau tableau =&gt; notification</span>
+  <span class="fn">expect</span>(<span class="fn">count</span>()).<span class="fn">toBe</span>(3);
+});</code></pre>
+<p><small>Un détail découvert en écrivant le test : si l'<code>effect</code> du <code>BadCartStore</code> n'a pas encore tourné au moment
+du <code>push</code>, sa première exécution lit le tableau déjà modifié et <code>count</code> paraît juste. Le bug dépend donc du moment où
+l'on regarde, ce qui le rend encore plus difficile à trouver.</small></p>
+<p>Le tableau résume les trois pièges, dans l'ordre des commentaires du <code>BadCartStore</code>, avec leur correctif.</p>
+<table>
+<tr><th>Piège</th><th>Symptôme</th><th>Correctif</th></tr>
+<tr><td>Exposer le <code>WritableSignal</code></td><td>un composant fait <code>lines.set([])</code> et le panier se vide sans passer par le store</td><td>signal <code>private</code> + vue <code>asReadonly()</code></td></tr>
+<tr><td>Dupliquer l'état (<code>count</code> en signal à part, recopié par un <code>effect</code>)</td><td>valeurs en retard ou fausses, ordre d'exécution qui compte</td><td>un <code>computed</code> dérivé de l'état unique</td></tr>
+<tr><td>Muter un tableau en place (<code>push</code>, <code>splice</code>, <code>line.qty++</code>)</td><td>l'écran et les <code>computed</code> ne bougent pas</td><td><code>update</code> qui renvoie une copie : <code>[...lines, x]</code>, <code>map</code>, <code>filter</code></td></tr>
+</table>
+
+<div class="retenir"><strong>À retenir</strong> Un service <code>providedIn: 'root'</code>, un signal d'état <strong>privé</strong>, une vue
+<code>asReadonly()</code>, des <code>computed</code> comme sélecteurs, des méthodes comme actions avec des mises à jour immuables.
+<code>computed</code> pour dériver, <code>effect</code> seulement pour sortir du monde des signals.</div>
+<p class="doc">📖 <a href="https://angular.dev/guide/signals">signals : signal, computed, asReadonly</a> ·
+<a href="https://angular.dev/guide/signals/effect">effect, et quand ne pas l'utiliser</a> ·
+<a href="https://angular.dev/guide/di/creating-and-using-services">créer et utiliser un service</a></p>
+</section>
+
+<!-- ============================================================ 3 -->
+<section class="card" id="s3">
+<h2><span class="num">3</span>Exemple 1 : le panier</h2>
+<p>La section 2 a posé l'état, la vue publique et les sélecteurs du <code>CartStore</code>. Il reste à écrire les actions, à brancher les
+composants, puis à faire survivre le panier à un rechargement de la page.</p>
+
+<h3>Les actions : add, changeQty, remove, clear</h3>
+<p>Chaque action passe par <code>update</code>, qui reçoit l'état courant et doit renvoyer le nouvel état. On ne modifie jamais une
+ligne existante : <code>map</code> produit un nouveau tableau dans lequel seule la ligne concernée est remplacée par une copie
+(<code>{ ...line, qty }</code>), <code>filter</code> en produit un sans la ligne retirée. Une quantité tombée à 0 retire la ligne,
+pour que <code>changeQty</code> reste la seule action dont la page a besoin pour les boutons « + » et « - ».</p>
+<div class="file">src/app/cart/cart.store.ts</div><pre><code><span class="cm">// les actions : des méthodes, qui produisent un NOUVEAU tableau</span>
+<span class="fn">add</span>(product: Product) {
+  <span class="kw">this</span>._lines.<span class="fn">update</span>((lines) =&gt; {
+    <span class="kw">const</span> existing = lines.<span class="fn">find</span>((line) =&gt; line.product.id === product.id);
+    <span class="kw">return</span> existing
+      ? lines.<span class="fn">map</span>((line) =&gt; (line === existing ? { ...line, qty: line.qty + 1 } : line))
+      : [...lines, { product, qty: 1 }];
+  });
+}
+
+<span class="fn">changeQty</span>(productId: number, qty: number) {
+  <span class="kw">if</span> (qty &lt;= 0) {
+    <span class="kw">this</span>.<span class="fn">remove</span>(productId);
+    <span class="kw">return</span>;
+  }
+  <span class="kw">this</span>._lines.<span class="fn">update</span>((lines) =&gt;
+    lines.<span class="fn">map</span>((line) =&gt; (line.product.id === productId ? { ...line, qty } : line)),
+  );
+}
+
+<span class="fn">remove</span>(productId: number) {
+  <span class="kw">this</span>._lines.<span class="fn">update</span>((lines) =&gt; lines.<span class="fn">filter</span>((line) =&gt; line.product.id !== productId));
+}
+
+<span class="fn">clear</span>() {
+  <span class="kw">this</span>._lines.<span class="fn">set</span>([]);
+}</code></pre>
+
+<h3>Les composants lisent, et appellent</h3>
+<p>Le badge du header n'a besoin que d'une chose : injecter le store et lire <code>count()</code>. Il ne possède aucune donnée.</p>
+<div class="file">src/app/cart/cart-badge.ts</div><pre><code>  template: <span class="str">`&lt;a routerLink="/cart" class="badge"&gt;Panier ({{ cart.count() }})&lt;/a&gt;`</span>,
+})
+<span class="kw">export</span> <span class="kw">class</span> CartBadge {
+  <span class="cm">// le header LIT le store, il ne le possède pas</span>
+  <span class="kw">protected</span> <span class="kw">readonly</span> cart = <span class="fn">inject</span>(CartStore);
+}</code></pre>
+<p>La page panier, à l'autre bout de l'application, injecte la <strong>même</strong> instance. Elle lit <code>lines()</code> et
+<code>total()</code>, et ses boutons appellent les actions.</p>
+<div class="file">src/app/cart/cart-page.ts</div><pre><code>&lt;h2&gt;Mon panier&lt;/h2&gt;
+<span class="fn">@for</span> (line of cart.lines(); track line.product.id) {
+  &lt;p class=<span class="str">"line"</span>&gt;
+    {{ line.product.name }}
+    &lt;button (click)=<span class="str">"cart.changeQty(line.product.id, line.qty - 1)"</span>&gt;-&lt;/button&gt;
+    {{ line.qty }}
+    &lt;button (click)=<span class="str">"cart.changeQty(line.product.id, line.qty + 1)"</span>&gt;+&lt;/button&gt;
+    &lt;button (click)=<span class="str">"cart.remove(line.product.id)"</span>&gt;Retirer&lt;/button&gt;
+  &lt;/p&gt;
+} @empty {
+  &lt;p&gt;Votre panier est vide.&lt;/p&gt;
+}
+&lt;p class=<span class="str">"total"</span>&gt;Total : {{ cart.total() | currency: 'EUR' }}&lt;/p&gt;</code></pre>
+
+<h3>Persister dans localStorage avec un effect</h3>
+<p>Pour que le panier survive à un <kbd>F5</kbd>, deux gestes suffisent. Au démarrage, l'état initial est <strong>relu</strong> depuis
+<code>localStorage</code> : c'est la fonction <code>readSavedCart()</code>, passée à <code>signal()</code> dans l'extrait de la section 2.
+Ensuite, un <code>effect</code> déclaré dans le constructeur de la classe (placé avant les actions dans le fichier) recopie
+l'état à chaque changement. C'est bien un effet de bord vers
+l'extérieur des signals, le cas d'usage légitime d'<code>effect</code>.</p>
+<div class="file">src/app/cart/cart.store.ts</div><pre><code><span class="fn">constructor</span>() {
+  <span class="cm">// effet de bord : recopier l'état dans localStorage à chaque changement</span>
+  <span class="fn">effect</span>(() =&gt; localStorage.<span class="fn">setItem</span>(STORAGE_KEY, JSON.<span class="fn">stringify</span>(<span class="kw">this</span>.<span class="fn">_lines</span>())));
+}</code></pre>
+<p>La relecture est entourée d'un <code>try/catch</code>, car elle peut échouer pour des raisons qui ne dépendent pas de vous : un JSON
+corrompu, un stockage désactivé. Un panier vide vaut mieux qu'une application qui ne démarre pas.</p>
+<div class="file">src/app/cart/cart.store.ts</div><pre><code><span class="cm">// relire le panier sauvegardé, sans jamais faire planter le démarrage</span>
+<span class="kw">function</span> <span class="fn">readSavedCart</span>(): CartLine[] {
+  try {
+    <span class="kw">const</span> saved = localStorage.<span class="fn">getItem</span>(STORAGE_KEY);
+    <span class="kw">return</span> saved ? (JSON.<span class="fn">parse</span>(saved) as CartLine[]) : [];
+  } catch {
+    <span class="kw">return</span> []; <span class="cm">// JSON corrompu, ou stockage indisponible refusé par le navigateur</span>
+  }
+}</code></pre>
+
+<p>Voici ce que montre le navigateur, en partant d'un <code>localStorage</code> vide.</p>
+<table>
+<tr><th>Action</th><th>Observé</th></tr>
+<tr><td>« Ajouter » deux fois sur Stylo, une fois sur Cahier, depuis le catalogue</td><td>le badge passe à <code>Panier (3)</code> ; <code>localStorage['minishop.cart']</code> contient les deux lignes (Stylo × 2, Cahier × 1)</td></tr>
+<tr><td>Taper l'adresse <code>/cart</code> dans la barre d'adresse (chargement complet de l'application), puis <kbd>F5</kbd></td><td>les deux lignes sont toujours là, <code>Total : €7.00</code></td></tr>
+<tr><td>« - » sur Cahier (quantité 1)</td><td>la ligne disparaît, <code>Total : €3.00</code>, et le badge du header passe à <code>Panier (2)</code> sans autre code</td></tr>
+<tr><td>Remplacer à la main la valeur sauvegardée par <code>{pas du json</code>, puis recharger</td><td>l'application démarre normalement, avec <code>Panier (0)</code> : le <code>catch</code> a joué son rôle</td></tr>
+</table>
+<p><small>Le symbole <code>€7.00</code> vient de la locale par défaut (<code>en-US</code>) du pipe <code>currency</code> ; pour un affichage
+français (<code>7,00 €</code>), on enregistre les données de la locale avec <code>registerLocaleData</code> et on fournit
+<code>LOCALE_ID</code> (non exercé ici).</small></p>
+
+<h3>Bon pour un panier, pas pour un jeton d'authentification</h3>
+<p><code>localStorage</code> est lisible par <strong>tout</strong> le JavaScript de la page, y compris un script injecté par une faille XSS.
+Pour un panier, ce n'est pas grave : il ne contient rien de secret, et le pire est qu'on le lise. Pour un jeton d'authentification,
+c'est grave : un script qui le lit peut l'envoyer ailleurs et se faire passer pour l'utilisateur. Un jeton vit plutôt dans un cookie
+<code>HttpOnly</code>, que le JavaScript ne peut pas lire ; c'est le sujet de la page
+<a href="../03-intro-auth/index.html">authentification</a>.</p>
+<p>Une seconde conséquence est moins évidente : ce que l'on relit de <code>localStorage</code> peut avoir été <strong>modifié</strong> par
+l'utilisateur, prix compris (onglet Application des DevTools). Le panier côté client sert à l'affichage ; au moment de la commande, le
+serveur recalcule les prix à partir des identifiants et des quantités.</p>
+
+<div class="retenir"><strong>À retenir</strong> Des actions qui renvoient toujours un nouveau tableau ; des composants qui injectent le store,
+lisent ses sélecteurs et appellent ses méthodes. La persistance tient en deux gestes : relire à la construction (avec <code>try/catch</code>),
+recopier avec un <code>effect</code>. <code>localStorage</code> convient à un panier, jamais à un jeton.</div>
+<p class="doc">📖 <a href="https://angular.dev/guide/signals">signals : update et immuabilité</a> ·
+<a href="https://developer.mozilla.org/fr/docs/Web/API/Window/localStorage">localStorage (MDN)</a> ·
+<a href="https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html#local-storage">OWASP : ne pas stocker de données sensibles dans localStorage</a></p>
+</section>
+
+<!-- ============================================================ 4 -->
+<section class="card" id="s4">
+<h2><span class="num">4</span>Exemple 2 : la session</h2>
+<p>Le second store garde l'utilisateur connecté. Le header affiche son nom, un menu se montre aux seuls administrateurs, un guard protège
+des routes : autant de lecteurs éloignés d'une même donnée. La différence avec le panier est que l'état vient du <strong>serveur</strong> :
+il faut le charger, et pendant ce temps, l'application doit savoir qu'elle ne sait pas encore.</p>
+
+<h3>L'état et les sélecteurs</h3>
+<p>L'état regroupe l'utilisateur, un indicateur de chargement et un message d'erreur, dans un seul signal privé. Les sélecteurs en dérivent
+ce dont les composants ont besoin : <code>isLoggedIn</code>, <code>roles</code>, et même un <code>isAdmin</code> construit sur un autre
+<code>computed</code>. L'état étant un objet, on n'expose pas le signal entier avec <code>asReadonly()</code> : un <code>computed</code>
+par champ utile joue le même rôle de lecture seule, et cache la forme interne de l'état.</p>
+<div class="file">src/app/session/session.store.ts</div><pre><code><span class="kw">export</span> <span class="kw">interface</span> User {
+  id: number;
+  name: string;
+  roles: string[];
+}
+
+<span class="kw">interface</span> SessionState {
+  user: User | <span class="kw">null</span>;
+  loading: boolean;
+  error: string | <span class="kw">null</span>;
+}
+
+<span class="fn">@Injectable</span>({ providedIn: <span class="str">'root'</span> }) <span class="cm">// la session DOIT être unique dans l'application</span>
+<span class="kw">export</span> <span class="kw">class</span> SessionStore {
+  <span class="kw">private</span> <span class="kw">readonly</span> http = <span class="fn">inject</span>(HttpClient);
+  <span class="kw">private</span> <span class="kw">readonly</span> state = <span class="fn">signal</span>&lt;SessionState&gt;({ user: <span class="kw">null</span>, loading: <span class="kw">false</span>, error: <span class="kw">null</span> });
+
+  <span class="cm">// sélecteurs</span>
+  <span class="kw">readonly</span> user = <span class="fn">computed</span>(() =&gt; <span class="kw">this</span>.<span class="fn">state</span>().user);
+  <span class="kw">readonly</span> isLoggedIn = <span class="fn">computed</span>(() =&gt; <span class="kw">this</span>.<span class="fn">state</span>().user !== <span class="kw">null</span>);
+  <span class="kw">readonly</span> roles = <span class="fn">computed</span>(() =&gt; <span class="kw">this</span>.<span class="fn">state</span>().user?.roles ?? []);
+  <span class="kw">readonly</span> isAdmin = <span class="fn">computed</span>(() =&gt; <span class="kw">this</span>.<span class="fn">roles</span>().<span class="fn">includes</span>(<span class="str">'admin'</span>));
+  <span class="kw">readonly</span> loading = <span class="fn">computed</span>(() =&gt; <span class="kw">this</span>.<span class="fn">state</span>().loading);
+  <span class="kw">readonly</span> error = <span class="fn">computed</span>(() =&gt; <span class="kw">this</span>.<span class="fn">state</span>().error);</code></pre>
+
+<h3>Les actions appellent HTTP</h3>
+<p><code>loadMe()</code> demande au serveur « qui suis-je ? » avec <code>GET /auth/me</code>. Avec une session par cookie, le navigateur
+joint le cookie tout seul ; le store n'a aucun jeton à manipuler. Un <code>401</code> n'est pas une panne : il veut dire « personne n'est
+connecté », d'où <code>user: null</code> sans message d'erreur ; toute autre erreur affiche « Session indisponible ».
+<code>login</code> suit le même schéma : noter le chargement, appeler, ranger le résultat avec un <code>patch</code> privé qui fusionne
+l'état. <code>logout</code> se contente de vider <code>user</code> une fois le serveur d'accord.</p>
+<div class="file">src/app/session/session.store.ts</div><pre><code>  <span class="cm">// au démarrage : « qui suis-je ? » ; le cookie de session part avec la requête</span>
+  <span class="fn">loadMe</span>() {
+    <span class="kw">this</span>.<span class="fn">patch</span>({ loading: <span class="kw">true</span>, error: <span class="kw">null</span> });
+    <span class="kw">this</span>.http.<span class="kw">get</span>&lt;User&gt;(<span class="str">'/auth/me'</span>).<span class="fn">subscribe</span>({
+      next: (user) =&gt; <span class="kw">this</span>.<span class="fn">patch</span>({ user, loading: <span class="kw">false</span> }),
+      error: (err: HttpErrorResponse) =&gt;
+        <span class="kw">this</span>.<span class="fn">patch</span>({
+          user: <span class="kw">null</span>,
+          loading: <span class="kw">false</span>,
+          <span class="cm">// 401 = personne n'est connecté, ce n'est pas une panne</span>
+          error: err.status === 401 ? <span class="kw">null</span> : <span class="str">'Session indisponible'</span>,
+        }),
+    });
+  }
+
+  <span class="fn">login</span>(email: string, password: string) {
+    <span class="kw">this</span>.<span class="fn">patch</span>({ loading: <span class="kw">true</span>, error: <span class="kw">null</span> });
+    <span class="kw">this</span>.http.<span class="fn">post</span>&lt;User&gt;(<span class="str">'/auth/login'</span>, { email, password }).<span class="fn">subscribe</span>({
+      next: (user) =&gt; <span class="kw">this</span>.<span class="fn">patch</span>({ user, loading: <span class="kw">false</span> }),
+      error: () =&gt; <span class="kw">this</span>.<span class="fn">patch</span>({ loading: <span class="kw">false</span>, error: <span class="str">'Identifiants refusés'</span> }),
+    });
+  }
+
+  <span class="fn">logout</span>() {
+    <span class="kw">this</span>.http.<span class="fn">post</span>(<span class="str">'/auth/logout'</span>, {}).<span class="fn">subscribe</span>({
+      next: () =&gt; <span class="kw">this</span>.<span class="fn">patch</span>({ user: <span class="kw">null</span> }),
+    });
+  }
+
+  <span class="kw">private</span> <span class="fn">patch</span>(partial: Partial&lt;SessionState&gt;) {
+    <span class="kw">this</span>.state.<span class="fn">update</span>((s) =&gt; ({ ...s, ...partial }));
+  }
+}</code></pre>
+<p>La session est chargée une fois, au démarrage de l'application, par un initialiseur déclaré dans <code>app.config.ts</code>.</p>
+<div class="file">src/app/app.config.ts</div><pre><code><span class="cm">// au démarrage, la session demande « qui suis-je ? »</span>
+<span class="fn">provideAppInitializer</span>(() =&gt; <span class="fn">inject</span>(SessionStore).<span class="fn">loadMe</span>()),</code></pre>
+<p><small>Telle qu'écrite, <code>loadMe()</code> ne renvoie rien : l'application démarre sans attendre la réponse, et affiche « … » le temps
+du chargement. Pour la faire attendre, l'initialiseur peut renvoyer une <code>Promise</code> ou un <code>Observable</code> ; cette variante
+n'a pas été exercée ici. Un guard, lui, doit tenir compte de <code>loading()</code> avant de conclure qu'il n'y a personne ; la page
+<a href="../03-intro-auth/index.html">authentification</a> revient sur ce point.</small></p>
+
+<p>Le widget du header n'a plus qu'à lire les sélecteurs. Les trois états (chargement, connecté, anonyme) se lisent dans le
+<code>@if</code>.</p>
+<div class="file">src/app/session/session-status.ts</div><pre><code><span class="fn">@if</span> (session.loading()) {
+  &lt;span&gt;…&lt;/span&gt;
+<span class="fn">} @else</span> if (session.user(); as user) {
+  &lt;span class=<span class="str">"who"</span>&gt;{{ user.name }} ({{ session.roles().join(', ') }})&lt;/span&gt;
+  &lt;button (click)=<span class="str">"session.logout()"</span>&gt;Se déconnecter&lt;/button&gt;
+<span class="fn">} @else</span> {
+  &lt;button (click)=<span class="str">"session.login('demo@example.com', 'demo')"</span>&gt;Se connecter (démo)&lt;/button&gt;
+}
+<span class="fn">@if</span> (session.error(); as error) { &lt;span class=<span class="str">"error"</span>&gt;{{ error }}&lt;/span&gt; }</code></pre>
+<p>Vérifié dans le navigateur : « Se connecter (démo) » affiche <code>Camille (customer, admin)</code> et « Se déconnecter » ; après
+<kbd>F5</kbd>, le header montre « … » puis de nouveau <code>Camille (customer, admin)</code>, car <code>loadMe()</code> a interrogé
+<code>/auth/me</code> et le faux serveur a reconnu sa session.</p>
+
+<h3>Une seule session par application</h3>
+<p>Le panier et la session doivent être des <strong>singletons</strong>. Avec deux instances de <code>SessionStore</code>, le header dirait
+« connecté » pendant qu'une page dirait « anonyme ». <code>providedIn: 'root'</code> garantit une instance par application ; le piège
+classique est de réécrire <code>providers: [SessionStore]</code> dans un composant, ce qui crée une seconde instance, vide, pour ce composant
+et ses enfants. Le test suivant reproduit ce que fait un <code>providers</code> de composant : un injecteur enfant qui
+déclare de nouveau le service, et qui en fabrique donc une autre instance ; <code>session</code> est le store injecté dans le
+<code>beforeEach</code> du fichier.</p>
+<div class="file">src/app/session/session.store.spec.ts</div><pre><code><span class="fn">it</span>(<span class="str">'un providers: [SessionStore] local crée une DEUXIÈME session'</span>, () =&gt; {
+  <span class="kw">const</span> local = Injector.<span class="fn">create</span>({ providers: [SessionStore], parent: TestBed.<span class="fn">inject</span>(Injector) });
+  <span class="fn">expect</span>(local.<span class="kw">get</span>(SessionStore)).not.<span class="fn">toBe</span>(session);
+});</code></pre>
+<p>Le problème change d'échelle avec les <strong>micro-frontends</strong> : chaque application chargée à part a son propre injecteur racine,
+donc sa propre session. Partager le <strong>code</strong> de la bibliothèque (<code>singleton: true</code> dans la configuration de Module Federation) ne
+suffit pas : chaque <code>bootstrapApplication</code> crée encore sa propre instance. Il faut partager l'<strong>instance</strong>, par
+exemple avec <code>providedIn: 'platform'</code> sur une plateforme commune. Ces montages n'ont pas été exercés sur cette page ; ils sont traités dans la page <a href="../03-intro-workspace/index.html">workspace multi-projets</a>.</p>
+
+<div class="retenir"><strong>À retenir</strong> Le même pattern, avec un état venu du serveur : <code>user</code>, <code>loading</code> et
+<code>error</code> dans un seul signal privé, <code>isLoggedIn</code> et <code>roles</code> en <code>computed</code>, des actions qui
+appellent HTTP. Un <code>401</code> sur <code>/auth/me</code> veut dire « anonyme ». Une session est un singleton : jamais de
+<code>providers: [SessionStore]</code> local.</div>
+<p class="doc">📖 <a href="https://angular.dev/guide/di/hierarchical-dependency-injection">injection hiérarchique</a> ·
+<a href="https://angular.dev/api/core/provideAppInitializer">provideAppInitializer</a> ·
+<a href="https://angular.dev/guide/http/making-requests">HttpClient : faire des requêtes</a></p>
+</section>
+
+<!-- ============================================================ 5 -->
+<section class="card" id="s5">
+<h2><span class="num">5</span>L'asynchrone dans un store</h2>
+<p>Les deux stores précédents appellent déjà HTTP. Cette section met des mots sur le schéma suivi, puis montre deux cas plus délicats :
+une mise à jour optimiste, et une action déclenchée à chaque frappe.</p>
+
+<h3>Le schéma de base : subscribe, puis update</h3>
+<p>Une action asynchrone suit trois temps : marquer le chargement, appeler, ranger le résultat ou l'erreur. Le catalogue le fait sur
+<code>GET /api/products</code>. Le <code>subscribe</code> est dans le store, pas dans le composant : le composant appelle
+<code>load()</code> et lit <code>products()</code>, <code>loading()</code>, <code>error()</code>.</p>
+<div class="file">src/app/catalog/products.store.ts</div><pre><code><span class="cm">// action asynchrone : on note le chargement, on appelle, on range le résultat</span>
+<span class="fn">load</span>() {
+  <span class="kw">this</span>.<span class="fn">patch</span>({ loading: <span class="kw">true</span>, error: <span class="kw">null</span> });
+  <span class="kw">this</span>.http.<span class="kw">get</span>&lt;Product[]&gt;(<span class="str">'/api/products'</span>).<span class="fn">subscribe</span>({
+    next: (products) =&gt; <span class="kw">this</span>.<span class="fn">patch</span>({ products, loading: <span class="kw">false</span> }),
+    error: () =&gt; <span class="kw">this</span>.<span class="fn">patch</span>({ loading: <span class="kw">false</span>, error: <span class="str">'Catalogue indisponible'</span> }),
+  });
+}</code></pre>
+<p>Ce schéma convient aux actions ponctuelles : charger une liste, se connecter, enregistrer. Un <code>HttpClient</code> émet une fois
+puis se termine, il n'y a rien à désabonner.</p>
+
+<h3>Mise à jour optimiste, et rollback</h3>
+<p>Mettre un produit en favori ne doit pas attendre le serveur : l'étoile se remplit tout de suite (mise à jour <strong>optimiste</strong>),
+la requête part, et si le serveur refuse, on remet l'ancienne valeur (<strong>rollback</strong>) et on affiche une erreur.</p>
+<div class="file">src/app/catalog/products.store.ts</div><pre><code><span class="cm">// mise à jour optimiste : l'écran change tout de suite, le serveur confirme ensuite</span>
+<span class="fn">toggleFavorite</span>(id: number) {
+  <span class="kw">const</span> wanted = !<span class="kw">this</span>.<span class="fn">state</span>().products.<span class="fn">find</span>((p) =&gt; p.id === id)?.favorite;
+  <span class="kw">this</span>.<span class="fn">setFavorite</span>(id, wanted); <span class="cm">// 1. optimiste</span>
+  <span class="kw">this</span>.http.<span class="fn">put</span>(<span class="str">`/api/products/${id}/favorite`</span>, { favorite: wanted }).<span class="fn">subscribe</span>({
+    error: () =&gt; {
+      <span class="kw">this</span>.<span class="fn">setFavorite</span>(id, !wanted); <span class="cm">// 2. rollback : on remet l'ancienne valeur</span>
+      <span class="kw">this</span>.<span class="fn">patch</span>({ error: <span class="str">'Favori non enregistré'</span> });
+    },
+  });
+}
+
+<span class="kw">private</span> <span class="fn">setFavorite</span>(id: number, favorite: boolean) {
+  <span class="kw">this</span>.state.<span class="fn">update</span>((s) =&gt; ({
+    ...s,
+    products: s.products.<span class="fn">map</span>((p) =&gt; (p.id === id ? { ...p, favorite } : p)),
+  }));
+}</code></pre>
+<p>Le rollback inverse la valeur d'<strong>un</strong> produit plutôt que de restaurer une copie de toute la liste : si un autre
+changement est arrivé entre-temps, il n'est pas écrasé. Le test vérifie les deux temps, avant et après la réponse ; <code>store</code> et <code>http</code> sont préparés dans un
+<code>beforeEach</code>, montré à la section 7.</p>
+<div class="file">src/app/catalog/products.store.spec.ts</div><pre><code><span class="fn">it</span>(<span class="str">'favori optimiste, puis rollback si le serveur refuse'</span>, () =&gt; {
+  store.<span class="fn">toggleFavorite</span>(3);
+  <span class="fn">expect</span>(store.<span class="fn">products</span>()[0].favorite).<span class="fn">toBe</span>(<span class="kw">true</span>); <span class="cm">// tout de suite, avant la réponse</span>
+  http.<span class="fn">expectOne</span>(<span class="str">'/api/products/3/favorite'</span>).<span class="fn">flush</span>(<span class="kw">null</span>, { status: 500, statusText: <span class="str">'KO'</span> });
+  <span class="fn">expect</span>(store.<span class="fn">products</span>()[0].favorite).<span class="fn">toBe</span>(<span class="kw">false</span>); <span class="cm">// rollback : plus en favori</span>
+  <span class="fn">expect</span>(store.<span class="fn">error</span>()).<span class="fn">toBe</span>(<span class="str">'Favori non enregistré'</span>);
+});</code></pre>
+<p>Dans le navigateur, le faux serveur refuse le favori du Sac à dos et répond au bout de 300 ms. Lu 100 ms après le clic, donc avant la
+réponse, le bouton affiche déjà <code>★</code> ; une fois la réponse arrivée, il revient à <code>☆</code> et « Favori non enregistré » apparaît. Le favori du Stylo, accepté, reste à <code>★</code>.</p>
+
+<h3>Une action à chaque frappe : il faut annuler</h3>
+<p>Une recherche déclenchée à chaque frappe est un flux, pas une action ponctuelle. Avec <code>subscribe</code> dans la méthode, les
+réponses peuvent arriver dans le désordre et la dernière affichée ne serait pas forcément la dernière demandée. Il faut un
+<code>switchMap</code>, qui annule la requête précédente, et souvent un <code>debounceTime</code>. Trois écritures s'offrent à vous :</p>
+<table>
+<tr><th>Écriture</th><th>Principe</th><th>Où la voir</th></tr>
+<tr><td><code>rxMethod</code> (NgRx SignalStore)</td><td>une méthode du store construite avec un <code>pipe</code> RxJS ; elle accepte une valeur, un signal ou un Observable</td><td>section 6, exercée dans le projet de vérification</td></tr>
+<tr><td>Un <code>Subject</code> dans le service</td><td>la méthode fait <code>next(q)</code> ; le constructeur branche <code>switchMap</code> et <code>takeUntilDestroyed()</code></td><td>même logique que <code>rxMethod</code>, écrite à la main</td></tr>
+<tr><td><code>httpResource</code></td><td>la requête se recalcule quand le signal de recherche change, et annule la précédente</td><td><a href="../02-demo-http/index.html">démo HTTP</a> du jour 2</td></tr>
+</table>
+
+<div class="retenir"><strong>À retenir</strong> Une action asynchrone : marquer le chargement, appeler, ranger le résultat ou l'erreur, avec le
+<code>subscribe</code> dans le store. Une mise à jour optimiste modifie d'abord, puis annule précisément si le serveur refuse. Pour un flux (recherche à la
+frappe), il faut <code>switchMap</code> : <code>rxMethod</code>, un <code>Subject</code>, ou <code>httpResource</code>.</div>
+<p class="doc">📖 <a href="https://angular.dev/guide/http/making-requests">HttpClient</a> ·
+<a href="https://angular.dev/ecosystem/rxjs-interop">interop RxJS</a> ·
+<a href="https://rxjs.dev/api/operators/switchMap">switchMap</a></p>
+</section>
+
+<!-- ============================================================ 6 -->
+<section class="card" id="s6">
+<h2><span class="num">6</span>Quand passer à NgRx SignalStore</h2>
+<p>Après deux ou trois stores écrits à la main, des morceaux se répètent : le <code>patch</code> privé, le trio
+<code>loading</code> / <code>error</code> / données, la méthode à base de <code>switchMap</code>. <strong>NgRx SignalStore</strong>
+(<code>@ngrx/signals</code>) standardise exactement ce pattern, avec les mêmes signals dessous. La version vérifiée sur npm le 13 octobre
+2026 est la <strong>22.0.1</strong>, qui demande <code>@angular/core ^22.0.0</code> ; elle s'installe avec
+<code>npm install @ngrx/signals@22</code>.</p>
+<p>Chaque pièce du pattern de la section 2 a son équivalent. Le tableau sert de clé de lecture pour l'extrait qui suit.</p>
+<table>
+<tr><th>Service + signals</th><th>SignalStore</th></tr>
+<tr><td><code>@Injectable({ providedIn: 'root' })</code></td><td><code>signalStore({ providedIn: 'root' }, ...)</code></td></tr>
+<tr><td><code>private _lines = signal(...)</code> + <code>asReadonly()</code></td><td><code>withState({ lines: [] })</code> : l'état est <strong>protégé</strong> par défaut, en lecture seule hors du store</td></tr>
+<tr><td><code>computed(...)</code></td><td><code>withComputed(({ lines }) => ({ count: computed(...) }))</code></td></tr>
+<tr><td>méthodes avec <code>this._lines.update(...)</code></td><td><code>withMethods((store) => ({ add() { patchState(store, ...) } }))</code></td></tr>
+</table>
+<p>Voici le même panier, réduit à trois actions et sans la persistance. <code>patchState</code> accepte soit un objet partiel (<code>{ lines: [] }</code>), soit une
+fonction qui reçoit l'état et renvoie la partie à remplacer : l'immuabilité reste votre responsabilité, comme avec <code>update</code>.</p>
+<div class="file">src/app/ngrx/cart.signal-store.ts</div><pre><code><span class="kw">import</span> { computed } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { patchState, signalStore, withComputed, withMethods, withState } <span class="kw">from</span> <span class="str">'@ngrx/signals'</span>;
+<span class="kw">import</span> { CartLine, Product } <span class="kw">from</span> <span class="str">'../cart/cart.model'</span>;
+
+<span class="kw">type</span> CartState = { lines: CartLine[] };
+
+<span class="cm">// le MÊME panier, écrit avec NgRx SignalStore</span>
+<span class="kw">export</span> <span class="kw">const</span> CartSignalStore = <span class="fn">signalStore</span>(
+  { providedIn: <span class="str">'root'</span> },
+  <span class="fn">withState</span>&lt;CartState&gt;({ lines: [] }), <span class="cm">// l'état : protégé, en lecture seule hors du store</span>
+  <span class="fn">withComputed</span>(({ lines }) =&gt; ({
+    <span class="cm">// les sélecteurs</span>
+    count: <span class="fn">computed</span>(() =&gt; <span class="fn">lines</span>().<span class="fn">reduce</span>((n, line) =&gt; n + line.qty, 0)),
+    total: <span class="fn">computed</span>(() =&gt; <span class="fn">lines</span>().<span class="fn">reduce</span>((sum, line) =&gt; sum + line.qty * line.product.price, 0)),
+  })),
+  <span class="fn">withMethods</span>((store) =&gt; ({
+    <span class="cm">// les actions : patchState applique une mise à jour partielle et immuable</span>
+    <span class="fn">add</span>(product: Product) {
+      <span class="fn">patchState</span>(store, ({ lines }) =&gt; {
+        <span class="kw">const</span> existing = lines.<span class="fn">find</span>((line) =&gt; line.product.id === product.id);
+        <span class="kw">return</span> {
+          lines: existing
+            ? lines.<span class="fn">map</span>((line) =&gt; (line === existing ? { ...line, qty: line.qty + 1 } : line))
+            : [...lines, { product, qty: 1 }],
+        };
+      });
+    },
+    <span class="fn">remove</span>(productId: number) {
+      <span class="fn">patchState</span>(store, ({ lines }) =&gt; ({
+        lines: lines.<span class="fn">filter</span>((line) =&gt; line.product.id !== productId),
+      }));
+    },
+    <span class="fn">clear</span>() {
+      <span class="fn">patchState</span>(store, { lines: [] });
+    },
+  })),
+);</code></pre>
+<p>Le store s'injecte comme un service, <code>inject(CartSignalStore)</code>, et s'utilise de la même façon : <code>cart.count()</code>,
+<code>cart.add(p)</code>. La protection de l'état est vérifiée par le compilateur : appeler <code>patchState</code> depuis l'extérieur ne
+compile pas, ce que confirme ce test (sans le commentaire <code>@ts-expect-error</code>, <code>tsc</code> signale une erreur).</p>
+<div class="file">src/app/ngrx/cart.signal-store.spec.ts</div><pre><code><span class="fn">it</span>(<span class="str">"l'état est protégé : patchState refusé hors du store"</span>, () =&gt; {
+  <span class="kw">const</span> cart = TestBed.<span class="fn">inject</span>(CartSignalStore);
+  <span class="cm">// @ts-expect-error : protectedState par défaut, le store n'est pas un WritableStateSource</span>
+  <span class="fn">patchState</span>(cart, { lines: [] });
+});</code></pre>
+
+<h3>rxMethod pour les flux</h3>
+<p>Le cas de la recherche à la frappe, laissé ouvert à la section 5, a une réponse toute faite : <code>rxMethod</code>, importé de
+<code>@ngrx/signals/rxjs-interop</code>. On lui donne un <code>pipe</code> RxJS ; le <code>catchError</code> reste <strong>dans</strong>
+le <code>switchMap</code>, sinon la première erreur terminerait le flux et la recherche ne répondrait plus.</p>
+<div class="file">src/app/ngrx/catalog.signal-store.ts</div><pre><code><span class="kw">import</span> { rxMethod } <span class="kw">from</span> <span class="str">'@ngrx/signals/rxjs-interop'</span>;
+<span class="kw">import</span> { catchError, debounceTime, distinctUntilChanged, <span class="kw">of</span>, pipe, switchMap, tap } <span class="kw">from</span> <span class="str">'rxjs'</span>;
+<span class="cm">// ...</span>
+<span class="kw">export</span> <span class="kw">const</span> CatalogSignalStore = <span class="fn">signalStore</span>(
+  { providedIn: <span class="str">'root'</span> },
+  <span class="fn">withState</span>({ products: [] as Product[], loading: <span class="kw">false</span> }),
+  <span class="fn">withMethods</span>((store, http = <span class="fn">inject</span>(HttpClient)) =&gt; ({
+    <span class="cm">// rxMethod : une méthode qui accepte une valeur, un signal ou un Observable</span>
+    search: <span class="fn">rxMethod</span>&lt;string&gt;(
+      <span class="fn">pipe</span>(
+        <span class="fn">debounceTime</span>(300),
+        <span class="fn">distinctUntilChanged</span>(),
+        <span class="fn">tap</span>(() =&gt; <span class="fn">patchState</span>(store, { loading: <span class="kw">true</span> })),
+        <span class="fn">switchMap</span>((q) =&gt;
+          http.<span class="kw">get</span>&lt;Product[]&gt;(<span class="str">'/api/products'</span>, { params: { q } }).<span class="fn">pipe</span>(
+            <span class="fn">catchError</span>(() =&gt; <span class="kw">of</span>([] as Product[])), <span class="cm">// l'erreur reste DANS le switchMap</span>
+          ),
+        ),
+        <span class="fn">tap</span>((products) =&gt; <span class="fn">patchState</span>(store, { products, loading: <span class="kw">false</span> })),
+      ),
+    ),
+  })),
+);</code></pre>
+<p>Un composant peut passer à <code>search</code> une valeur, ou un <strong>signal</strong> : <code>rxMethod</code> suit alors ce signal et
+relance la recherche à chaque changement, sans abonnement à gérer. L'appel se fait dans le <strong>constructeur</strong> (un contexte
+d'injection), pour que ce suivi s'arrête avec le composant. Dans <code>ngOnInit</code>, le suivi serait rattaché à l'injecteur racine
+du store et ne s'arrêterait jamais . Essayé dans le projet de vérification, l'appel depuis <code>ngOnInit</code> affiche en développement un
+avertissement de <code>@ngrx/signals</code> 22 : l'usage est déprécié et lèvera une erreur dans une version future ; depuis le
+constructeur, la console reste vide.</p>
+<div class="file">src/app/ngrx/signal-store-page.ts</div><pre><code><span class="fn">constructor</span>() {
+  <span class="cm">// dans le constructeur (contexte d'injection) : le suivi s'arrête avec le composant</span>
+  <span class="kw">this</span>.catalog.<span class="fn">search</span>(<span class="kw">this</span>.query); <span class="cm">// rxMethod suit le signal : chaque frappe relance la recherche</span>
+}</code></pre>
+<p>Pour une collection d'objets identifiés (des produits, des commandes), <code>withEntities&lt;Product&gt;()</code> de
+<code>@ngrx/signals/entities</code> ajoute <code>entities</code>, <code>ids</code> et <code>entityMap</code>, avec des fonctions
+toutes prêtes à passer à <code>patchState</code> : <code>addEntity</code>, <code>setAllEntities</code>, <code>updateEntity</code>,
+<code>removeEntity</code>… (noms lus dans les types installés, non exercés ici).</p>
+
+<h3>Et votre code NgRx « classique » ?</h3>
+<p>Vos projets v20 utilisent NgRx Store avec actions, reducers, effects et selectors. Rien n'oblige à les réécrire : depuis un composant,
+<code>store.selectSignal(selecteur)</code> lit un sélecteur existant sous forme de signal, et se combine avec des <code>computed</code>.
+Le projet de vérification a installé <code>@ngrx/store</code> 22.0.1 avec un petit reducer à l'ancienne ; la page affiche bien
+« NgRx classique, lu en signal : 2 ».</p>
+<div class="file">src/app/ngrx/signal-store-page.ts</div><pre><code><span class="cm">// code NgRx « classique » existant (v20) : selectSignal le lit comme un signal</span>
+<span class="kw">private</span> <span class="kw">readonly</span> store = <span class="fn">inject</span>(Store);
+<span class="kw">protected</span> <span class="kw">readonly</span> legacyCount = <span class="kw">this</span>.store.<span class="fn">selectSignal</span>(selectLegacyCount);</code></pre>
+<p><small>Pour une équipe attachée au style actions / reducers, <code>@ngrx/signals/events</code> exporte aussi <code>event</code>,
+<code>withReducer</code> et <code>withEventHandlers</code> : un pont entre les deux mondes, non exercé sur cette page.</small></p>
+
+<h3>Choisir</h3>
+<p>Les trois approches cohabitent dans une même application. Le tableau donne un choix par défaut selon les critères qui comptent le plus
+en équipe.</p>
+<table>
+<tr><th></th><th>Service + signals</th><th>NgRx SignalStore</th><th>NgRx classique (Store)</th></tr>
+<tr><td>Principe</td><td>un service, un signal privé, des <code>computed</code>, des méthodes</td><td>le même pattern, standardisé : <code>withState</code>, <code>withComputed</code>, <code>withMethods</code></td><td>actions, reducers, effects, selectors (Redux)</td></tr>
+<tr><td>Dépendance</td><td>aucune</td><td><code>@ngrx/signals</code></td><td><code>@ngrx/store</code>, <code>@ngrx/effects</code>…</td></tr>
+<tr><td>Boilerplate</td><td>faible, mais répété d'un store à l'autre</td><td>faible, et homogène</td><td>élevé : plusieurs fichiers par fonctionnalité</td></tr>
+<tr><td>Taille d'équipe</td><td>petite, ou état simple</td><td>moyenne à grande : tout le monde écrit les stores pareil</td><td>grande, avec des conventions Redux déjà en place</td></tr>
+<tr><td>Devtools</td><td>Angular DevTools (graphe des signals)</td><td>Redux DevTools via une extension communautaire (non vérifié ici)</td><td>Redux DevTools natif (<code>@ngrx/store-devtools</code>), voyage dans le temps</td></tr>
+<tr><td>Asynchrone</td><td><code>subscribe</code> + <code>update</code> ; un <code>Subject</code> pour les flux</td><td><code>rxMethod</code></td><td>effects</td></tr>
+<tr><td>Tests</td><td><code>TestBed.inject</code>, appeler, vérifier (section 7)</td><td>identique</td><td>reducers et selectors purs, effects avec des Observables simulés</td></tr>
+<tr><td>Code existant</td><td>nouveau code, petits besoins</td><td>nouveau code d'une application qui grandit</td><td>le garder, le lire avec <code>selectSignal</code>, migrer par morceaux</td></tr>
+</table>
+
+<div class="retenir"><strong>À retenir</strong> SignalStore standardise le pattern « service + signals » : <code>signalStore</code>,
+<code>withState</code> (état protégé), <code>withComputed</code>, <code>withMethods</code> + <code>patchState</code>, et <code>rxMethod</code>
+pour les flux, appelé dans un contexte d'injection. Commencez par un service ; passez à SignalStore quand les stores se multiplient. Le NgRx classique existant se garde, et se
+lit en signal avec <code>store.selectSignal</code>.</div>
+<p class="doc">📖 <a href="https://ngrx.io/guide/signals/signal-store">SignalStore</a> ·
+<a href="https://ngrx.io/guide/signals/rxjs-integration">rxMethod</a> ·
+<a href="https://ngrx.io/guide/signals/signal-store/entity-management">withEntities</a> ·
+<a href="https://ngrx.io/guide/store">NgRx Store (classique)</a> ·
+<a href="https://www.npmjs.com/package/@ngrx/signals">@ngrx/signals sur npm</a></p>
+</section>
+
+<!-- ============================================================ 7 -->
+<section class="card" id="s7">
+<h2><span class="num">7</span>Tester un store</h2>
+<p>Un store se teste sans afficher le moindre composant : c'est un de ses grands avantages. Dans un projet créé avec Angular 22, <code>ng test</code>
+lance <strong>Vitest</strong> (le builder <code>@angular/build:unit-test</code>) ; un projet mis à jour depuis la v20 garde Karma tant
+qu'on ne le migre pas. Le test tient en trois gestes : obtenir le store avec
+<code>TestBed.inject</code>, appeler des actions, vérifier les sélecteurs.</p>
+<div class="file">src/app/cart/cart.store.spec.ts</div><pre><code><span class="kw">import</span> { TestBed } <span class="kw">from</span> <span class="str">'@angular/core/testing'</span>;
+<span class="kw">import</span> { CartStore } <span class="kw">from</span> <span class="str">'./cart.store'</span>;
+<span class="cm">// ...</span>
+<span class="kw">const</span> PEN = { id: 1, name: <span class="str">'Stylo'</span>, price: 1.5 };
+<span class="kw">const</span> NOTEBOOK = { id: 2, name: <span class="str">'Cahier'</span>, price: 4 };
+<span class="cm">// ...</span>
+<span class="fn">describe</span>(<span class="str">'CartStore'</span>, () =&gt; {
+  <span class="fn">beforeEach</span>(() =&gt; localStorage.<span class="fn">clear</span>());
+  <span class="cm">// ...</span>
+  <span class="fn">it</span>(<span class="str">'calcule count et total après des actions'</span>, () =&gt; {
+    <span class="kw">const</span> cart = TestBed.<span class="fn">inject</span>(CartStore);
+    cart.<span class="fn">add</span>(PEN);
+    cart.<span class="fn">add</span>(PEN);
+    cart.<span class="fn">add</span>(NOTEBOOK);
+    <span class="fn">expect</span>(cart.<span class="fn">count</span>()).<span class="fn">toBe</span>(3);
+    <span class="fn">expect</span>(cart.<span class="fn">total</span>()).<span class="fn">toBe</span>(7); <span class="cm">// 2 x 1,5 + 4</span>
+  });</code></pre>
+<p>Aucun <code>configureTestingModule</code> n'est nécessaire : le store est <code>providedIn: 'root'</code>, <code>TestBed</code> sait le
+fabriquer. Chaque test repart d'un <code>TestBed</code> neuf, donc d'une instance neuve ; comme le store relit
+<code>localStorage</code> à sa construction, le <code>beforeEach</code> vide aussi le stockage.</p>
+<p>La persistance se teste aussi. Deux outils de <code>TestBed</code> servent ici : <code>TestBed.tick()</code> exécute les
+<code>effect</code> en attente, et <code>TestBed.resetTestingModule()</code> jette l'injecteur, ce qui revient à relancer l'application
+comme après un <kbd>F5</kbd>.</p>
+<div class="file">src/app/cart/cart.store.spec.ts</div><pre><code><span class="fn">it</span>(<span class="str">'sauvegarde dans localStorage, et relit au démarrage'</span>, () =&gt; {
+  TestBed.<span class="fn">inject</span>(CartStore).<span class="fn">add</span>(NOTEBOOK);
+  TestBed.<span class="fn">tick</span>(); <span class="cm">// laisse l'effect s'exécuter</span>
+  <span class="fn">expect</span>(JSON.<span class="fn">parse</span>(localStorage.<span class="fn">getItem</span>(<span class="str">'minishop.cart'</span>)!)).<span class="fn">toHaveLength</span>(1);
+
+  TestBed.<span class="fn">resetTestingModule</span>(); <span class="cm">// une « nouvelle application », comme après F5</span>
+  <span class="fn">expect</span>(TestBed.<span class="fn">inject</span>(CartStore).<span class="fn">count</span>()).<span class="fn">toBe</span>(1);
+});</code></pre>
+<p>Pour un store qui appelle HTTP, <code>provideHttpClientTesting()</code> remplace le réseau, et <code>HttpTestingController</code> permet
+de répondre à la main, au moment choisi : c'est ce qui a permis de vérifier l'état optimiste <em>avant</em> la réponse, à la section 5.</p>
+<div class="file">src/app/catalog/products.store.spec.ts</div><pre><code><span class="fn">beforeEach</span>(() =&gt; {
+  TestBed.<span class="fn">configureTestingModule</span>({ providers: [<span class="fn">provideHttpClient</span>(), <span class="fn">provideHttpClientTesting</span>()] });
+  store = TestBed.<span class="fn">inject</span>(ProductsStore);
+  http = TestBed.<span class="fn">inject</span>(HttpTestingController);
+  store.<span class="fn">load</span>();
+  http.<span class="fn">expectOne</span>(<span class="str">'/api/products'</span>).<span class="fn">flush</span>([{ id: 3, name: <span class="str">'Sac à dos'</span>, price: 39 }]);
+});</code></pre>
+<p>Le projet de vérification compte 16 tests répartis en 5 fichiers (panier, catalogue, session, SignalStore, pièges). La sortie de
+<code>ng test --watch=false</code> se termine ainsi :</p>
+<pre><code> Test Files  5 passed (5)
+      Tests  16 passed (16)</code></pre>
+
+<div class="retenir"><strong>À retenir</strong> <code>TestBed.inject(CartStore)</code>, appeler les actions, vérifier les <code>computed</code>.
+<code>TestBed.tick()</code> pour les <code>effect</code>, <code>HttpTestingController</code> pour l'asynchrone. Vitest est le lanceur par
+défaut d'Angular 22.</div>
+<p class="doc">📖 <a href="https://angular.dev/guide/testing">guide : tests</a> ·
+<a href="https://angular.dev/guide/testing/services">tester un service</a> ·
+<a href="https://angular.dev/guide/http/testing">tester des requêtes HTTP</a></p>
+</section>
+
+<!-- ============================================================ 8 -->
+<section class="card" id="s8">
+<h2><span class="num">8</span>Récap et suite</h2>
+<p>Le tableau résume les décisions de la page, dans l'ordre où elles se posent quand on écrit un store.</p>
+<table>
+<tr><th>Question</th><th>Réponse</th></tr>
+<tr><td>Faut-il un store ?</td><td>oui dès que des composants éloignés lisent ou modifient la même donnée</td></tr>
+<tr><td>Comment l'écrire ?</td><td>un service <code>providedIn: 'root'</code>, un signal privé, <code>asReadonly()</code>, des <code>computed</code>, des méthodes</td></tr>
+<tr><td>Comment modifier l'état ?</td><td>par une méthode du store, avec <code>update</code> qui renvoie un nouvel objet ou un nouveau tableau</td></tr>
+<tr><td>Une valeur dérivée ?</td><td><code>computed</code>, jamais un signal recopié par un <code>effect</code></td></tr>
+<tr><td>Persister ?</td><td>relire à la construction (<code>try/catch</code>), recopier avec un <code>effect</code> ; jamais de jeton dans <code>localStorage</code></td></tr>
+<tr><td>De l'asynchrone ?</td><td>chargement, appel, résultat ou erreur ; optimiste avec rollback précis ; <code>switchMap</code> pour un flux</td></tr>
+<tr><td>Combien d'instances ?</td><td>une seule ; jamais de <code>providers: [SessionStore]</code> local ; à partager entre micro-frontends</td></tr>
+<tr><td>Quand changer d'outil ?</td><td>SignalStore quand les stores se multiplient ; NgRx classique conservé et lu avec <code>selectSignal</code></td></tr>
+</table>
+<p>Pour pratiquer, le <a href="https://github.com/bngams/2610-ng/tree/main/03-minishop/">lab MiniShop</a> du jour 3 fait construire le panier et
+la session d'une petite boutique. Les autres pages de synthèse : la <a href="../00-intro-syntax-recap/index.html">synthèse du jour 1</a>,
+la <a href="../02-demo-http/index.html">démo HTTP</a>, les <a href="../02-intro-forms/index.html">formulaires</a>,
+l'<a href="../03-intro-auth/index.html">authentification</a> et le <a href="../03-intro-workspace/index.html">workspace multi-projets</a>.</p>
+
+<div class="retenir"><strong>À retenir</strong> Un store est une source unique de vérité qui seule écrit son état. En Angular 22, un service
+et des signals suffisent ; SignalStore standardise le même pattern quand l'application grandit.</div>
+</section>
+
+<footer>
+Un service comme store en Angular 22, formation AELION, jour 3. Pratiquer avec le
+<a href="https://github.com/bngams/2610-ng/tree/main/03-minishop/">lab MiniShop</a> ; pages voisines :
+<a href="../03-intro-auth/index.html">authentification</a>, <a href="../03-intro-workspace/index.html">workspace multi-projets</a>,
+<a href="../02-intro-forms/index.html">formulaires</a>. Documentation de référence :
+<a href="https://angular.dev/guide/signals">angular.dev, signals</a> et <a href="https://ngrx.io/guide/signals">ngrx.io, NgRx Signals</a>.
+</footer>
+</div>
+</body>
+</html>
