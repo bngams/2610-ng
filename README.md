@@ -28,6 +28,19 @@ Supports et cas pratiques. Deux parcours (**Init** et **Avancé**) autour d'un s
 - Un éditeur avec l'extension *Angular Language Service* (VS Code).
 - Pas d'installation globale nécessaire : chaque projet se lance avec `npm install && npm start`.
 
+## Ressources
+
+Trois cheatsheets à garder sous la main pendant les trois jours, dans [`00-resources/`](00-resources/) :
+
+- [Angular moderne, les règles essentielles](00-resources/cheatsheet-angular-moderne.html) : la version
+  texte, avec les extraits de code ([version en ligne](https://bngams.github.io/2610-ng/00-resources/cheatsheet-angular-moderne.html)).
+- [Anciennes vs nouvelles conventions](00-resources/cheatsheet-angular-modern-vs-legacy.png) : service, `inject()`, signals,
+  `@if`, standalone, `provideRouter`, `provideHttpClient`, avec l'avant et le maintenant côte à côte.
+- [Les signals](00-resources/cheatsheet-angular%20signals.png) : `signal`, `computed` et le suivi des dépendances,
+  `effect`, `linkedSignal`, puis `input()`, `model()`, `resource()`, `toSignal()` et `untracked()`.
+- [Les outils de l'environnement de travail](00-resources/cheatsheet-angular-tools-agl.png) : Angular DevTools, la CLI,
+  VS Code et ses extensions (Angular Language Service, EditorConfig, Prettier, ESLint).
+
 ## Pour aller plus loin
 
 - [angular.dev](https://angular.dev) : la documentation officielle (v22).

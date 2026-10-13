@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Angular moderne — règles essentielles</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;line-height:1.55;max-width:1000px;margin:40px auto;padding:0 24px;color:#1b1b1b}
+h1{font-size:2.5rem;margin-bottom:.2rem} h2{margin-top:2.5rem;border-bottom:1px solid #ddd;padding-bottom:.4rem}
+h3{margin-top:1.5rem}.lead{color:#555;font-size:1.1rem}
+.card{border:1px solid #ddd;border-radius:14px;padding:20px;margin:20px 0}
+code{background:#f3f3f3;padding:.12em .3em;border-radius:4px}
+pre{background:#f6f6f6;padding:16px;border-radius:10px;overflow:auto}
+.note{background:#fafafa;border-left:4px solid #333;padding:12px 16px}
+small{color:#666}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+</style></head><body>
+<h1>Angular 22+ — règles essentielles</h1>
+<p class="lead">Support complémentaire de l’infographie. Référentiel pédagogique actualisé au 23/09/2026.</p>
+
+<div class="card"><h2>1. ⚡ État réactif → Signals</h2>
+<p>Pour l’état synchrone consommé par l’UI, privilégier les Signals.</p>
+<pre><code>products = signal&lt;Product[]&gt;([]);
+
+total = computed(() =&gt;
+  this.products().length
+);</code></pre>
+<p>RxJS reste pertinent pour les streams, événements et compositions asynchrones.</p></div>
+
+<div class="card"><h2>2. 🌐 Données asynchrones → Signals</h2>
+<p>Pour exposer à l’UI une donnée issue d’un Observable, <code>toSignal()</code> évite de gérer manuellement la souscription.</p>
+<pre><code>products = toSignal(products$);</code></pre>
+<p><code>httpResource()</code> fournit une API réactive autour de <code>HttpClient</code>, avec réponse et état de requête sous forme de Signals.</p>
+<pre><code>userId = input.required&lt;string&gt;();
+user = httpResource(() =&gt; `/api/users/${this.userId()}`);</code></pre>
+<p><strong>Important :</strong> <code>httpResource()</code> est destiné aux lectures. Pour les mutations comme POST/PUT, Angular recommande d’utiliser directement <code>HttpClient</code>.</p></div>
+
+<div class="card"><h2>3. 📦 Découper l’application en chunks</h2>
+<p><code>loadComponent()</code> et <code>loadChildren()</code> permettent le lazy loading des routes et produisent des chunks chargés à la demande.</p>
+<pre><code>export const routes: Routes = [
+  {
+    path: 'products',
+    loadComponent: () =&gt;
+      import('./products/products.component')
+        .then(m =&gt; m.ProductsComponent)
+  },
+  {
+    path: 'admin',
+    loadChildren: () =&gt;
+      import('./admin/admin.routes')
+        .then(m =&gt; m.ADMIN_ROUTES)
+  }
+];</code></pre>
+<p>Cette approche est compatible avec une architecture <strong>Standalone ou NgModule</strong>.</p></div>
+
+<div class="card"><h2>4. 🧩 Standalone Components</h2>
+<p>Standalone simplifie la gestion des dépendances : elles sont déclarées au niveau du composant.</p>
+<pre><code>@Component({
+  standalone: true,
+  imports: [ReactiveFormsModule, MatFormFieldModule]
+})
+export class ProductForm {}</code></pre>
+<p>Standalone ne dicte pas l’arborescence du projet. Une organisation par features reste parfaitement possible :</p>
+<pre><code>app/
+├── products/
+│   ├── pages/
+│   ├── components/
+│   ├── services/
+│   └── products.routes.ts
+├── users/
+│   ├── pages/
+│   └── components/
+└── app.routes.ts</code></pre>
+<p>Pour du nouveau code, Angular recommande les composants standalone plutôt que les NgModules.</p></div>
+
+<div class="card"><h2>5. 💉 DI moderne</h2>
+<pre><code>@Service()
+export class ProductService {
+  private http = inject(HttpClient);
+}</code></pre>
+<p>À connaître également : l’approche historique <code>@Injectable({ providedIn: 'root' })</code> et l’injection par constructeur restent rencontrées dans les projets existants.</p></div>
+
+<div class="card"><h2>6. 🎨 Templates modernes</h2>
+<pre><code>@if (user()) {
+  &lt;p&gt;{{ user().name }}&lt;/p&gt;
+}
+
+@for (product of products(); track product.id) {
+  &lt;app-product [product]="product" /&gt;
+}
+
+@switch (status()) {
+  @case ('loading') { ... }
+  @case ('success') { ... }
+}</code></pre>
+<p>Cette syntaxe remplace progressivement les anciennes formes structurelles comme <code>*ngIf</code> et <code>*ngFor</code>.</p></div>
+
+<div class="card"><h2>7. 📝 Forms — choisir selon le contexte</h2>
+<div class="grid"><div><h3>Template-driven</h3><p>Simple, adaptée aux formulaires très basiques.</p></div>
+<div><h3>Reactive Forms</h3><p>Modèle explicite, robuste, scalable et testable ; Angular la recommande lorsque les formulaires sont importants dans l’application.</p></div>
+<div><h3>Signal Forms</h3><p>Particulièrement adaptées aux nouvelles applications construites avec Signals.</p></div></div>
+<div class="note"><strong>Documentation Angular au 23/09/2026 :</strong> Signal Forms work best in new applications built with signals. Pour une application existante utilisant Reactive Forms, ou lorsqu’on recherche des garanties de stabilité en production, Reactive Forms reste un choix solide.</div>
+<p><strong>Retour terrain :</strong> à ce jour, le REX et les cas d’usage sont encore moins nombreux sur Signal Forms, notamment pour les formulaires dynamiques, même si ces scénarios sont couverts par la documentation.</p></div>
+
+<div class="card"><h2>8. 🔌 API des composants</h2>
+<pre><code>name = input&lt;string&gt;();
+changed = output&lt;string&gt;();
+value = model&lt;string&gt;();</code></pre>
+<p>Ces APIs modernes remplacent progressivement les décorateurs <code>@Input()</code> / <code>@Output()</code> et certains patterns basés sur <code>EventEmitter</code>.</p></div>
+
+<div class="card"><h2>🔎 À découvrir</h2>
+<p><code>@defer</code> · Guards · Validators functions · Custom pipes / directives · HTTP Interceptors · Tests · Angular Material / CDK</p>
+</div>
+
+<div class="card"><h2>🧠 Synthèse</h2>
+<p><strong>Signals</strong> pour l’état UI · <strong>RxJS</strong> pour les streams · <strong>Lazy loading</strong> pour les chunks ·
+<strong>Standalone</strong> pour simplifier les dépendances · <strong>nouvelle syntaxe et APIs Angular</strong> pour les composants et templates.</p>
+</div>
+
+<p><small>Sources principales : documentation officielle Angular consultée le 23/09/2026.</small></p>
+</body></html>
