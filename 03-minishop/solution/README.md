@@ -1,59 +1,26 @@
-# Shop
+# Mini e-shop — solution du lab (état final, après l'étape 09)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.8.
+Le workspace complet : les applications `fo` (boutique), `bo` (administration) et `marketing`
+(la bannière promo en micro-frontend), et les bibliothèques `@shop/api`, `@shop/auth`, `@shop/ui`,
+`@shop/products` et `@shop/util`. À ne regarder qu'en cas de blocage ; le guide est dans
+[`../ETAPES/`](../ETAPES/) et la carte du workspace dans le [README du lab](../README.md).
 
-## Development server
-
-To start a local development server, run:
-
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Il faut **Node.js 22.22 ou 24.15 minimum**, et un terminal par serveur :
 
 ```bash
-ng generate component component-name
+npm install
+npm run api          # terminal 1 : l'API de démonstration sur http://localhost:3000
+npm run fo           # terminal 2 : la boutique sur http://localhost:4200
+npm run bo           # terminal 3 : l'administration sur http://localhost:4201
+npm run marketing    # terminal 5 : la bannière promo sur http://localhost:4202 (facultatif : sans elle, les accueils affichent un repli)
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Les comptes de démonstration sont fictifs : `alice` / `alice` (cliente) et `admin` / `admin`
+(administrateur). Les tests se lancent par projet :
 
 ```bash
-ng generate --help
+npx ng test fo --watch=false
+npx ng test @shop/products --watch=false
+npx ng test @shop/auth --watch=false
+npx ng test @shop/util --watch=false
 ```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
