@@ -65,7 +65,7 @@ sont pas listés.
 
 ```
 shop/
-├── angular.json                             7 projets : fo, bo, marketing, @shop/api, @shop/auth, @shop/ui, @shop/products
+├── angular.json                             8 projets : fo, bo, marketing, @shop/api, @shop/auth, @shop/ui, @shop/products, @shop/util
 ├── package.json                             un seul pour tout le workspace ; scripts api, fo, bo, marketing
 ├── tsconfig.json                            les alias @shop/* vers les sources des bibliothèques
 ├── proxy.conf.json                          /api => http://localhost:3000, pour les deux applications
@@ -91,10 +91,12 @@ shop/
 │   │   ├── components/layout/header/            inputs title + menuItems, et un emplacement <ng-content> (ui ne dépend PAS de auth)
 │   │   ├── components/remote-slot/              affiche un composant chargé d'un remote, ou un repli (étape 08)
 │   │   └── services/toast.service.ts            ToastService, la snackbar Material (étape 09)
-│   └── products/src/lib/
-│       ├── models/product.ts
-│       ├── services/products.service.ts         @Service() extends ResourceService<number, Product> (lecture)
-│       └── components/product-card/, product-list/
+│   ├── products/src/lib/
+│   │   ├── models/product.ts
+│   │   ├── services/products.service.ts         @Service() extends ResourceService<number, Product> (lecture)
+│   │   └── components/product-card/, product-list/
+│   └── util/src/lib/
+│       └── types/controls-of.ts                 ControlsOf<T> : typer un formulaire réactif à partir d'un modèle (pour aller plus loin)
 └── apps/
     ├── fo/                federation.config.mjs, public/federation.manifest.json (hôte dynamique, étape 08)
     │   └── src/app/       app.ts, app.config.ts, app.routes.ts
@@ -120,12 +122,14 @@ celui-là :
 | `fo` | le catalogue, le **panier** et la commande | le panier reste une feature du FO : le BO n'a pas de panier. On extrait une bibliothèque quand **deux** applications en ont besoin, pas avant |
 | `bo` | une page d'accueil réservée au rôle `admin`, qui réutilise la liste de `@shop/products` | une bibliothèque, deux applications |
 | `marketing` | la bannière promo, `PromoBanner`, exposée par Native Federation (étape 08) | une équipe qui livre seule : la bannière est chargée par le FO et le BO **à l'exécution**, sans les recompiler |
+| `@shop/util` | des types et fonctions sans état, comme `ControlsOf<T>` pour les formulaires réactifs (voir « Pour aller plus loin ») | du code transversal sans dépendance interne, utilisable partout ; aucune étape ne l'impose |
 
 Chaque bibliothèque déclare **ses propres types** (`Product` dans `products`, `User` dans `auth`,
 `MenuItem` dans `ui`) : il n'y a pas de bibliothèque `models` commune, ni de `shared` ou de
-`common`, qui finissent en fourre-tout que tout le monde importe. Si un vrai besoin transversal
-apparaît un jour (une fonction de formatage utilisée partout), on crée une bibliothèque `util` à
-ce moment-là.
+`common`, qui finissent en fourre-tout que tout le monde importe. Quand un vrai besoin transversal
+apparaît, on crée une bibliothèque `util` à ce moment-là : c'est le cas de `ControlsOf<T>`, un type
+générique pour les formulaires réactifs, présenté à la fin de ce README. Le nom `util` annonce la
+règle : des types et des fonctions sans état, qui ne dépendent d'aucune autre bibliothèque.
 
 Le rangement suit une convention en deux temps : **d'abord par concept** (une bibliothèque, ou un
 dossier `features/<feature>/` dans une application), **puis par famille** à l'intérieur
@@ -148,6 +152,7 @@ les respecter en écrivant vos `import` :
 | `@shop/api` | rien d'interne au workspace | toute autre bibliothèque |
 | `@shop/auth` | `@shop/api` (et Angular Material, directement) | `ui`, `products`, les applications |
 | `@shop/products` | `@shop/api`, `@shop/ui` | `auth`, les applications |
+| `@shop/util` | Angular seulement (`@angular/forms` pour `ControlsOf`) | toute autre bibliothèque, les applications |
 | `fo`, `bo`, `marketing` | toutes les bibliothèques | une autre application (le FO charge la bannière de `marketing` à l'exécution, sans l'importer) |
 
 La dernière règle se lit aussi dans l'autre sens : **aucune bibliothèque n'importe une
@@ -368,5 +373,64 @@ liens de doc » (étape 06). Le tableau suivant résume chaque étape et sa dur�
 > [authentification et autorisation](https://bngams.github.io/2610-ng/03-intro-auth/) ·
 > [un service comme store](https://bngams.github.io/2610-ng/03-intro-store/) ·
 > [workspace, bibliothèques et micro-frontends](https://bngams.github.io/2610-ng/03-intro-workspace/)
+
+## 🧰 Pour aller plus loin : typer un formulaire avec `@shop/util`
+
+Le lab type ses formulaires réactifs par inférence : `NonNullableFormBuilder` déduit le type de
+chaque contrôle de sa valeur de départ. Dès qu'un formulaire suit un modèle existant, on préfère
+partir du modèle : on écrit `FormGroup<ControlsOf<Dossier>>`, et le compilateur vérifie que le
+formulaire a exactement la forme du modèle. Aucune étape ne s'en sert ; la solution contient le type,
+testé, et **libre à vous de l'utiliser** dans vos formulaires, ici ou sur votre projet.
+
+Le type vit dans une bibliothèque `util`, créée comme les autres à l'étape 01, depuis le terminal 4 :
+
+```bash
+npx ng generate library @shop/util --project-root libs/util
+```
+
+Comme pour les quatre autres bibliothèques, faites pointer l'alias vers les sources dans
+`tsconfig.json`, à la place du chemin `./dist/shop/util` écrit par la CLI :
+
+```json
+      "@shop/util": ["./libs/util/src/public-api.ts"]
+```
+
+Supprimez ensuite les deux fichiers d'exemple de la CLI, `libs/util/src/lib/util.ts` et
+`util.spec.ts`, puis créez le type dans `libs/util/src/lib/types/controls-of.ts`. Son contenu est
+dans la solution :
+[solution/libs/util/src/lib/types/controls-of.ts](solution/libs/util/src/lib/types/controls-of.ts).
+Le tableau suivant montre ce qu'il produit pour chaque sorte de champ :
+
+| Champ du modèle | Contrôle produit |
+|---|---|
+| `name: string`, `income: number` | `FormControl<string>`, `FormControl<number>` |
+| `moveIn: Date` | `FormControl<Date>` |
+| `address: { city: string }` | `FormGroup<{ city: FormControl<string> }>` |
+| `tags: string[]` | `FormArray<FormControl<string>>` |
+| `guarantors: Guarantor[]` | `FormArray<FormGroup<ControlsOf<Guarantor>>>` |
+
+La ligne `Date` mérite un mot : une `Date` est un objet, et une version naïve du type (« tout objet
+devient un `FormGroup` ») en ferait un groupe. Nous l'avons vérifié : un champ `Date` donne alors
+l'erreur `TS2322` dès qu'on y met un `fb.control(new Date())`. Le type de la solution teste donc
+`Date` avant les objets. Autre limite à connaître : un objet optionnel ou nullable
+(`address?: Address`) devient un simple `FormControl` ; gardez obligatoires les objets que vous
+voulez éditer champ par champ.
+
+Exportez le type dans la façade `libs/util/src/public-api.ts`, puis utilisez-le dans un formulaire :
+
+```ts
+const form: FormGroup<ControlsOf<Dossier>> = this.fb.group({
+  name: this.fb.control(''),
+  moveIn: this.fb.control(new Date()),
+  address: this.fb.group({ city: this.fb.control('') }),
+  tags: this.fb.array<string>([]),
+  guarantors: this.fb.array([this.fb.group({ name: this.fb.control(''), income: this.fb.control(0) })]),
+});
+```
+
+> 💡 **Tester :** la solution contient deux tests de typage dans
+> [controls-of.spec.ts](solution/libs/util/src/lib/types/controls-of.spec.ts), dont un
+> `@ts-expect-error` qui vérifie qu'un groupe est refusé là où le modèle attend une `Date`.
+> `npx ng test @shop/util --watch=false` répond `Tests  2 passed (2)`.
 
 ➡️ Commencez par [01 — Le workspace](ETAPES/01-WORKSPACE.md).

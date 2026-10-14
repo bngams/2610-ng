@@ -7,7 +7,8 @@
       "@shop/api": ["./libs/api/src/public-api.ts"],
       "@shop/auth": ["./libs/auth/src/public-api.ts"],
       "@shop/products": ["./libs/products/src/public-api.ts"],
-      "@shop/ui": ["./libs/ui/src/public-api.ts"]
+      "@shop/ui": ["./libs/ui/src/public-api.ts"],
+      "@shop/util": ["./libs/util/src/public-api.ts"]
     },
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
@@ -65,6 +66,12 @@
     },
     {
       "path": "./apps/marketing/tsconfig.app.json"
+    },
+    {
+      "path": "./libs/util/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/util/tsconfig.spec.json"
     }
   ]
 }
