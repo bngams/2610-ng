@@ -1,0 +1,10 @@
+<h1>Commande</h1>
+@if (confirmation()) {
+  <p class="confirmation">{{ confirmation() }}</p>
+  <a mat-button routerLink="/catalog">Retour au catalogue</a>
+} @else if (cart.count() === 0) {
+  <p>Votre panier est vide. <a routerLink="/catalog">Voir le catalogue</a></p>
+} @else {
+  <p>{{ cart.count() }} article(s), pour un total de {{ cart.total() | currency: 'USD' }}.</p>
+  <button mat-flat-button type="button" (click)="confirm()">Confirmer la commande</button>
+}

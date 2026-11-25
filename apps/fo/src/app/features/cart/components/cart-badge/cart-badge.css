@@ -1,0 +1,4 @@
+/* de la place pour la pastille, qui déborde à droite du bouton */
+:host {
+  margin-right: 16px;
+}

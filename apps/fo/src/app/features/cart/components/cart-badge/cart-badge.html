@@ -1,0 +1,8 @@
+<a
+  mat-button
+  routerLink="/cart"
+  [matBadge]="cart.count()"
+  [matBadgeHidden]="cart.count() === 0"
+  matBadgeOverlap="false"
+  >Panier</a
+>

@@ -1,0 +1,6 @@
+@if (session.user(); as user) {
+  <span class="username">{{ user.username }}</span>
+  <button mat-button type="button" (click)="logout()">Se déconnecter</button>
+} @else {
+  <button mat-button type="button" (click)="login()">Se connecter</button>
+}

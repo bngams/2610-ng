@@ -1,0 +1,44 @@
+import {
+  withNativeFederation,
+  fromPackageJson,
+} from '@angular-architects/native-federation/config';
+
+export default withNativeFederation({
+  name: 'marketing',
+
+  exposes: {
+    './PromoBanner': './apps/marketing/src/app/components/promo-banner/promo-banner.ts',
+  },
+
+  shared: fromPackageJson({
+    singleton: true,
+    strictVersion: true,
+    requiredVersion: 'auto',
+    build: 'package',
+  })
+    // includeSecondaries is an opt-out of ignoreUnusedDeps, so all of
+    // @angular/core is shared to prevent mismatches.
+    .patch(['@angular/core'], { includeSecondaries: { keepAll: true } }),
+
+  // les bibliothèques du workspace partagées : celles qui portent un état (le jeton API_URL, la session)
+  sharedMappings: ['@shop/api', '@shop/auth'],
+
+  skip: [
+    'rxjs/ajax',
+    'rxjs/fetch',
+    'rxjs/testing',
+    'rxjs/webSocket',
+    // Add further packages you don't need at runtime
+  ],
+
+  // Please read our FAQ about sharing libs:
+  // https://shorturl.at/jmzH0
+
+  features: {
+    // ignoreUnusedDeps is enabled by default now
+    // ignoreUnusedDeps: true,
+
+    // Opt-in: groups chunks in remoteEntry.json for smaller metadata file
+    denseChunking: true,
+  },
+});

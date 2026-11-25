@@ -1,0 +1,21 @@
+.line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+.name {
+  flex: 1;
+}
+.qty {
+  min-width: 2em;
+  text-align: center;
+}
+.price {
+  min-width: 6em;
+  text-align: right;
+}
+.total {
+  font: var(--mat-sys-title-large);
+}

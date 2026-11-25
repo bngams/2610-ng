@@ -1,0 +1,14 @@
+<h1>Catalogue</h1>
+@if (products.isLoading()) {
+  <p>Chargement du catalogue…</p>
+} @else if (products.error()) {
+  <p class="error">Le catalogue est indisponible.</p>
+} @else {
+  <div class="grid">
+    @for (product of products.value(); track product.id) {
+      <lib-product-card [product]="product" [canAdd]="true" (add)="cart.add($event)">
+        <a mat-button [routerLink]="['/catalog', product.id]">Détails</a>
+      </lib-product-card>
+    }
+  </div>
+}
