@@ -24,10 +24,16 @@ avez supprimé ceux de la CLI et généré vos composants avec `--skip-tests`. L
 fournis viennent se placer **à côté** du fichier qu'ils testent, comme le veut la convention
 Angular :
 
-> 🚀 **Vous n'avez pas fait les étapes 01 à 06 ?** Depuis `03-minishop/`, `./scripts/start-07.sh`
-> crée `../shop` : le workspace terminé, sans aucun fichier de test, avec les squelettes de cette
-> étape déjà en place et `npm install` fait. Passez alors directement à la section 1.2 (la
-> commande `cp` de la section 1.1 est déjà faite). Il faut Node 22.22+ ou 24.15+.
+> 🚀 **Vous n'avez pas fait les étapes 01 à 06 ?** Le tag `shop-07-start` contient directement le
+> workspace prêt pour cette étape (celui de la solution, sans test, avec les squelettes déjà en
+> place). Passez alors à la section 1.2 : la commande `cp` de la section 1.1 est déjà faite.
+>
+> ```bash
+> git clone --branch shop-07-start --depth 1 https://github.com/bngams/2610-ng shop
+> cd shop && npm install
+> ```
+>
+> Il faut Node 22.22+ ou 24.15+.
 
 ```
 libs/products/src/lib/
